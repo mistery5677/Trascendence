@@ -37,8 +37,6 @@
 
 * **--> (1 pts) Minor: Use an ORM for the database.**
 
-* **--> Minor (1 pt): Use an ORM.** Usar ferramentas como o Prisma ou TypeORM para interagir com a base de dados. Torna a vida muito mais fácil do que escrever queries SQL à mão.
-
 ---
 
 ### User Management (Page 14) (3 points)
