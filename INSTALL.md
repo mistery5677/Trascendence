@@ -1,0 +1,2 @@
+1-> Root path run the command "npm create vite@latest frontend -- --template react-ts" (Creates the frontend folder)
+2-> Root path run the command "npx @nestjs/cli new backend --package-manager npm" (Creates the backend folder)
