@@ -22,4 +22,16 @@ re: fclean all
 logs:
 	docker compose logs -f
 
+# Allow to update the schema.prisma in data base
+migrate:
+	docker exec -it chess_backend npx prisma migrate dev
+
+# Updates the TypeScript of prisma code
+generate:
+	docker exec -it chess_backend npx prisma generate
+
+# Open a visual data base panel ... like excel
+studio:
+	docker exec -it chess_backend npx prisma studio
+
 .PHONY: all up up-d down clean fclean re logs
