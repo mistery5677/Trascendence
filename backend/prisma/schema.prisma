@@ -4,11 +4,24 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Way to create a new class: https://www.postgresql.org/docs/7.0/query27768.htm
+
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// Class for the user 
+// We use 'model' to e store the information in a table
+model user {
+  id  Int @id @default(autoincrement())
+  email     String    @unique 
+  username  String    @unique // Means that we only have one username with that specific name
+  password  String    //Save a encrypted password
+  avatarUrl String?   // The '?' means optional
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
