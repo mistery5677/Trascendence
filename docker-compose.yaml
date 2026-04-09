@@ -23,8 +23,8 @@ services:
     restart: always
     env_file:
       - .env
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # ports:
+    #   - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on: # We don't need this in inception, because we run the bash scripts directly
       - database # Depends on the first container, telling to create the database first
     networks:

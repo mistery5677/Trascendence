@@ -1,17 +1,38 @@
+COMPOSE = docker compose
+
 all: up
 
+install: install-backend install-frontend
+
+# Safe default:
+# - rebuild images
+# - refresh anonymous volumes (like /usr/src/app/node_modules)
+# - keep named volumes (like postgres_data)
+safe:
+	$(COMPOSE) up --build --renew-anon-volumes
+
+sclean:
+	$(COMPOSE) down
+	
+
+install-frondend:
+	cd frontend && npm ci
+
+install-backend:
+	cd backend && npm ci
+
 up:
-	docker compose up --build
+	$(COMPOSE) up --build
 
 # Builds the docker, with the option to use the terminal at the same time
 up-d:
-	docker compose up -d --build
+	$(COMPOSE) up -d --build
 
 down:
-	docker compose down
+	$(COMPOSE) down
 
 clean:
-	docker compose down -v --rmi all --remove-orphans
+	$(COMPOSE) down -v --rmi all --remove-orphans
 
 fclean: clean
 	docker system prune -f -a --volumes
@@ -20,7 +41,7 @@ re: fclean all
 
 # Show the docker logs
 logs:
-	docker compose logs -f
+	$(COMPOSE) logs -f
 
 # Allow to update the schema.prisma in data base
 migrate:
