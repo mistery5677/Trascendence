@@ -8,8 +8,12 @@ install: install-backend install-frontend
 # - rebuild images
 # - refresh anonymous volumes (like /usr/src/app/node_modules)
 # - keep named volumes (like postgres_data)
-safe:
-	$(COMPOSE) up --build --renew-anon-volumes
+
+build-safe:
+	$(COMPOSE) up -d --build --renew-anon-volumes
+
+safe: build-safe generate
+
 
 sclean:
 	$(COMPOSE) down

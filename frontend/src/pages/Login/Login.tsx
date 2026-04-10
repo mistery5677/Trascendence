@@ -1,11 +1,10 @@
-import { Container } from "../../components/index";
+import { Container, NavBar } from "../../components/index";
 
 export function Login() {
 	return (
 		<>
-			<Container>
-					Login Page
-			</Container>
+			<NavBar />
+			<Container>Login Page</Container>
 		</>
 	);
 }
