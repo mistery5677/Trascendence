@@ -1,5 +1,3 @@
-import styles from "./styles.module.css";
-
 import profilePic from "../../assets/home-background.png";
 
 import {
@@ -14,21 +12,27 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
-	{ name: "Dashboard", href: "#", current: true },
-	{ name: "Team", href: "#", current: false },
-	{ name: "Projects", href: "#", current: false },
-	{ name: "Calendar", href: "#", current: false },
+	{ name: "Home", href: "/", current: true },
+	{ name: "Login", href: "/login", current: false },
+	{ name: "Register", href: "/signup", current: false },
+	// { name: "Calendar", href: "#", current: false },
 ];
 
-function classNames(...classes) {
+function classNames(...classes: (string | undefined | false)[]): string {
 	return classes.filter(Boolean).join(" ");
 }
 
-export function NavBar() {
+interface NavBarProps {
+	onOpenSignup: () => void;
+}
+
+export function NavBar({ onOpenSignup }: NavBarProps) {
 	return (
 		<Disclosure
 			as="nav"
-			className="relative bg-gray-800/50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
+			className={classNames(
+				"relative bg-gray-800/50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10",
+			)}
 		>
 			<div className="mx-auto w-full px-1 sm:px-6 lg:px-8">
 				<div className="relative flex h-16 items-center justify-between">
@@ -57,23 +61,36 @@ export function NavBar() {
 						</div>
 						<div className="hidden sm:ml-6 sm:block">
 							<div className="flex space-x-4">
-								{navigation.map((item) => (
-									<a
-										key={item.name}
-										href={item.href}
-										aria-current={
-											item.current ? "page" : undefined
-										}
-										className={classNames(
-											item.current
-												? "bg-gray-950/50 text-white"
-												: "text-gray-300 hover:bg-white/5 hover:text-white",
-											"rounded-md px-3 py-2 text-sm font-medium",
-										)}
-									>
-										{item.name}
-									</a>
-								))}
+								{navigation.map((item) =>
+									item.name === "Register" ? (
+										<button
+											key={item.name}
+											type="button"
+											onClick={onOpenSignup}
+											className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer"
+										>
+											{item.name}
+										</button>
+									) : (
+										<a
+											key={item.name}
+											href={item.href}
+											aria-current={
+												item.current
+													? "page"
+													: undefined
+											}
+											className={classNames(
+												item.current
+													? "bg-gray-950/50 text-white"
+													: "text-gray-300 hover:bg-white/5 hover:text-white",
+												"rounded-md px-3 py-2 text-sm font-medium",
+											)}
+										>
+											{item.name}
+										</a>
+									),
+								)}
 							</div>
 						</div>
 					</div>

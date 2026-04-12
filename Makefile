@@ -14,12 +14,11 @@ build-safe:
 
 safe: build-safe generate
 
-
 sclean:
 	$(COMPOSE) down
 	
 
-install-frondend:
+install-frontend:
 	cd frontend && npm ci
 
 install-backend:

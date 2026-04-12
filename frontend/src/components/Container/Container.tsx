@@ -1,17 +1,13 @@
 import React from "react";
-import styles from "./styles.module.css";
 
 type ContainerProps = {
 	children: React.ReactNode;
 };
-
 export function Container({ children }: ContainerProps) {
 	return (
-		<>
-			<div className={styles.container}>
-				<div className={styles.content}>{children}</div>
-			</div>
-		</>
+		<div className="relative text-slate-900 dark:text-slate-200 bg-slate-200 min-h-screen dark:bg-gray-800 font-semibold pb-32">
+			<div className="max-w-5xl mx-auto px-8">{children}</div>
+		</div>
 	);
 }
 
