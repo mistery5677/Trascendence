@@ -1,4 +1,12 @@
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import {
+	Disclosure,
+	DisclosureButton,
+	DisclosurePanel,
+	Menu,
+	MenuButton,
+	MenuItem,
+	MenuItems,
+} from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
@@ -44,7 +52,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 						<a href="/">
 							<div className="flex shrink-0 items-center select-none text-board-nav-text">
 								<span className="text-3xl leading-none">♞</span>
-								<span className="ml-2 font-bold tracking-widest hidden sm:block">TRANScendence</span>
+								<span className="ml-2 font-bold tracking-widest hidden sm:block">42 TRANScendence</span>
 							</div>
 						</a>
 						<div className="hidden sm:ml-6 sm:block">
@@ -80,7 +88,9 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 											href={item.href}
 											aria-current={item.current ? "page" : undefined}
 											className={classNames(
-												item.current ? "bg-gray-950/50 text-white" : "text-gray-300 hover:bg-white/5 hover:text-white",
+												item.current
+													? "bg-gray-950/50 text-white"
+													: "text-gray-300 hover:bg-white/5 hover:text-white",
 												"rounded-md px-3 py-2 text-sm font-medium",
 											)}>
 											{item.name}
@@ -155,7 +165,9 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 							href={item.href}
 							aria-current={item.current ? "page" : undefined}
 							className={classNames(
-								item.current ? "bg-gray-950/50 text-white" : "text-gray-300 hover:bg-white/5 hover:text-white",
+								item.current
+									? "bg-gray-950/50 text-white"
+									: "text-gray-300 hover:bg-white/5 hover:text-white",
 								"block rounded-md px-3 py-2 text-base font-medium",
 							)}>
 							{item.name}
