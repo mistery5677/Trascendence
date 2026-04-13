@@ -2,7 +2,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
-	{ name: "Home", href: "/", current: true },
+	// { name: "Home", href: "/", current: true },
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
 ];
@@ -21,9 +21,8 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 		<Disclosure
 			as="nav"
 			className={classNames(
-				"relative bg-neutral-900/80 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10",
+				"relative bg-board-nav-bg after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-gradient-to-r after:from-emerald-600 after:via-emerald-400 after:to-emerald-600",
 			)}>
-			
 			<div className="mx-auto w-full px-1 sm:px-6 lg:px-8">
 				<div className="relative flex h-16 items-center justify-between">
 					<div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -42,13 +41,12 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 						</DisclosureButton>
 					</div>
 					<div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-						<div className="flex shrink-0 items-center">
-							<img
-								alt="Your Company"
-								src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-								className="h-8 w-auto"
-							/>
-						</div>
+						<a href="/">
+							<div className="flex shrink-0 items-center select-none text-board-nav-text">
+								<span className="text-3xl leading-none">♞</span>
+								<span className="ml-2 font-bold tracking-widest hidden sm:block">TRANScendence</span>
+							</div>
+						</a>
 						<div className="hidden sm:ml-6 sm:block">
 							<div className="flex space-x-4">
 								{navigation.map((item) => {
@@ -58,7 +56,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 												key={item.name}
 												type="button"
 												onClick={onOpenLogin}
-												className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer">
+												className="text-board-nav-text hover:text-white border border-board-dark hover:border-board-nav-text hover:bg-board-dark rounded-lg px-3 py-1.5 text-sm font-semibold cursor-pointer transition-all">
 												{item.name}
 											</button>
 										);
@@ -70,7 +68,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 												key={item.name}
 												type="button"
 												onClick={onOpenSignup}
-												className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer">
+												className="text-board-text font-semibold text-sm rounded-lg px-3 py-1.5 bg-board-input hover:bg-white border border-board-input cursor-pointer transition-colors">
 												{item.name}
 											</button>
 										);
@@ -120,7 +118,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 
 							<MenuItems
 								transition
-								className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 outline -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
+								className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-xl bg-neutral-900 py-1 border border-white/10 shadow-xl transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in overflow-hidden">
 								<MenuItem>
 									<a
 										href="#"

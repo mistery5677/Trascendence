@@ -24,61 +24,57 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 	return (
 		/* Backdrop */
 		<div
-			className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 ${show ? "opacity-100" : "opacity-0"}`}
+			className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 ${show ? "opacity-100" : "opacity-0"}`}
 			onClick={onClose}>
-			{/* Card — stop click from bubbling to backdrop */}
+			{/* Card */}
 			<div
 				onClick={(e) => e.stopPropagation()}
-				className={`relative bg-white grid md:grid-cols-3 items-center rounded-xl overflow-hidden w-full max-w-3xl mx-4 transform transition-all duration-300 ease-out ${
+				className={`relative w-full max-w-md mx-4 transform transition-all duration-300 ease-out ${
 					show ? "scale-100 opacity-100" : "scale-90 opacity-0"
 				}`}>
-				{/* Close button */}
-				<button
-					onClick={onClose}
-					className="absolute top-3 right-3 z-10 text-gray-400 hover:text-gray-600 text-xl leading-none cursor-pointer"
-					aria-label="Close">
-					✕
-				</button>
-
-				{/* Left panel */}
-				<div className="flex flex-col justify-center md:space-y-16 space-y-8 max-md:mt-16 min-h-full bg-linear-to-r from-slate-900 to-slate-700 lg:px-8 px-4 py-4">
-					<div>
-						<h3 className="text-white text-lg">Create Your Account</h3>
-						<p className="text-[13px] text-slate-300 mt-3 leading-relaxed">
-							Welcome to our registration page! Get started by creating your account.
-						</p>
-					</div>
-					<div>
-						<h3 className="text-white text-lg">Simple & Secure Registration</h3>
-						<p className="text-[13px] text-slate-300 mt-3 leading-relaxed">
-							Our registration process is designed to be straightforward and secure.
-						</p>
-					</div>
+				{/* Chess stripe top */}
+				<div className="flex h-2 rounded-t-2xl overflow-hidden">
+					<div className="flex-1 bg-board-dark" />
+					<div className="flex-1 bg-board-light" />
+					<div className="flex-1 bg-board-dark" />
+					<div className="flex-1 bg-board-light" />
+					<div className="flex-1 bg-board-dark" />
 				</div>
 
-				{/* Form */}
-				<form
-					onSubmit={handleSubmit}
-					className="md:col-span-2 w-full py-6 px-6 sm:px-14 max-w-lg mx-auto">
-					<div className="mb-8">
-						<h1 className="text-slate-900 text-2xl font-bold">Register Now</h1>
+				<div className="bg-board-bg px-8 py-8 rounded-b-2xl shadow-2xl">
+					{/* Close button */}
+					<button
+						onClick={onClose}
+						className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl leading-none cursor-pointer"
+						aria-label="Close">
+						✕
+					</button>
+
+					{/* Header */}
+					<div className="text-center mb-8 text-board-text">
+						<p className="text-3xl">♞</p>
+						<h1 className="text-2xl font-bold mt-1">New Challenger</h1>
+						<p className="text-board-text-muted text-xs mt-1 tracking-widest uppercase">Join the game</p>
 					</div>
 
-					<div className="space-y-6">
+					<form
+						onSubmit={handleSubmit}
+						className="space-y-5">
+						{/* Name */}
 						<div>
-							<label className="text-slate-900 text-sm font-medium mb-2 block">Name</label>
+							<label className="text-board-text text-sm font-semibold mb-1.5 block">Name</label>
 							<div className="relative flex items-center">
 								<input
 									name="name"
 									type="text"
 									required
-									className="text-slate-900 bg-white border border-slate-300 w-full text-sm pl-4 pr-8 py-2.5 rounded-md outline-blue-500"
-									placeholder="Enter name"
+									className="text-board-text bg-board-input border-2 border-board-border w-full text-sm pl-4 pr-8 py-2.5 rounded-xl focus:border-board-focus focus:outline-none placeholder-board-text-muted"
+									placeholder="Enter your name"
 								/>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									fill="#bbb"
-									stroke="#bbb"
+									fill="#94a3b8"
+									stroke="#94a3b8"
 									className="w-4 h-4 absolute right-4"
 									viewBox="0 0 24 24">
 									<circle
@@ -92,20 +88,22 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 								</svg>
 							</div>
 						</div>
+
+						{/* Email */}
 						<div>
-							<label className="text-slate-900 text-sm font-medium mb-2 block">Email Id</label>
+							<label className="text-board-text text-sm font-semibold mb-1.5 block">Email</label>
 							<div className="relative flex items-center">
 								<input
 									name="email"
 									type="email"
 									required
-									className="text-slate-900 bg-white border border-slate-300 w-full text-sm pl-4 pr-8 py-2.5 rounded-md outline-blue-500"
-									placeholder="Enter email"
+									className="text-board-text bg-board-input border-2 border-board-border w-full text-sm pl-4 pr-8 py-2.5 rounded-xl focus:border-board-focus focus:outline-none placeholder-board-text-muted"
+									placeholder="Enter your email"
 								/>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									fill="#bbb"
-									stroke="#bbb"
+									fill="#94a3b8"
+									stroke="#94a3b8"
 									className="w-4 h-4 absolute right-4"
 									viewBox="0 0 682.667 682.667">
 									<defs>
@@ -133,20 +131,22 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 								</svg>
 							</div>
 						</div>
+
+						{/* Password */}
 						<div>
-							<label className="text-slate-900 text-sm font-medium mb-2 block">Password</label>
+							<label className="text-board-text text-sm font-semibold mb-1.5 block">Password</label>
 							<div className="relative flex items-center">
 								<input
 									name="password"
 									type="password"
 									required
-									className="text-slate-900 bg-white border border-slate-300 w-full text-sm pl-4 pr-8 py-2.5 rounded-md outline-blue-500"
-									placeholder="Enter password"
+									className="text-board-text bg-board-input border-2 border-board-border w-full text-sm pl-4 pr-8 py-2.5 rounded-xl focus:border-board-focus focus:outline-none placeholder-board-text-muted"
+									placeholder="Enter your password"
 								/>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									fill="#bbb"
-									stroke="#bbb"
+									fill="#94a3b8"
+									stroke="#94a3b8"
 									className="w-4 h-4 absolute right-4 cursor-pointer"
 									viewBox="0 0 128 128">
 									<path
@@ -155,43 +155,45 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 								</svg>
 							</div>
 						</div>
+
+						{/* Terms */}
 						<div className="flex items-center">
 							<input
 								id="remember-me"
 								name="remember-me"
 								type="checkbox"
-								className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+								className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
 							/>
 							<label
 								htmlFor="remember-me"
-								className="ml-3 block text-sm text-slate-600">
+								className="ml-2 text-sm text-board-text-muted">
 								I accept the{" "}
 								<a
 									href="javascript:void(0);"
-									className="text-blue-600 font-medium hover:underline ml-1">
-									Terms and Conditions
+									className="text-board-focus font-semibold hover:underline">
+									Rules of Play
 								</a>
 							</label>
 						</div>
-					</div>
 
-					<div className="mt-8">
+						{/* Submit */}
 						<button
 							type="submit"
-							className="w-full py-2.5 px-4 tracking-wider text-sm rounded-md text-white bg-slate-800 hover:bg-slate-900 focus:outline-none cursor-pointer">
-							Create an account
+							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+							Start Playing
 						</button>
-					</div>
-					<p className="text-slate-600 text-sm mt-6 text-center">
-						Already have an account?{" "}
-						<button
-							type="button"
-							onClick={onOpenLogin}
-							className="text-blue-600 font-medium hover:underline ml-1 cursor-pointer bg-none border-none p-0">
-							Login here
-						</button>
-					</p>
-				</form>
+
+						<p className="text-board-text-muted text-sm text-center">
+							Already have an account?{" "}
+							<button
+								type="button"
+								onClick={onOpenLogin}
+								className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+								Log in here
+							</button>
+						</p>
+					</form>
+				</div>
 			</div>
 		</div>
 	);

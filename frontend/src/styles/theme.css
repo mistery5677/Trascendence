@@ -1,0 +1,23 @@
+@theme {
+	/* Backgrounds and structural colors */
+	--color-board-dark: var(--color-emerald-600);
+	--color-board-light: var(--color-slate-200);
+	--color-board-bg: var(--color-white);
+
+	/* Inputs and borders */
+	--color-board-input: var(--color-white);
+	--color-board-border: var(--color-slate-300);
+	--color-board-focus: var(--color-emerald-500);
+
+	/* Text */
+	--color-board-text: var(--color-slate-900);
+	--color-board-text-muted: var(--color-slate-500);
+
+	/* Buttons */
+	--color-button-primary: var(--color-emerald-600);
+	--color-button-primary-hover: var(--color-emerald-700);
+
+	/* Navigation */
+	--color-board-nav-bg: var(--color-slate-950);
+	--color-board-nav-text: var(--color-slate-300);
+}

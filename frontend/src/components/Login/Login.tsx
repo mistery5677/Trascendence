@@ -35,19 +35,19 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 					onClick={(e) => e.stopPropagation()}>
 					{/* Chess stripe top */}
 					<div className="flex h-2 rounded-t-2xl overflow-hidden">
-						<div className="flex-1 bg-slate-900" />
-						<div className="flex-1 bg-slate-200" />
-						<div className="flex-1 bg-slate-900" />
-						<div className="flex-1 bg-slate-200" />
-						<div className="flex-1 bg-slate-900" />
+						<div className="flex-1 bg-board-dark" />
+						<div className="flex-1 bg-board-light" />
+						<div className="flex-1 bg-board-dark" />
+						<div className="flex-1 bg-board-light" />
+						<div className="flex-1 bg-board-dark" />
 					</div>
 
-					<div className="bg-white px-8 py-8 rounded-b-2xl shadow-2xl">
+					<div className="bg-board-bg px-8 py-8 rounded-b-2xl shadow-2xl">
 						{/* Header */}
-						<div className="text-center mb-8">
+						<div className="text-center mb-8 text-board-text">
 							<p className="text-3xl">♚</p>
-							<h1 className="text-slate-800 text-2xl font-bold mt-1">Make your move</h1>
-							<p className="text-slate-400 text-xs mt-1 tracking-widest uppercase">Welcome back to the board</p>
+							<h1 className="text-2xl font-bold mt-1">Make your move</h1>
+							<p className="text-board-text-muted text-xs mt-1 tracking-widest uppercase">Welcome back to the board</p>
 						</div>
 
 						<form
@@ -55,13 +55,13 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 							onSubmit={handleSubmit}>
 							{/* Username */}
 							<div>
-								<label className="text-slate-700 text-sm font-semibold mb-1.5 block">Username</label>
+								<label className="text-board-text text-sm font-semibold mb-1.5 block">Username</label>
 								<div className="relative flex items-center">
 									<input
 										name="username"
 										type="text"
 										required
-										className="w-full text-slate-800 text-sm border-2 border-slate-200 px-4 py-3 pr-10 rounded-xl focus:border-slate-800 focus:outline-none bg-slate-50 placeholder-slate-400"
+										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
 										placeholder="Enter your username"
 									/>
 									<svg
@@ -84,13 +84,13 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 
 							{/* Password */}
 							<div>
-								<label className="text-slate-700 text-sm font-semibold mb-1.5 block">Password</label>
+								<label className="text-board-text text-sm font-semibold mb-1.5 block">Password</label>
 								<div className="relative flex items-center">
 									<input
 										name="password"
 										type="password"
 										required
-										className="w-full text-slate-800 text-sm border-2 border-slate-200 px-4 py-3 pr-10 rounded-xl focus:border-slate-800 focus:outline-none bg-slate-50 placeholder-slate-400"
+										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
 										placeholder="Enter your password"
 									/>
 									<svg
@@ -113,17 +113,17 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 										id="remember-me"
 										name="remember-me"
 										type="checkbox"
-										className="h-4 w-4 shrink-0 accent-slate-800 border-slate-300 rounded"
+										className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
 									/>
 									<label
 										htmlFor="remember-me"
-										className="ml-2 text-sm text-slate-600">
+										className="ml-2 text-sm text-board-text-muted">
 										Remember me
 									</label>
 								</div>
 								<a
 									href="#"
-									className="text-sm text-slate-800 hover:underline font-semibold">
+									className="text-sm text-board-focus hover:underline font-semibold">
 									Forgot password?
 								</a>
 							</div>
@@ -131,16 +131,16 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 							{/* Submit */}
 							<button
 								type="submit"
-								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-slate-900 border-2 border-slate-900 hover:bg-white hover:text-slate-900 focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
 								Log In to Play
 							</button>
 
-							<p className="text-slate-500 text-sm text-center">
+							<p className="text-board-text-muted text-sm text-center">
 								Don't have an account?{" "}
 								<button
 									type="button"
 									onClick={onOpenSignup}
-									className="text-slate-800 font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
 									Join the game
 								</button>
 							</p>
