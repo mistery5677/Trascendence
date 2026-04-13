@@ -6,8 +6,8 @@ export function Home() {
 		<>
 			{/* Background image */}
 			<div
-				className="min-h-screen flex items-center bg-cover bg-center bg-no-repeat"
-				style={{ backgroundImage: `url(${bgImage})` }}
+				className="min-h-screen flex items-center bg-cover bg-center bg-no-repeat bg-neutral-800"
+				// style={{ backgroundImage: `url(${bgImage})` }}
 			></div>
 		</>
 	);

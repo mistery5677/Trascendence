@@ -1,21 +1,10 @@
-import profilePic from "../../assets/home-background.png";
-
-import {
-	Disclosure,
-	DisclosureButton,
-	DisclosurePanel,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuItems,
-} from "@headlessui/react";
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const navigation = [
 	{ name: "Home", href: "/", current: true },
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
-	// { name: "Calendar", href: "#", current: false },
 ];
 
 function classNames(...classes: (string | undefined | false)[]): string {
@@ -23,17 +12,18 @@ function classNames(...classes: (string | undefined | false)[]): string {
 }
 
 interface NavBarProps {
-	onOpenSignup: () => void;
+	onOpenSignup?: () => void;
+	onOpenLogin?: () => void;
 }
 
-export function NavBar({ onOpenSignup }: NavBarProps) {
+export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 	return (
 		<Disclosure
 			as="nav"
 			className={classNames(
-				"relative bg-gray-800/50 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10",
-			)}
-		>
+				"relative bg-neutral-900/80 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10",
+			)}>
+			
 			<div className="mx-auto w-full px-1 sm:px-6 lg:px-8">
 				<div className="relative flex h-16 items-center justify-between">
 					<div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -61,44 +51,51 @@ export function NavBar({ onOpenSignup }: NavBarProps) {
 						</div>
 						<div className="hidden sm:ml-6 sm:block">
 							<div className="flex space-x-4">
-								{navigation.map((item) =>
-									item.name === "Register" ? (
-										<button
-											key={item.name}
-											type="button"
-											onClick={onOpenSignup}
-											className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer"
-										>
-											{item.name}
-										</button>
-									) : (
+								{navigation.map((item) => {
+									if (item.name === "Login") {
+										return (
+											<button
+												key={item.name}
+												type="button"
+												onClick={onOpenLogin}
+												className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer">
+												{item.name}
+											</button>
+										);
+									}
+
+									if (item.name === "Register") {
+										return (
+											<button
+												key={item.name}
+												type="button"
+												onClick={onOpenSignup}
+												className="text-gray-300 hover:bg-white/5 hover:text-white rounded-md px-3 py-2 text-sm font-medium cursor-pointer">
+												{item.name}
+											</button>
+										);
+									}
+
+									return (
 										<a
 											key={item.name}
 											href={item.href}
-											aria-current={
-												item.current
-													? "page"
-													: undefined
-											}
+											aria-current={item.current ? "page" : undefined}
 											className={classNames(
-												item.current
-													? "bg-gray-950/50 text-white"
-													: "text-gray-300 hover:bg-white/5 hover:text-white",
+												item.current ? "bg-gray-950/50 text-white" : "text-gray-300 hover:bg-white/5 hover:text-white",
 												"rounded-md px-3 py-2 text-sm font-medium",
-											)}
-										>
+											)}>
 											{item.name}
 										</a>
-									),
-								)}
+									);
+								})}
 							</div>
 						</div>
 					</div>
 					<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 						<button
 							type="button"
-							className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-						>
+							className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
 							<span className="absolute -inset-1.5" />
 							<span className="sr-only">View notifications</span>
 							<BellIcon
@@ -110,8 +107,7 @@ export function NavBar({ onOpenSignup }: NavBarProps) {
 						{/* Profile dropdown */}
 						<Menu
 							as="div"
-							className="relative ml-3"
-						>
+							className="relative ml-3">
 							<MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
 								<span className="absolute -inset-1.5" />
 								<span className="sr-only">Open user menu</span>
@@ -124,29 +120,25 @@ export function NavBar({ onOpenSignup }: NavBarProps) {
 
 							<MenuItems
 								transition
-								className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 outline -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-							>
+								className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 py-1 outline -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
 								<MenuItem>
 									<a
 										href="#"
-										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-									>
+										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden">
 										Your profile
 									</a>
 								</MenuItem>
 								<MenuItem>
 									<a
 										href="#"
-										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-									>
+										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden">
 										Settings
 									</a>
 								</MenuItem>
 								<MenuItem>
 									<a
 										href="#"
-										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
-									>
+										className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden">
 										Sign out
 									</a>
 								</MenuItem>
@@ -165,12 +157,9 @@ export function NavBar({ onOpenSignup }: NavBarProps) {
 							href={item.href}
 							aria-current={item.current ? "page" : undefined}
 							className={classNames(
-								item.current
-									? "bg-gray-950/50 text-white"
-									: "text-gray-300 hover:bg-white/5 hover:text-white",
+								item.current ? "bg-gray-950/50 text-white" : "text-gray-300 hover:bg-white/5 hover:text-white",
 								"block rounded-md px-3 py-2 text-base font-medium",
-							)}
-						>
+							)}>
 							{item.name}
 						</DisclosureButton>
 					))}
