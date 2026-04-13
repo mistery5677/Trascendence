@@ -25,29 +25,49 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 
 	return (
 		<>
+			{/* Backdrop */}
 			<div
-				className={`fixed inset-0 z-50 flex items-center justify-center bg-black/60 ${show ? "opacity-100" : "opacity-0"}`}
+				className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 ${show ? "opacity-100" : "opacity-0"}`}
 				onClick={onClose}>
+				{/* Card */}
 				<div
-					className={`max-w-120 w-full transition-all transform duration-300 ease-out ${show ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
+					className={`w-full max-w-md mx-4 transition-all transform duration-300 ease-out ${show ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
 					onClick={(e) => e.stopPropagation()}>
-					<div className="p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
-						<h1 className="text-slate-900 text-center text-3xl font-semibold">Sign in</h1>
-						<form className="mt-12 space-y-6" onSubmit={handleSubmit}>
+					{/* Chess stripe top */}
+					<div className="flex h-2 rounded-t-2xl overflow-hidden">
+						<div className="flex-1 bg-slate-900" />
+						<div className="flex-1 bg-slate-200" />
+						<div className="flex-1 bg-slate-900" />
+						<div className="flex-1 bg-slate-200" />
+						<div className="flex-1 bg-slate-900" />
+					</div>
+
+					<div className="bg-white px-8 py-8 rounded-b-2xl shadow-2xl">
+						{/* Header */}
+						<div className="text-center mb-8">
+							<p className="text-3xl">♚</p>
+							<h1 className="text-slate-800 text-2xl font-bold mt-1">Make your move</h1>
+							<p className="text-slate-400 text-xs mt-1 tracking-widest uppercase">Welcome back to the board</p>
+						</div>
+
+						<form
+							className="space-y-5"
+							onSubmit={handleSubmit}>
+							{/* Username */}
 							<div>
-								<label className="text-slate-900 text-sm font-medium mb-2 block">User name</label>
+								<label className="text-slate-700 text-sm font-semibold mb-1.5 block">Username</label>
 								<div className="relative flex items-center">
 									<input
 										name="username"
 										type="text"
 										required
-										className="w-full text-slate-900 text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-blue-600"
-										placeholder="Enter user name"
+										className="w-full text-slate-800 text-sm border-2 border-slate-200 px-4 py-3 pr-10 rounded-xl focus:border-slate-800 focus:outline-none bg-slate-50 placeholder-slate-400"
+										placeholder="Enter your username"
 									/>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
-										fill="#bbb"
-										stroke="#bbb"
+										fill="#94a3b8"
+										stroke="#94a3b8"
 										className="w-4 h-4 absolute right-4"
 										viewBox="0 0 24 24">
 										<circle
@@ -61,20 +81,22 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 									</svg>
 								</div>
 							</div>
+
+							{/* Password */}
 							<div>
-								<label className="text-slate-900 text-sm font-medium mb-2 block">Password</label>
+								<label className="text-slate-700 text-sm font-semibold mb-1.5 block">Password</label>
 								<div className="relative flex items-center">
 									<input
 										name="password"
 										type="password"
 										required
-										className="w-full text-slate-900 text-sm border border-slate-300 px-4 py-3 pr-8 rounded-md outline-blue-600"
-										placeholder="Enter password"
+										className="w-full text-slate-800 text-sm border-2 border-slate-200 px-4 py-3 pr-10 rounded-xl focus:border-slate-800 focus:outline-none bg-slate-50 placeholder-slate-400"
+										placeholder="Enter your password"
 									/>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
-										fill="#bbb"
-										stroke="#bbb"
+										fill="#94a3b8"
+										stroke="#94a3b8"
 										className="w-4 h-4 absolute right-4 cursor-pointer"
 										viewBox="0 0 128 128">
 										<path
@@ -83,43 +105,43 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 									</svg>
 								</div>
 							</div>
+
+							{/* Remember + Forgot */}
 							<div className="flex flex-wrap items-center justify-between gap-4">
 								<div className="flex items-center">
 									<input
 										id="remember-me"
 										name="remember-me"
 										type="checkbox"
-										className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+										className="h-4 w-4 shrink-0 accent-slate-800 border-slate-300 rounded"
 									/>
 									<label
 										htmlFor="remember-me"
-										className="ml-3 block text-sm text-slate-900">
+										className="ml-2 text-sm text-slate-600">
 										Remember me
 									</label>
 								</div>
-								<div className="text-sm">
-									<a
-										href="jajvascript:void(0);"
-										className="text-blue-600 hover:underline font-semibold">
-										Forgot your password?
-									</a>
-								</div>
+								<a
+									href="#"
+									className="text-sm text-slate-800 hover:underline font-semibold">
+									Forgot password?
+								</a>
 							</div>
 
-							<div className="mt-12">
-								<button
-									type="submit"
-									className="w-full py-2 px-4 text-[15px] font-medium tracking-wide rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer">
-									Sign in
-								</button>
-							</div>
-							<p className="text-slate-900 text-sm mt-6 text-center">
+							{/* Submit */}
+							<button
+								type="submit"
+								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-slate-900 border-2 border-slate-900 hover:bg-white hover:text-slate-900 focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+								Log In to Play
+							</button>
+
+							<p className="text-slate-500 text-sm text-center">
 								Don't have an account?{" "}
 								<button
 									type="button"
 									onClick={onOpenSignup}
-									className="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold cursor-pointer bg-none border-none p-0">
-									Register here
+									className="text-slate-800 font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+									Join the game
 								</button>
 							</p>
 						</form>
