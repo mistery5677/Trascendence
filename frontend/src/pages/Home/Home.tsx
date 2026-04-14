@@ -1,13 +1,14 @@
-import { Container } from "../../components";
-import bgImage from "../../assets/dramatic-chess-piece.jpg";
 import pinGif from "../../assets/PinChessPlaying.gif";
+import { useNavigate } from "react-router-dom";
+import { RouterPaths } from "../../routers/MainRouter/RouterPath";
 
 export function Home() {
+	const navigate = useNavigate();
+
 	return (
 		<>
 			{/* Background setting the stage */}
 			<div className="relative min-h-screen flex items-center justify-center bg-neutral-800 p-6 py-24 overflow-hidden z-0">
-				
 				{/* Animated Fog */}
 				<div className="absolute inset-0 pointer-events-none z-0 opacity-60">
 					<div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-neutral-700 rounded-full filter blur-[120px] animate-[pulse_8s_ease-in-out_infinite]"></div>
@@ -27,7 +28,9 @@ export function Home() {
 						<h1 className="text-center font-black text-white text-4xl sm:text-5xl lg:text-6xl tracking-tight ">
 							Let's play the best chess game of your life ♛
 						</h1>
-						<button className="relative group overflow-hidden bg-green-600 hover:bg-green-500 rounded-2xl w-full max-w-[320px] h-20 text-white font-black text-xl sm:text-2xl tracking-[0.2em] shadow-[0_0_40px_rgba(34,197,94,0.4)] hover:shadow-[0_0_60px_rgba(34,197,94,0.6)] hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 border border-green-400/30">
+						<button
+							onClick={() => navigate(RouterPaths.PLAY)}
+							className="relative group overflow-hidden bg-green-600 hover:bg-green-500 rounded-2xl w-full max-w-[320px] h-20 text-white font-black text-xl sm:text-2xl tracking-[0.2em] shadow-[0_0_40px_rgba(34,197,94,0.4)] hover:shadow-[0_0_60px_rgba(34,197,94,0.6)] hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 border border-green-400/30">
 							<span className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] skew-x-12 group-hover:translate-x-[150%] transition-transform duration-1000 ease-out"></span>
 							PLAY GAME
 						</button>
