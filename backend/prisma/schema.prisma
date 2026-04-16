@@ -7,21 +7,22 @@
 // Way to create a new class: https://www.postgresql.org/docs/7.0/query27768.htm
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
 }
 
 // Class for the user 
 // We use 'model' to e store the information in a table
 model user {
-  id  Int @id @default(autoincrement())
-  email     String    @unique 
-  username  String    @unique // Means that we only have one username with that specific name
-  password  String    //Save a encrypted password
-  avatarUrl String?   // The '?' means optional
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    name      String?
+    username  String   @unique // Means that we only have one username with that specific name
+    password  String //Save a encrypted password
+    avatarUrl String? // The '?' means optional
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
