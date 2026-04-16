@@ -13,6 +13,7 @@ const navigation = [
 	// { name: "Home", href: "/", current: true },
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
+	{ name: "Play", href: "/play", current: false },
 ];
 
 function classNames(...classes: (string | undefined | false)[]): string {
@@ -29,7 +30,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 		<Disclosure
 			as="nav"
 			className={classNames(
-				"relative bg-board-nav-bg after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-gradient-to-r after:from-emerald-600 after:via-emerald-400 after:to-emerald-600",
+				"relative bg-board-nav-bg after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-linear-to-r after:from-emerald-600 after:via-emerald-400 after:to-emerald-600",
 			)}>
 			<div className="mx-auto w-full px-1 sm:px-6 lg:px-8">
 				<div className="relative flex h-16 items-center justify-between">
@@ -48,11 +49,15 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 							/>
 						</DisclosureButton>
 					</div>
-					<div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-						<a href="/">
-							<div className="flex shrink-0 items-center select-none text-board-nav-text">
+					<div className="flex flex-1 items-center align-center sm:items-stretch md:justify-left pl-10 sm:pl-0 ">
+						<a
+							href="/"
+							className="flex align-bottom">
+							<div className="flex shrink-0 items-center select-none text-board-nav-text ">
 								<span className="text-3xl leading-none">♞</span>
-								<span className="ml-2 font-bold tracking-widest hidden sm:block">42 TRANScendence</span>
+								<span className="ml-2 hidden sm:block font-bold tracking-widest text-[clamp(0.75rem,1.25vw,1.50rem)] leading-none transition-[font-size] duration-300 ease-out">
+									42 Transcendence
+								</span>
 							</div>
 						</a>
 						<div className="hidden sm:ml-6 sm:block">
@@ -79,6 +84,18 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 												className="text-board-text font-semibold text-sm rounded-lg px-3 py-1.5 bg-board-input hover:bg-white border border-board-input cursor-pointer transition-colors">
 												{item.name}
 											</button>
+										);
+									}
+
+									if (item.name === "Play") {
+										return (
+											<a
+												key={item.name}
+												type="button"
+												href="/play"
+												className="font-semibold text-white bg-board-dark rounded-2xl px-3 py-1.5 hb:bg-white cursor-pointer transform colors text-2xl border-board-focus hover:bg-green-600 shadow-[0_0_40px_rgba(34,197,94,0.4)] hover:shadow-[0_0_60px_rgba(34,197,94,0.6)] hover:-translate-y-0.5 duration-300 transition-all">
+												{item.name}
+											</a>
 										);
 									}
 

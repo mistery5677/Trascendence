@@ -4,90 +4,66 @@ import { Chess } from "chess.js";
 import { useState } from "react";
 
 type DraggingPieceDataType = {
-  isSparePiece: boolean;
-  position: string; // e.g. "a8" or "wP"
-  pieceType: string; // e.g. "wP" for white pawn, "bK" for black king
+	isSparePiece: boolean;
+	position: string; // e.g. "a8" or "wP"
+	pieceType: string; // e.g. "wP" for white pawn, "bK" for black king
 };
-
-// type PieceDropHandlerArgs = {
-//   piece: DraggingPieceDataType;
-//   sourceSquare: string;
-//   targetSquare: string | null;
-// };
 
 type PieceDropHandlerArgs = {
-  piece: DraggingPieceDataType;
-  sourceSquare: string;
-  targetSquare: string | null;
+	piece: DraggingPieceDataType;
+	sourceSquare: string;
+	targetSquare: string | null;
 };
+
 export function Board() {
-	{
-		render: () => {
-			// create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
-			const chessGameRef = useRef(new Chess());
-			const chessGame = chessGameRef.current;
+	const chessGameRef = useRef(new Chess());
+	const chessGame = chessGameRef.current;
 
-			// track the current position of the chess game in state to trigger a re-render of the chessboard
-			const [chessPosition, setChessPosition] = useState(chessGame.fen());
+	const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
-			// make a random "CPU" move
-			function makeRandomMove() {
-				// get all possible moves`
-				const possibleMoves = chessGame.moves();
+	function makeRandomMove() {
+		const possibleMoves = chessGame.moves();
 
-				// exit if the game is over
-				if (chessGame.isGameOver()) {
-					return;
-				}
+		if (chessGame.isGameOver()) {
+			return;
+		}
 
-				// pick a random move
-				const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-
-				// make the move
-				chessGame.move(randomMove);
-
-				// update the position state
-				setChessPosition(chessGame.fen());
-			}
-
-			// handle piece drop
-			function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-				// type narrow targetSquare potentially being null (e.g. if dropped off board)
-				if (!targetSquare) {
-					return false;
-				}
-
-				// try to make the move according to chess.js logic
-				try {
-					chessGame.move({
-						from: sourceSquare,
-						to: targetSquare,
-						promotion: "q", // always promote to a queen for example simplicity
-					});
-
-					// update the position state upon successful move to trigger a re-render of the chessboard
-					setChessPosition(chessGame.fen());
-
-					// make random cpu move after a short delay
-					setTimeout(makeRandomMove, 500);
-
-					// return true as the move was successful
-					return true;
-				} catch {
-					// return false as the move was not successful
-					return false;
-				}
-			}
-
-			// set the chessboard options
-			const chessboardOptions = {
-				position: chessPosition,
-				onPieceDrop,
-				id: "play-vs-random",
-			};
-
-			// render the chessboard
-			return <Chessboard options={chessboardOptions} />;
-		};
+		const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+		chessGame.move(randomMove);
+		setChessPosition(chessGame.fen());
 	}
+
+	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
+		if (!targetSquare) {
+			return false;
+		}
+
+		try {
+			chessGame.move({
+				from: sourceSquare,
+				to: targetSquare,
+				promotion: "q",
+			});
+
+			setChessPosition(chessGame.fen());
+			setTimeout(makeRandomMove, 500);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	const chessboardOptions = {
+		position: chessPosition,
+		onPieceDrop,
+		id: "play-vs-random",
+		lightSquareStyle: {
+			backgroundColor: "var(--color-board-light)",
+		},
+		darkSquareStyle: {
+			backgroundColor: "var(--color-board-dark)",
+		},
+	};
+
+	return <Chessboard options={chessboardOptions} />;
 }

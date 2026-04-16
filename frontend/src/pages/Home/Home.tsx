@@ -18,7 +18,7 @@ export function Home() {
 
 				{/* Foreground content */}
 				<div className="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20 w-full max-w-7xl mx-auto">
-					<div className="w-full max-w-[350px] sm:max-w-[400px] lg:max-w-[498px] aspect-square flex-shrink-0">
+					<div className="w-full max-w-87.5 sm:max-w-100 lg:max-w-124.5 aspect-square shrink-0">
 						<iframe
 							className="w-full h-full border-none rounded-2xl shadow-2xl"
 							src={pinGif}
