@@ -10,7 +10,8 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials:true, // Allows to receive confidential information from the browser
   });
-
+  
   await app.listen(process.env.PORT ?? 5173);
+  
 }
 bootstrap();
