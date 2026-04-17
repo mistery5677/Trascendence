@@ -1,6 +1,6 @@
 COMPOSE = docker compose
 
-all: up
+all: up db-push
 
 install: install-backend install-frontend
 
@@ -17,7 +17,6 @@ safe: build-safe generate
 sclean:
 	$(COMPOSE) down
 	
-
 install-frontend:
 	cd frontend && npm ci
 
@@ -26,6 +25,7 @@ install-backend:
 
 up:
 	$(COMPOSE) up --build
+	
 
 # Builds the docker, with the option to use the terminal at the same time
 up-d:
@@ -53,6 +53,9 @@ migrate:
 # Updates the TypeScript of prisma code
 generate:
 	docker exec -it chess_backend npx prisma generate
+
+db-push:
+	docker exec -it chess_backend npx prisma db push
 
 # Open a visual data base panel ... like excel
 studio:

@@ -59,22 +59,5 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async getProfile(@Req() req) {
     return await this.authService.getProfile(req.user.user);
-    // const user = await this.use
   }
 }
-
-// @Get('me')
-// @UseGuards(AuthGuard)
-// async getProfile(@Req() req) {
-//   // El payload del JWT que guardaste en el Guard está en req.user
-//   // Buscamos al usuario completo en la DB para tener el avatar, username, etc.
-//   const user = await this.usersService.findOneByEmail(req.user.user);
-
-//   // Retornamos solo lo necesario (¡nunca la contraseña!)
-//   return {
-//     username: user.username,
-//     email: user.email,
-//     avatar: user.avatarUrl,
-//     createdAt: user.createdAt,
-//   };
-// }
