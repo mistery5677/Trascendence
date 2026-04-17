@@ -40,10 +40,15 @@ export function MainRouter() {
 					path={RouterPaths.ERROR}
 					element={<Error />}
 				/>
-				<Route path={RouterPaths.PLAY} element={<Play/>}></Route>
-				<Route path={RouterPaths.SETTINGS} element={<Settings tabOpt="account"/>}></Route>
-				<Route path={RouterPaths.PROFILE} element={<Settings tabOpt="profile"/>}></Route>
-
+				<Route
+					path={RouterPaths.PLAY}
+					element={<Play />}></Route>
+				<Route
+					path={RouterPaths.SETTINGS}
+					element={<Settings tabOpt="account" />}></Route>
+				<Route
+					path={RouterPaths.PROFILE}
+					element={<Settings tabOpt="profile" />}></Route>
 			</Routes>
 		</BrowserRouter>
 	);

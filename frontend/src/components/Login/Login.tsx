@@ -19,11 +19,28 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 		const password = formData.get("password") as string;
 
 		console.log("Data ready for backend from Login submit", data);
-		await fetch("api/auth/login", {
+		const loginRes = await fetch("api/auth/login", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ identity, password }),
 		});
+
+		if (!loginRes.ok) {
+			const errMsg = await loginRes.text();
+			throw new Error(errMsg || "Login Failed");
+		}
+
+		const meRes = await fetch("api/auth/me", {
+			method: "GET",
+			credentials: "include",
+		});
+
+		if (!meRes.ok) {
+			throw new Error("Could not fetch user profile");
+		}
+
+		const user = await meRes.json();
+		console.log(user);
 	};
 
 	return (

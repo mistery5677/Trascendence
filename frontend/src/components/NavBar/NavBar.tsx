@@ -26,6 +26,29 @@ interface NavBarProps {
 }
 
 export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
+	const handleLogout = async () => {
+		console.log("POST Logout");
+
+		try {
+			const res = await fetch("api/auth/logout", {
+				method: "POST",
+				credentials: "include",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (!res.ok) {
+				throw new Error(`Error failed: ${res.status}`);
+			}
+
+			localStorage.removeItem("accessToken");
+			sessionStorage.removeItem("accessToken");
+
+			window.location.href = "./";
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
 	return (
 		<Disclosure
 			as="nav"
@@ -180,11 +203,11 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 									</a>
 								</MenuItem>
 								<MenuItem>
-									<a
-										href="/logout"
-										className="block px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+									<button
+										onClick={handleLogout}
+										className="block w-full px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
 										Sign out
-									</a>
+									</button>
 								</MenuItem>
 							</MenuItems>
 						</Menu>
