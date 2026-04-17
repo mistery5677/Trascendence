@@ -3,5 +3,6 @@ export const RouterPaths = {
 	SIGNUP: "/signup",
 	HOME: ["/", "/home"],
 	PLAY: "/play",
+	SETTINGS: "/settings",
 	ERROR: "*",
 };

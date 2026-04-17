@@ -20,4 +20,8 @@
 	/* Navigation */
 	--color-board-nav-bg: var(--color-slate-950);
 	--color-board-nav-text: var(--color-slate-300);
+
+	/* Testing */
+	--color-bottom-settings: #68a14a;
+	--color-bottom-settings-hover: #9ecf5d;
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
-import { Error, Home, Play } from "../../pages";
+import { Error, Home, Play, Settings } from "../../pages";
 import { Login, Signup } from "../../components";
 import { MultiRoute, NavBar } from "../../components";
 
@@ -41,6 +41,8 @@ export function MainRouter() {
 					element={<Error />}
 				/>
 				<Route path={RouterPaths.PLAY} element={<Play/>}></Route>
+				<Route path={RouterPaths.SETTINGS} element={<Settings/>}></Route>
+
 			</Routes>
 		</BrowserRouter>
 	);

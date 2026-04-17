@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
-import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 type LoginProps = {
 	onClose: () => void;
@@ -15,14 +15,14 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
 		const data = Object.fromEntries(formData.entries());
-		const username = formData.get("username") as string;
+		const identity = formData.get("identity") as string;
 		const password = formData.get("password") as string;
 
 		console.log("Data ready for backend from Login submit", data);
 		await fetch("api/auth/login", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ username, password }),
+			body: JSON.stringify({ identity, password }),
 		});
 	};
 
@@ -63,11 +63,11 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 								<label className="text-board-text text-sm font-semibold mb-1.5 block">Username</label>
 								<div className="relative flex items-center">
 									<input
-										name="username"
+										name="identity"
 										type="text"
 										required
 										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
-										placeholder="Enter your username"
+										placeholder="Enter your username or email"
 									/>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -93,17 +93,17 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 								<div className="relative flex items-center">
 									<input
 										name="password"
-									type={showPassword ? "text" : "password"}
-									required
-									className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
-									placeholder="Enter your password"
-								/>
-								<button
-									type="button"
-									className="absolute right-4 text-board-text-muted hover:text-board-text"
-									onClick={() => setShowPassword((prev) => !prev)}
-									aria-label="Toggle password visibility">
-									{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
+										type={showPassword ? "text" : "password"}
+										required
+										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
+										placeholder="Enter your password"
+									/>
+									<button
+										type="button"
+										className="absolute right-4 text-board-text-muted hover:text-board-text"
+										onClick={() => setShowPassword((prev) => !prev)}
+										aria-label="Toggle password visibility">
+										{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
 									</button>
 								</div>
 							</div>

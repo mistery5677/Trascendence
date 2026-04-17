@@ -1,7 +1,9 @@
 import { Chessboard } from "react-chessboard";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
+
+export type PieceColor = "w" | "b";
 
 type DraggingPieceDataType = {
 	isSparePiece: boolean;
@@ -15,11 +17,21 @@ type PieceDropHandlerArgs = {
 	targetSquare: string | null;
 };
 
-export function Board() {
+interface BoardProps {
+	onTurnChange?: (color: PieceColor) => void;
+}
+
+export function Board({ onTurnChange }: BoardProps) {
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
+
+	useEffect(() => {
+		if (onTurnChange) {
+			onTurnChange(chessGame.turn());
+		}
+	}, [chessPosition, onTurnChange, chessGame]);
 
 	function makeRandomMove() {
 		const possibleMoves = chessGame.moves();
