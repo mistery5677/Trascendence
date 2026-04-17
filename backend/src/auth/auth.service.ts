@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
@@ -63,5 +64,20 @@ export class AuthService {
       ...rest,
       password: hashedPassword,
     });
+  }
+
+  async getProfile(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatarUrl,
+      createdAt: user.createdAt,
+    };
   }
 }
