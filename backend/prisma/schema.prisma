@@ -20,6 +20,7 @@ model user {
     id        Int      @id @default(autoincrement())
     email     String   @unique
     name      String?
+    nickname  String?
     username  String   @unique // Means that we only have one username with that specific name
     password  String //Save a encrypted password
     avatarUrl String? // The '?' means optional

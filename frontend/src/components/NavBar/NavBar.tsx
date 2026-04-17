@@ -42,7 +42,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 
 			localStorage.removeItem("accessToken");
 			sessionStorage.removeItem("accessToken");
-
+			// cookieStore.removeEventListener('access_token');
 			window.location.href = "./";
 		} catch (err) {
 			console.log(err);
