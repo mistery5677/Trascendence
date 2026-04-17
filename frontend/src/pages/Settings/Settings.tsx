@@ -10,8 +10,12 @@ function tabClass(isActive: boolean): string {
 	return "rounded-xl px-4 py-3 text-left font-light text-xl text-stone-300 transition-colors hover:bg-stone-800/70 hover:text-stone-100";
 }
 
-export function Settings() {
-	const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+type SettingsProps = {
+	tabOpt: SettingsTab;
+};
+
+export function Settings({ tabOpt }: SettingsProps) {
+	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
 
 	return (
 		<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">

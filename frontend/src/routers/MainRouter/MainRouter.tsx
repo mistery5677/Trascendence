@@ -41,7 +41,8 @@ export function MainRouter() {
 					element={<Error />}
 				/>
 				<Route path={RouterPaths.PLAY} element={<Play/>}></Route>
-				<Route path={RouterPaths.SETTINGS} element={<Settings/>}></Route>
+				<Route path={RouterPaths.SETTINGS} element={<Settings tabOpt="account"/>}></Route>
+				<Route path={RouterPaths.PROFILE} element={<Settings tabOpt="profile"/>}></Route>
 
 			</Routes>
 		</BrowserRouter>
