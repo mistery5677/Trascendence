@@ -11,12 +11,13 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 
 const DEFAULT_AVATARS = [
-  '/backend/assets/avatars/default1.png',
-  '/backend/assets/avatars/default2.png',
-  '/backend/assets/avatars/default3.png',
-  '/backend/assets/avatars/default4.png',
-  '/backend/assets/avatars/default5.png',
+  '/assets/avatars/default1.png',
+  '/assets/avatars/default2.png',
+  '/assets/avatars/default3.png',
+  '/assets/avatars/default4.png',
+  '/assets/avatars/default5.png',
 ];
+
 
 @Injectable()
 export class AuthService {
@@ -86,11 +87,13 @@ export class AuthService {
     }
 
     return {
+      id: user.id,
       name: user.name,
       username: user.username,
       email: user.email,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
+
     };
   }
 }

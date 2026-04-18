@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { useAuth } from "../../contexts/UserContext";
 
 type LoginProps = {
 	onClose: () => void;
@@ -8,39 +9,26 @@ type LoginProps = {
 };
 
 export function Login({ onClose, onOpenSignup }: LoginProps) {
+	const { login } = useAuth();
+
 	const show = useModalReveal(80);
+
 	const [showPassword, setShowPassword] = useState(false);
 
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
-		const data = Object.fromEntries(formData.entries());
+		// const data = Object.fromEntries(formData.entries());
 		const identity = formData.get("identity") as string;
 		const password = formData.get("password") as string;
+		// const rememberMe = formData.get("remember-me") as string;
 
-		console.log("Data ready for backend from Login submit", data);
-		const loginRes = await fetch("api/auth/login", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ identity, password }),
-		});
-
-		if (!loginRes.ok) {
-			const errMsg = await loginRes.text();
-			throw new Error(errMsg || "Login Failed");
+		try {
+			await login(identity, password);
+			onClose();
+		} catch (error) {
+			console.log(error);
 		}
-
-		const meRes = await fetch("api/auth/me", {
-			method: "GET",
-			credentials: "include",
-		});
-
-		if (!meRes.ok) {
-			throw new Error("Could not fetch user profile");
-		}
-
-		const user = await meRes.json();
-		console.log(user);
 	};
 
 	return (
