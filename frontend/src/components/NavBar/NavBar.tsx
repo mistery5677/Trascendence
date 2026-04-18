@@ -44,6 +44,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 	};
 
 	const avatarSrc = state.user?.avatarUrl; // -> /api/assets/avatars/default1.png
+	const isLoggedIn = !!state.user;
 
 	return (
 		<Disclosure
@@ -80,77 +81,52 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 							</span>
 						</a>
 						<div className="hidden sm:ml-auto sm:flex sm:items-center">
-							<div className="flex space-x-2 items-center rounded-full bg-stone-900/40 border border-emerald-300/10 p-1.5">
-								{navigation.map((item) => {
-									if (item.name === "Login") {
-										return (
-											<button
-												key={item.name}
-												type="button"
-												onClick={onOpenLogin}
-												className="text-stone-300 hover:text-stone-100 hover:bg-stone-800/70 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 border border-transparent hover:border-stone-600/60">
-												{item.name}
-											</button>
-										);
-									}
+							<div className="flex items-center rounded-full bg-stone-900/40 border border-emerald-300/10 p-1.5 overflow-visible">
+								<div
+									className={classNames(
+										"flex items-center gap-2 overflow-hidden transition-all duration-500 ease-out",
+										isLoggedIn
+											? "max-w-0 opacity-0 -translate-x-5 scale-95 pointer-events-none mr-0"
+											: "max-w-80 opacity-100 translate-x-0 scale-100 mr-2",
+									)}>
+									<button
+										type="button"
+										onClick={onOpenLogin}
+										className="text-stone-300 hover:text-stone-100 hover:bg-stone-800/70 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 border border-transparent hover:border-stone-600/60 whitespace-nowrap">
+										Login
+									</button>
 
-									if (item.name === "Register") {
-										return (
-											<button
-												key={item.name}
-												type="button"
-												onClick={onOpenSignup}
-												className="text-emerald-100 bg-emerald-500/18 hover:bg-emerald-500/28 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 border border-emerald-300/35 hover:border-emerald-300/55">
-												{item.name}
-											</button>
-										);
-									}
+									<button
+										type="button"
+										onClick={onOpenSignup}
+										className="text-emerald-100 bg-emerald-500/18 hover:bg-emerald-500/28 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 border border-emerald-300/35 hover:border-emerald-300/55 whitespace-nowrap">
+										Register
+									</button>
+								</div>
 
-									if (item.name === "Play") {
-										return (
-											<div
-												key={item.name}
-												className="relative ml-1 group/play">
-												<button
-													type="button"
-													className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-slate-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900">
-													Play
-												</button>
+								<div className="relative group/play">
+									<button
+										type="button"
+										className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-slate-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900">
+										Play
+									</button>
 
-												<div className="pointer-events-none invisible absolute right-0 top-full z-20 w-56 pt-3 opacity-0 translate-y-1 transition-all duration-200 group-hover/play:pointer-events-auto group-hover/play:visible group-hover/play:translate-y-0 group-hover/play:opacity-100 group-focus-within/play:pointer-events-auto group-focus-within/play:visible group-focus-within/play:translate-y-0 group-focus-within/play:opacity-100">
-													<div className="rounded-2xl border border-emerald-300/20 bg-slate-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
-														<a
-															href="/play?mode=bot"
-															className="block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
-															Against <span className="text-2xl"> 🤖</span>
-														</a>
-														<a
-															href="/play?mode=online"
-															className="mt-1 block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
-															Online
-															<span className="text-3xl"> ♞</span>
-														</a>
-													</div>
-												</div>
-											</div>
-										);
-									}
-
-									return (
-										<a
-											key={item.name}
-											href={item.href}
-											aria-current={item.current ? "page" : undefined}
-											className={classNames(
-												item.current
-													? "bg-gray-950/50 text-white"
-													: "text-gray-300 hover:bg-white/5 hover:text-white",
-												"rounded-md px-3 py-2 text-sm font-medium",
-											)}>
-											{item.name}
-										</a>
-									);
-								})}
+									<div className="pointer-events-none invisible absolute right-0 top-full z-20 w-56 pt-3 opacity-0 translate-y-1 transition-all duration-200 group-hover/play:pointer-events-auto group-hover/play:visible group-hover/play:translate-y-0 group-hover/play:opacity-100 group-focus-within/play:pointer-events-auto group-focus-within/play:visible group-focus-within/play:translate-y-0 group-focus-within/play:opacity-100">
+										<div className="rounded-2xl border border-emerald-300/20 bg-slate-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
+											<a
+												href="/play?mode=bot"
+												className="block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
+												Against <span className="text-2xl"> 🤖</span>
+											</a>
+											<a
+												href="/play?mode=online"
+												className="mt-1 block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
+												Online
+												<span className="text-3xl"> ♞</span>
+											</a>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -169,10 +145,11 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 
 						{/* Profile dropdown */}
 						<Menu
-							
 							as="div"
 							className="relative ml-4">
-							<MenuButton disabled={!state.user} className="relative flex rounded-full p-2 ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
+							<MenuButton
+								disabled={!state.user}
+								className="relative flex rounded-full p-2 ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
 								<span className="absolute -inset-1.5" />
 								<span className="sr-only">Open user menu</span>
 								{avatarSrc ? (
