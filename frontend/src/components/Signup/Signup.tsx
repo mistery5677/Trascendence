@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import successIcon from "../../assets/succsfully_register.gif";
 
 interface SignupProps {
 	onClose: () => void;
 	onOpenLogin: () => void;
 }
 
+
 export function Signup({ onClose, onOpenLogin }: SignupProps) {
 	
 	const [showPassword, setShowPassword] = useState(false);
 	const show = useModalReveal(80);
+
+	const [successMessage, setSuccessMessage] = useState(false);
+	// const [errorMessage, setErrorMessage] = useState(false);
+
+	const [password, setPassword] = useState("");
+	const hasMinLength = password.length > 6;
+	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+	const hasUpperCase = /[A-Z]/.test(password);
 
 
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -18,11 +28,26 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 		const formData = new FormData(e.currentTarget);
 		const data = Object.fromEntries(formData.entries());
 		console.log("Data ready for backend", data);
-		await fetch("/api/auth/signup", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(data),
-		});
+
+		try {
+			const response = await fetch("/api/auth/signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data),
+			});
+			
+			if (response.ok) {
+				setSuccessMessage(true);
+				
+			} else{
+				setSuccessMessage(false);
+				console.log("Erro no registo, o backend não devolveu OK.");
+			}
+
+		}
+		catch (error) {
+            console.error("Erro ao comunicar com o servidor", error);
+        }
 	};
 
 	return (
@@ -60,7 +85,25 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 						<h1 className="text-2xl font-bold mt-1">New Challenger</h1>
 						<p className="text-board-text-muted text-xs mt-1 tracking-widest uppercase">Join the game</p>
 					</div>
-
+					{successMessage ? (
+						<div className="success-container"style={{
+							display: 'flex',           /* Ativa o modo flexível */
+							flexDirection: 'column',   /* Põe os elementos uns debaixo dos outros */
+							alignItems: 'center',      /* CENTRA TUDO NA HORIZONTAL */
+							justifyContent: 'center',  /* CENTRA TUDO NA VERTICAL */
+							textAlign: 'center',       /* CENTRA O TEXTO DENTRO DAS TAGS */
+							minHeight: '350px',        /* Garante que ocupa o espaço do formulário antigo */
+							padding: '20px'
+						}}>
+							<div className="success-icon-wrapper">
+    							<img src={successIcon} alt="success" />
+							</div>
+							<h2>Challenger Accepted!</h2>
+							<p>
+								User created with success. <br />
+							</p>
+						</div>
+					) : (
 					<form
 						onSubmit={handleSubmit}
 						className="space-y-5">
@@ -174,6 +217,8 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									required
 									className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
 									placeholder="Enter your password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
 								/>
 								<button
 									type="button"
@@ -182,6 +227,30 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									aria-label="Toggle password visibility">
 									{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
 								</button>
+							</div>
+							{/* Password requirements */}
+							<div style={{ 
+								display: 'flex', 
+								flexDirection: 'column', 
+								gap: '3px', 
+								fontSize: '13px', 
+								marginTop: '10px',
+								textAlign: 'left'
+							}}>
+								{/* Password Length */}
+								<span style={{ color: hasMinLength ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasMinLength ? '✓' : '✗'} More than 6 words
+								</span>
+
+								{/* Special characters */}
+								<span style={{ color: hasSpecialChar ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasSpecialChar ? '✓' : '✗'} At least one special character (!@#$...)
+								</span>
+
+								{/* Upper case letter */}
+								<span style={{ color: hasUpperCase ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasUpperCase ? '✓' : '✗'} At least one upper case
+								</span>
 							</div>
 						</div>
 
@@ -208,7 +277,12 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 						{/* Submit */}
 						<button
 							type="submit"
-							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+							disabled={(hasMinLength && hasSpecialChar && hasUpperCase) == false}
+							style={{
+								opacity: (hasMinLength && hasSpecialChar && hasUpperCase) ? 1 : 0.5,
+								cursor: (hasMinLength && hasSpecialChar && hasUpperCase) ? 'pointer' : 'not-allowed'
+							}}>
 							Start Playing
 						</button>
 
@@ -222,6 +296,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 							</button>
 						</p>
 					</form>
+					)}
 				</div>
 			</div>
 		</div>
