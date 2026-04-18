@@ -1,3 +1,5 @@
+import { IconUser } from "@tabler/icons-react";
+
 import {
 	Disclosure,
 	DisclosureButton,
@@ -8,6 +10,7 @@ import {
 	MenuItems,
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../../contexts/UserContext";
 
 const navigation = [
 	// { name: "Home", href: "/", current: true },
@@ -26,28 +29,21 @@ interface NavBarProps {
 }
 
 export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
+	const { state, logout } = useAuth();
+
 	const handleLogout = async () => {
 		console.log("POST Logout");
 
 		try {
-			const res = await fetch("api/auth/logout", {
-				method: "POST",
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-			});
+			await logout();
 
-			if (!res.ok) {
-				throw new Error(`Error failed: ${res.status}`);
-			}
-
-			localStorage.removeItem("accessToken");
-			sessionStorage.removeItem("accessToken");
-			// cookieStore.removeEventListener('access_token');
-			window.location.href = "./";
+			// window.location.href = "./";
 		} catch (err) {
 			console.log(err);
 		}
 	};
+
+	const avatarSrc = state.user?.avatarUrl; // -> /api/assets/avatars/default1.png
 
 	return (
 		<Disclosure
@@ -115,11 +111,11 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 											<div
 												key={item.name}
 												className="relative ml-1 group/play">
-												<a
-													href="/play"
+												<button
+													type="button"
 													className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-slate-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900">
 													Play
-												</a>
+												</button>
 
 												<div className="pointer-events-none invisible absolute right-0 top-full z-20 w-56 pt-3 opacity-0 translate-y-1 transition-all duration-200 group-hover/play:pointer-events-auto group-hover/play:visible group-hover/play:translate-y-0 group-hover/play:opacity-100 group-focus-within/play:pointer-events-auto group-focus-within/play:visible group-focus-within/play:translate-y-0 group-focus-within/play:opacity-100">
 													<div className="rounded-2xl border border-emerald-300/20 bg-slate-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
@@ -173,16 +169,25 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 
 						{/* Profile dropdown */}
 						<Menu
+							
 							as="div"
 							className="relative ml-4">
-							<MenuButton className="relative flex rounded-full ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
+							<MenuButton disabled={!state.user} className="relative flex rounded-full p-2 ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
 								<span className="absolute -inset-1.5" />
 								<span className="sr-only">Open user menu</span>
-								<img
-									alt=""
-									src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-									className="size-10 rounded-full bg-slate-800 object-cover"
-								/>
+								{avatarSrc ? (
+									<img
+										src={avatarSrc}
+										alt="avatar"
+										className="max-h-7 max-w-7 object-cover"
+									/>
+								) : (
+									<IconUser
+										className="max-w-7 max-h-7"
+										size={40}
+										color="white"
+									/>
+								)}
 							</MenuButton>
 
 							<MenuItems

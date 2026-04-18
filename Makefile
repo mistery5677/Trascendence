@@ -1,6 +1,6 @@
 COMPOSE = docker compose
 
-all: up db-push
+all: up
 
 install: install-backend install-frontend
 
