@@ -12,7 +12,7 @@ install: install-backend install-frontend
 build-safe:
 	$(COMPOSE) up -d --build --renew-anon-volumes
 
-safe: build-safe generate
+safe: build-safe generate db-push
 
 sclean:
 	$(COMPOSE) down
