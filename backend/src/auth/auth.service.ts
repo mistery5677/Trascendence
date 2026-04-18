@@ -89,7 +89,7 @@ export class AuthService {
       name: user.name,
       username: user.username,
       email: user.email,
-      avatar: user.avatarUrl,
+      avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
     };
   }
