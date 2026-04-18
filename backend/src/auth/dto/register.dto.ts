@@ -13,6 +13,8 @@ export class RegisterDto {
   @IsEmail()
   email!: string;
 
+  avatarUrl!: string;
+
   @IsString()
   @MinLength(6)
   @Transform(({ value }) => value.trim())
