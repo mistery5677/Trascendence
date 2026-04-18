@@ -10,6 +10,14 @@ import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 
+const DEFAULT_AVATARS = [
+  '/backend/assets/avatars/default1.png',
+  '/backend/assets/avatars/default2.png',
+  '/backend/assets/avatars/default3.png',
+  '/backend/assets/avatars/default4.png',
+  '/backend/assets/avatars/default5.png',
+];
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -60,9 +68,13 @@ export class AuthService {
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
 
+    const randomAvatar =
+      DEFAULT_AVATARS[Math.floor(Math.random() * DEFAULT_AVATARS.length)];
+
     return await this.usersService.create({
       ...rest,
       password: hashedPassword,
+      avatarUrl: randomAvatar,
     });
   }
 
@@ -75,7 +87,7 @@ export class AuthService {
 
     return {
       name: user.name,
-		username: user.username,
+      username: user.username,
       email: user.email,
       avatar: user.avatarUrl,
       createdAt: user.createdAt,

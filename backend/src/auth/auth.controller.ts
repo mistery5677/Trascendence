@@ -51,11 +51,11 @@ export class AuthController {
   }
 
   // Example of use Guards
-  @Get('profile')
-  @UseGuards(AuthGuard)
-  profile() {
-    return 'profile';
-  }
+//   @Get('profile')
+//   @UseGuards(AuthGuard)
+//   profile() {
+//     return 'profile';
+//   }
 
   @Get('/me')
   @UseGuards(AuthGuard)
