@@ -16,8 +16,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [state, dispatch] = useReducer(authReducer, initialAuthState);
 	const hasBootstrapped = useRef(false);
 
-	async function refreshMe() {
-		dispatch({ type: "AUTH_LOADING" });
+	async function refreshMe({ silent = false } = {}) {
+		if (!silent) dispatch({ type: "AUTH_LOADING" });
 
 		try {
 			const res = await fetch("/api/auth/me", {
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			throw new Error("Login failed");
 		}
 
-		await refreshMe();
+		await refreshMe({ silent: true });
 	}
 
 	async function logout() {

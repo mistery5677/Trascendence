@@ -84,7 +84,7 @@ export function NavBar({ onOpenSignup, onOpenLogin }: NavBarProps) {
 							<div className="flex items-center rounded-full bg-stone-900/40 border border-emerald-300/10 p-1.5 overflow-visible">
 								<div
 									className={classNames(
-										"flex items-center gap-2 overflow-hidden transition-all duration-500 ease-out",
+										"flex items-center gap-2 overflow-hidden transition-[max-width,opacity,transform,margin] duration-500 ease-out",
 										isLoggedIn
 											? "max-w-0 opacity-0 -translate-x-5 scale-95 pointer-events-none mr-0"
 											: "max-w-80 opacity-100 translate-x-0 scale-100 mr-2",
