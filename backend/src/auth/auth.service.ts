@@ -9,6 +9,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { getProfileDto } from './dto/getProfile.dto';
 
 const DEFAULT_AVATARS = [
   '/assets/avatars/default1.png',
@@ -17,7 +18,6 @@ const DEFAULT_AVATARS = [
   '/assets/avatars/default4.png',
   '/assets/avatars/default5.png',
 ];
-
 
 @Injectable()
 export class AuthService {
@@ -79,7 +79,7 @@ export class AuthService {
     });
   }
 
-  async getProfile(email: string) {
+  async getProfile(email: string): Promise<getProfileDto> {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
@@ -93,7 +93,7 @@ export class AuthService {
       email: user.email,
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
-
+      updatedAt: user.updatedAt,
     };
   }
 }
