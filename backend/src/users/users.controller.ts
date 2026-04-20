@@ -13,6 +13,7 @@ import {
   HttpStatus,
   Patch,
   Body,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
@@ -31,10 +32,10 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(parseInt(id));
-  }
+//   @Get(':id')
+//   findOne(@Param('id') id: string) {
+//     return this.usersService.findOne(parseInt(id));
+//   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
@@ -82,5 +83,19 @@ export class UsersController {
       currentPassword,
       newPassword,
     );
+  }
+
+  @Get('check-username')
+  async checkUsername(@Query('username') username: string) {
+    const user = this.usersService.findOneByUsername(username);
+
+    return { isAvailable: !user };
+  }
+
+  @Get('check-email')
+  async checkEmail(@Query('email') email: string) {
+    const user = this.usersService.findOneByEmail(email);
+
+    return { isAvailable: !user };
   }
 }

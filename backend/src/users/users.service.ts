@@ -77,17 +77,17 @@ export class UsersService {
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        avatarUrl: true,
-      },
-    });
-  }
+//   findOne(id: number) {
+//     return this.prisma.user.findUnique({
+//       where: { id },
+//       select: {
+//         id: true,
+//         email: true,
+//         username: true,
+//         avatarUrl: true,
+//       },
+//     });
+//   }
   //! Example for updates
   //   update(id: number, updateUserDto: UpdateUserDto) {
   //     return `This action updates a #${id} user`;

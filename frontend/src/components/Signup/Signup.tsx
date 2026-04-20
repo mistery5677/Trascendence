@@ -32,7 +32,7 @@ export function Signup({ onModal }: SignupProps) {
 			return;
 		}
 		try {
-			const response = await fetch(`/api/auth/check-username?username=${value}`);
+			const response = await fetch(`/api/users/check-username?username=${value}`);
 			if (response.ok) {
 				const data = await response.json();
 				setUsernameAvailable(data.isAvailable);
@@ -51,7 +51,7 @@ export function Signup({ onModal }: SignupProps) {
 			return;
 		}
 		try {
-			const response = await fetch(`/api/auth/check-email?email=${value}`);
+			const response = await fetch(`/api/users/check-email?email=${value}`);
 			if (response.ok) {
 				const data = await response.json();
 				setEmailAvailable(data.isAvailable);
