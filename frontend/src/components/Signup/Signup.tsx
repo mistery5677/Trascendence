@@ -15,7 +15,7 @@ export function Signup({ onModal }: SignupProps) {
 
 	// Password pollicy
 	const [password, setPassword] = useState("");
-	const hasMinLength = password.length > 6;
+	const hasMinLength = password.length >= 6;
 	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 	const hasUpperCase = /[A-Z]/.test(password);
 
@@ -128,10 +128,7 @@ export function Signup({ onModal }: SignupProps) {
 								padding: "20px",
 							}}>
 							<div className="success-icon-wrapper">
-								<img
-									src={successIcon}
-									alt="success"
-								/>
+								<img src={successIcon} alt="success" />
 							</div>
 							<h2>Challenger Accepted!</h2>
 							<p>
@@ -392,8 +389,74 @@ export function Signup({ onModal }: SignupProps) {
 									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
 									Log in here
 								</button>
-							</p>
-						</form>
+							</div>
+							{/* Password requirements */}
+							<div style={{ 
+								display: 'flex', 
+								flexDirection: 'column', 
+								gap: '3px', 
+								fontSize: '13px', 
+								marginTop: '10px',
+								textAlign: 'left'
+							}}>
+								{/* Password Length */}
+								<span style={{ color: hasMinLength ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasMinLength ? '✓' : '✗'} More than 6 letters
+								</span>
+
+								{/* Special characters */}
+								<span style={{ color: hasSpecialChar ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasSpecialChar ? '✓' : '✗'} At least one special character (!@#$...)
+								</span>
+
+								{/* Upper case letter */}
+								<span style={{ color: hasUpperCase ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasUpperCase ? '✓' : '✗'} At least one upper case
+								</span>
+							</div>
+						</div>
+
+						{/* Terms */}
+						<div className="flex items-center">
+							<input
+								id="remember-me"
+								name="remember-me"
+								type="checkbox"
+								className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
+							/>
+							<label
+								htmlFor="remember-me"
+								className="ml-2 text-sm text-board-text-muted">
+								I accept the{" "}
+								<a
+									href="javascript:void(0);"
+									className="text-board-focus font-semibold hover:underline">
+									Rules of Play
+								</a>
+							</label>
+						</div>
+
+						{/* Submit */}
+						<button
+							type="submit"
+							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+							disabled={(hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) == false}
+							style={{
+								opacity: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 1 : 0.5,
+								cursor: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 'pointer' : 'not-allowed'
+							}}>
+							Start Playing
+						</button>
+						<p className="text-board-text-muted text-sm text-center">
+							Already have an account?{" "}
+							<button
+								type="button"
+								onClick={onOpenLogin}
+								className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+								Log in here
+							</button>
+						</p>
+					</form>
 					)}
 				</div>
 			</div>

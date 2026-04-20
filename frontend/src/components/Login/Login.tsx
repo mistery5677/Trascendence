@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth } from "../../contexts/UserContext";
+import successIcon from "../../assets/succsfully_register.gif";
 
 type LoginProps = {
 	// onClose: () => void;
@@ -14,8 +15,14 @@ export function Login({ onModal }: LoginProps) {
 
 	const show = useModalReveal(80);
 
+	// Show the password that you are typing
 	const [showPassword, setShowPassword] = useState(false);
 
+	// If the credentials are wrong
+	const [invalidCredentials, wrongCredentials] = useState(false);
+	const [successMessage, validCredentials] = useState(false);
+
+	// Handle login button
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
@@ -24,10 +31,15 @@ export function Login({ onModal }: LoginProps) {
 		// const rememberMe = formData.get("remember-me") as string;
 
 		try {
+			wrongCredentials(false);
 			await login(identity, password);
-			onModal(null);
+			validCredentials(true);
+			setTimeout(() => {
+				onModal(null);
+			}, 1500);
 		} catch (error) {
 			console.log(error);
+			wrongCredentials(true);
 		}
 	};
 
@@ -59,7 +71,25 @@ export function Login({ onModal }: LoginProps) {
 								Welcome back to the board
 							</p>
 						</div>
-
+						{successMessage ? (
+						<div className="success-container"style={{
+							display: 'flex',          
+							flexDirection: 'column',  
+							alignItems: 'center',     
+							justifyContent: 'center', 
+							textAlign: 'center',      
+							minHeight: '350px',       
+							padding: '20px'
+						}}>
+							<div className="success-icon-wrapper">
+								<img src={successIcon} alt="success" />
+							</div>
+							<h2>Challenger Accepted!</h2>
+							<p>
+								Login with success. <br />
+							</p>
+						</div>
+						) : (
 						<form
 							className="space-y-5"
 							onSubmit={handleSubmit}>
@@ -138,9 +168,20 @@ export function Login({ onModal }: LoginProps) {
 							{/* Submit */}
 							<button
 								type="submit"
-								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+								style={{
+									opacity: (1) ? 1 : 0.5,
+									cursor: (1) ? 'pointer' : 'not-allowed'
+								}}>
 								Log In to Play
 							</button>
+							{invalidCredentials && (
+								<div style={{ fontSize: '13px', marginBottom: '10px', textAlign: 'left' }}>
+									<span style={{ color:'#EF4444', transition: 'color 0.3s' }}>
+										Credentials are wrong
+									</span>
+								</div>
+							)}
 
 							<p className="text-board-text-muted text-sm text-center">
 								Don't have an account?{" "}
@@ -152,6 +193,7 @@ export function Login({ onModal }: LoginProps) {
 								</button>
 							</p>
 						</form>
+						)}
 					</div>
 				</div>
 			</div>
