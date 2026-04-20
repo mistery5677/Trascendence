@@ -4,11 +4,12 @@ import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth } from "../../contexts/UserContext";
 
 type LoginProps = {
-	onClose: () => void;
-	onOpenSignup: () => void;
+	// onClose: () => void;
+	// onOpenSignup: () => void;
+	onModal: (modal: "signup" | "login" | null) => void;
 };
 
-export function Login({ onClose, onOpenSignup }: LoginProps) {
+export function Login({ onModal }: LoginProps) {
 	const { login } = useAuth();
 
 	const show = useModalReveal(80);
@@ -25,7 +26,7 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 
 		try {
 			await login(identity, password);
-			onClose();
+			onModal(null);
 		} catch (error) {
 			console.log(error);
 		}
@@ -36,7 +37,7 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 ${show ? "opacity-100" : "opacity-0"}`}
-				onClick={onClose}>
+				onClick={() => onModal(null)}>
 				{/* Card */}
 				<div
 					className={`w-full max-w-md mx-4 transition-all transform duration-300 ease-out ${show ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
@@ -146,7 +147,7 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 								Don't have an account?{" "}
 								<button
 									type="button"
-									onClick={onOpenSignup}
+									onClick={() => onModal("signup")}
 									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
 									Join the game
 								</button>

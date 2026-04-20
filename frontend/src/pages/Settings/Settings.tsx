@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useAuth } from "../../contexts/UserContext";
 
 type SettingsTab = "profile" | "account" | "board";
 
@@ -16,6 +17,19 @@ type SettingsProps = {
 
 export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
+	const { state } = useAuth();
+
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+	const handleUploadClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		console.log("Selected file:", file);
+	};
 
 	return (
 		<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -103,9 +117,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 											<div className="flex items-center gap-4">
 												<img
-													src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fit=facearea&facepad=2&w=256&h=256&q=80"
+													src={state.user?.avatarUrl}
 													alt="Profile avatar"
-													className="h-20 w-20 rounded-full border-2 border-emerald-300/40 object-cover"
+													className="h-20 w-20 p-2 max-w-20 max-h-20 rounded-full border-2 border-emerald-300/40 object-fit"
 												/>
 												<div>
 													<h3 className="text-lg font-semibold text-stone-100">
@@ -115,8 +129,16 @@ export function Settings({ tabOpt }: SettingsProps) {
 												</div>
 											</div>
 											<div className="flex gap-2">
+												<input
+													ref={fileInputRef}
+													type="file"
+													accept="image/png,image/jpeg"
+													onChange={handleFileChange}
+													className="hidden"
+												/>
 												<button
 													type="button"
+													onClick={handleUploadClick}
 													className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 													Upload
 												</button>
