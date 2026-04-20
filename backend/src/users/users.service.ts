@@ -1,8 +1,10 @@
 import {
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import * as bcryptjs from 'bcryptjs';
 
 import { PrismaService } from 'src/prisma.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
@@ -29,6 +31,37 @@ export class UsersService {
   }
   async findOneByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email: email } });
+  }
+
+  async updateAvatar(email: string, avatarUrl: string) {
+    const user = this.findOneByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('User not Found');
+    }
+
+    return await this.prisma.user.update({
+      where: { email },
+      data: { avatarUrl: avatarUrl, updatedAt: new Date() },
+    });
+  }
+
+  async updatePassword(email: string, current: string, newPassword: string) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const isMatch = await bcryptjs.compare(current, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException("Current password doesn't match");
+    }
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(newPassword, salt);
+
+    return await this.prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword, updatedAt: new Date() },
+    });
   }
 
   findAll() {

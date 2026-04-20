@@ -50,16 +50,9 @@ export class AuthController {
     return { message: 'Logged out' };
   }
 
-  // Example of use Guards
-//   @Get('profile')
-//   @UseGuards(AuthGuard)
-//   profile() {
-//     return 'profile';
-//   }
-
   @Get('/me')
   @UseGuards(AuthGuard)
   async getProfile(@Req() req) {
-    return await this.authService.getProfile(req.user.user);
+    return await this.authService.getProfile(req.user.userEmail);
   }
 }
