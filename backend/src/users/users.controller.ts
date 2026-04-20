@@ -32,10 +32,10 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.usersService.findOne(parseInt(id));
-//   }
+  //   @Get(':id')
+  //   findOne(@Param('id') id: string) {
+  //     return this.usersService.findOne(parseInt(id));
+  //   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
