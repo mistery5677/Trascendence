@@ -17,7 +17,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 
 	// Password pollicy
 	const [password, setPassword] = useState("");
-	const hasMinLength = password.length > 6;
+	const hasMinLength = password.length >= 6;
 	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 	const hasUpperCase = /[A-Z]/.test(password);
 
@@ -130,7 +130,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 							padding: '20px'
 						}}>
 							<div className="success-icon-wrapper">
-    							<img src={successIcon} alt="success" />
+								<img src={successIcon} alt="success" />
 							</div>
 							<h2>Challenger Accepted!</h2>
 							<p>
@@ -290,7 +290,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 							}}>
 								{/* Password Length */}
 								<span style={{ color: hasMinLength ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
-									{hasMinLength ? '✓' : '✗'} More than 6 words
+									{hasMinLength ? '✓' : '✗'} More than 6 letters
 								</span>
 
 								{/* Special characters */}
@@ -329,7 +329,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 						<button
 							type="submit"
 							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
-							disabled={(hasMinLength && hasSpecialChar && hasUpperCase) == false}
+							disabled={(hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) == false}
 							style={{
 								opacity: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 1 : 0.5,
 								cursor: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 'pointer' : 'not-allowed'
