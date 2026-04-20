@@ -27,3 +27,53 @@ model user {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
+
+// ! Example of new data base with UserPreferences
+// model user {
+//   id           Int               @id @default(autoincrement())
+//   email        String            @unique
+//   username     String            @unique
+//   password     String
+//   avatarUrl    String?
+//   // Relación 1 a 1: Un usuario tiene una sola configuración
+//   preferences  UserPreferences?
+
+//   createdAt    DateTime          @default(now())
+//   updatedAt    DateTime          @updatedAt
+// }
+
+// model UserPreferences {
+//   id          Int      @id @default(autoincrement())
+//   backgroundColor String   @default("#ffffff")
+//   colorPalette    String   @default("standard")
+//   boardTheme      String   @default("wood")
+
+//   // Relación con el usuario
+//   userId      Int      @unique
+//   user        user     @relation(fields: [userId], references: [id])
+// }
+
+// !
+// model Friendship {
+//   id          Int              @id @default(autoincrement())
+//   status      FriendshipStatus @default(PENDING)
+//   createdAt   DateTime         @default(now())
+
+//   // El usuario que inicia la solicitud (A)
+//   senderId    Int
+//   sender      user             @relation("SentRequests", fields: [senderId], references: [id])
+
+//   // El usuario que recibe la solicitud (B)
+//   receiverId  Int
+//   receiver    user             @relation("ReceivedRequests", fields: [receiverId], references: [id])
+
+//   // Evita que existan dos filas para la misma pareja de amigos
+//   @@unique([senderId, receiverId])
+// }
+
+// enum FriendshipStatus {
+//   PENDING
+//   ACCEPTED
+//   DECLINED
+//   BLOCKED
+// }
