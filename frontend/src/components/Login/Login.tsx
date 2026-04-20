@@ -19,7 +19,6 @@ export function Login({ onModal }: LoginProps) {
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
-		// const data = Object.fromEntries(formData.entries());
 		const identity = formData.get("identity") as string;
 		const password = formData.get("password") as string;
 		// const rememberMe = formData.get("remember-me") as string;
