@@ -8,7 +8,7 @@ import {
   Query,
   Res,
   UseGuards,
-  Req
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -21,7 +21,7 @@ import { PrismaService } from 'src/prisma.service';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private prisma: PrismaService
+    private prisma: PrismaService,
   ) {}
 
   @Post('/login')
@@ -55,15 +55,14 @@ export class AuthController {
     return { message: 'Logged out' };
   }
 
-  @Get('me')
+  @Get('/me')
   @UseGuards(AuthGuard)
-  getMe(@Req() req) {
-    return req.user; 
+  async getProfile(@Req() req) {
+    return await this.authService.getProfile(req.user.user);
   }
 
   @Get('check-username')
   async checkUsername(@Query('username') username: string) {
-    
     // Procura na base de dados
     const user = await this.prisma.user.findUnique({
       where: { username: username },
@@ -72,9 +71,8 @@ export class AuthController {
     return { isAvailable: !user };
   }
 
-    @Get('check-email')
+  @Get('check-email')
   async checkEmail(@Query('email') email: string) {
-    
     // Procura na base de dados
     const user = await this.prisma.user.findUnique({
       where: { email: email },
