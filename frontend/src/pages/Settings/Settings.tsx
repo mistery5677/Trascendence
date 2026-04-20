@@ -17,7 +17,7 @@ type SettingsProps = {
 
 export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
-	const { state } = useAuth();
+	const { state, refreshMe } = useAuth();
 
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -25,11 +25,27 @@ export function Settings({ tabOpt }: SettingsProps) {
 		fileInputRef.current?.click();
 	};
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
+		console.log("HERE");
 		console.log("Selected file:", file);
+
+		const res = await fetch("/api/users/avatar", {
+			method: "POST",
+			credentials: "include",
+			body: file,
+		});
+
+		if (res.ok) {
+			refreshMe();
+		}
 	};
+
+	// const handleSaveChanges = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
+	// }
+	
 
 	return (
 		<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -57,9 +73,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
 											className="icon icon-tabler icons-tabler-outline icon-tabler-user">
 											<path
 												stroke="none"
@@ -84,9 +100,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
 											className="icon icon-tabler icons-tabler-outline icon-tabler-device-laptop">
 											<path
 												stroke="none"
@@ -172,6 +188,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="sm:col-span-2">
 											<button
 												type="submit"
+												// onClick={() => handleSaveChanges}
 												className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 												Save changes
 											</button>
