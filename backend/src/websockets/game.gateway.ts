@@ -22,7 +22,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket) {
-    this.matchMakingService.addToQueue(client);
+    this.matchMakingService.addToQueue(client, this.server);
   }
 
   handleConnection(client: Socket) {
@@ -32,7 +32,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: Socket) {
     this.matchMakingService.removeFromQueue(client);
   }
-  
+
   @SubscribeMessage('message')
   handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     console.log(data);

@@ -87,14 +87,15 @@ export class UsersController {
 
   @Get('check-username')
   async checkUsername(@Query('username') username: string) {
-    const user = this.usersService.findOneByUsername(username);
+    const user = await this.usersService.findOneByUsername(username);
 
     return { isAvailable: !user };
   }
 
   @Get('check-email')
+  @HttpCode(HttpStatus.OK)
   async checkEmail(@Query('email') email: string) {
-    const user = this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmail(email);
 
     return { isAvailable: !user };
   }

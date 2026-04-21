@@ -53,10 +53,6 @@ export class AuthController {
   @Get('/me')
   @UseGuards(AuthGuard)
   async getProfile(@Req() req) {
-<<<<<<< HEAD
-    return await this.authService.getProfile(req.user.email);
-=======
     return await this.authService.getProfile(req.user.userEmail);
->>>>>>> origin
   }
 }
