@@ -1,35 +1,93 @@
 import React, { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import successIcon from "../../assets/succsfully_register.gif";
 
 interface SignupProps {
-	onClose: () => void;
-	onOpenLogin: () => void;
+	onModal : ( modal: "sign up" | "login" | null ) => void;
 }
 
-export function Signup({ onClose, onOpenLogin }: SignupProps) {
+export function Signup({ onModal }: SignupProps) {
 	
 	const [showPassword, setShowPassword] = useState(false);
 	const show = useModalReveal(80);
 
+	const [successMessage, setSuccessMessage] = useState(false);
 
+	// Password pollicy
+	const [password, setPassword] = useState("");
+	const hasMinLength = password.length >= 6;
+	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+	const hasUpperCase = /[A-Z]/.test(password);
+
+	// Is allways checking if the username is available
+	const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+	const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
+
+	// Check if the username is already in use
+	const checkUsername = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		if (value.length < 3) {
+			setUsernameAvailable(null);
+			return;
+		}
+		try {
+			const response = await fetch(`/api/users/check-username?username=${value}`);
+			if (response.ok) {
+				const data = await response.json();
+				setUsernameAvailable(data.isAvailable);
+			}
+		} catch (error) {
+			console.error("Failed to check username", error);
+		}
+	};
+
+	// Check if the email is already in use
+	const checkEmail = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		// Check if it includes @
+		if (!value.includes('@')) {
+			setEmailAvailable(null);
+			return;
+		}
+		try {
+			const response = await fetch(`/api/users/check-email?email=${value}`);
+			if (response.ok) {
+				const data = await response.json();
+				setEmailAvailable(data.isAvailable);
+			}
+		} catch (error) {
+			console.error("Failed to verify email", error);
+		}
+	};
+
+	// Handle the submit button
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
 		const data = Object.fromEntries(formData.entries());
 		console.log("Data ready for backend", data);
-		await fetch("/api/auth/signup", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(data),
-		});
+
+		try {
+			const response = await fetch("/api/auth/signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok)
+				setSuccessMessage(true);
+		}
+		catch (error) {
+            console.error("Error communicating with the server", error);
+        }
 	};
 
 	return (
 		/* Backdrop */
 		<div
 			className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 ${show ? "opacity-100" : "opacity-0"}`}
-			onClick={onClose}>
+			onClick={ () => onModal(null)}>
 			{/* Card */}
 			<div
 				onClick={(e) => e.stopPropagation()}
@@ -48,7 +106,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 				<div className="bg-board-bg px-8 py-8 rounded-b-2xl shadow-2xl">
 					{/* Close button */}
 					<button
-						onClick={onClose}
+						onClick={ () => onModal(null)}
 						className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 text-xl leading-none cursor-pointer"
 						aria-label="Close">
 						✕
@@ -60,7 +118,25 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 						<h1 className="text-2xl font-bold mt-1">New Challenger</h1>
 						<p className="text-board-text-muted text-xs mt-1 tracking-widest uppercase">Join the game</p>
 					</div>
-
+					{successMessage ? (
+						<div className="success-container"style={{
+							display: 'flex',          
+							flexDirection: 'column',  
+							alignItems: 'center',     
+							justifyContent: 'center', 
+							textAlign: 'center',      
+							minHeight: '350px',       
+							padding: '20px'
+						}}>
+							<div className="success-icon-wrapper">
+								<img src={successIcon} alt="success" />
+							</div>
+							<h2>Challenger Accepted!</h2>
+							<p>
+								User created with success. <br />
+							</p>
+						</div>
+					) : (
 					<form
 						onSubmit={handleSubmit}
 						className="space-y-5">
@@ -98,11 +174,13 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 							<div className="relative flex items-center">
 								<input
 									name="username"
-									type="text"
+									type="text" 
 									required
 									className="text-board-text bg-board-input border-2 border-board-border w-full text-sm pl-4 pr-8 py-2.5 rounded-xl focus:border-board-focus focus:outline-none placeholder-board-text-muted"
 									placeholder="Enter your username"
+									onBlur={checkUsername} // Triggers when we click out
 								/>
+								
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="#94a3b8"
@@ -119,6 +197,13 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 										data-original="#000000"></path>
 								</svg>
 							</div>
+							{usernameAvailable !== null && (
+								<div style={{ fontSize: '13px', marginTop: '2px', marginBottom: '10px', textAlign: 'left' }}>
+									<span style={{ color: usernameAvailable ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+										{usernameAvailable ? '✓ Available username' : '✗ Username already in use'}
+									</span>
+								</div>
+							)}
 						</div>
 
 						{/* Email */}
@@ -131,6 +216,7 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									required
 									className="text-board-text bg-board-input border-2 border-board-border w-full text-sm pl-4 pr-8 py-2.5 rounded-xl focus:border-board-focus focus:outline-none placeholder-board-text-muted"
 									placeholder="Enter your email"
+									onBlur={checkEmail}
 								/>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -162,6 +248,13 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									</g>
 								</svg>
 							</div>
+							{emailAvailable !== null && (
+								<div style={{ fontSize: '13px', marginTop: '2px', marginBottom: '10px', textAlign: 'left' }}>
+									<span style={{ color: emailAvailable ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+										{emailAvailable ? '✓ Available email' : '✗ Email already in use'}
+									</span>
+								</div>
+							)}
 						</div>
 
 						{/* Password */}
@@ -174,6 +267,8 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									required
 									className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
 									placeholder="Enter your password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
 								/>
 								<button
 									type="button"
@@ -182,6 +277,30 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 									aria-label="Toggle password visibility">
 									{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
 								</button>
+							</div>
+							{/* Password requirements */}
+							<div style={{ 
+								display: 'flex', 
+								flexDirection: 'column', 
+								gap: '3px', 
+								fontSize: '13px', 
+								marginTop: '10px',
+								textAlign: 'left'
+							}}>
+								{/* Password Length */}
+								<span style={{ color: hasMinLength ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasMinLength ? '✓' : '✗'} More than 6 letters
+								</span>
+
+								{/* Special characters */}
+								<span style={{ color: hasSpecialChar ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasSpecialChar ? '✓' : '✗'} At least one special character (!@#$...)
+								</span>
+
+								{/* Upper case letter */}
+								<span style={{ color: hasUpperCase ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasUpperCase ? '✓' : '✗'} At least one upper case
+								</span>
 							</div>
 						</div>
 
@@ -208,20 +327,25 @@ export function Signup({ onClose, onOpenLogin }: SignupProps) {
 						{/* Submit */}
 						<button
 							type="submit"
-							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+							disabled={(hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) == false}
+							style={{
+								opacity: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 1 : 0.5,
+								cursor: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 'pointer' : 'not-allowed'
+							}}>
 							Start Playing
 						</button>
-
 						<p className="text-board-text-muted text-sm text-center">
 							Already have an account?{" "}
 							<button
 								type="button"
-								onClick={onOpenLogin}
+								onClick={() => onModal("login")}
 								className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
 								Log in here
 							</button>
 						</p>
 					</form>
+					)}
 				</div>
 			</div>
 		</div>

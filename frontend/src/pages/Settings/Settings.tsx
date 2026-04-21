@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useAuth } from "../../contexts/UserContext";
+import { updateAvatar, updatePassword } from "../../api/users";
 
 type SettingsTab = "profile" | "account" | "board";
 
@@ -16,6 +18,52 @@ type SettingsProps = {
 
 export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
+	const { state, refreshMe } = useAuth();
+
+	const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+	const handleUploadClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		console.log("HERE");
+		console.log("Selected file:", file);
+
+		try {
+			await updateAvatar(file);
+			refreshMe();
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	const handlePasswordChange = async (e: React.SubmitEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		const formData = new FormData(e.currentTarget);
+
+		const currentPassword = formData.get("currentPassword") as string | null;
+		const newPassword = formData.get("newPassword") as string | null;
+		const confirmPassword = formData.get("confirmPassword") as string | null;
+
+		if (!currentPassword || !newPassword || !confirmPassword) {
+			console.error("All fields are required");
+			return;
+		}
+
+		if (newPassword !== confirmPassword) {
+			console.error("Passwords do not match");
+			return;
+		}
+		try {
+			await updatePassword(currentPassword, newPassword);
+		} catch (err) {
+			console.log(err);
+		}
+	};
 
 	return (
 		<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -43,9 +91,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
 											className="icon icon-tabler icons-tabler-outline icon-tabler-user">
 											<path
 												stroke="none"
@@ -70,9 +118,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
 											className="icon icon-tabler icons-tabler-outline icon-tabler-device-laptop">
 											<path
 												stroke="none"
@@ -103,9 +151,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 											<div className="flex items-center gap-4">
 												<img
-													src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fit=facearea&facepad=2&w=256&h=256&q=80"
+													src={state.user?.avatarUrl}
 													alt="Profile avatar"
-													className="h-20 w-20 rounded-full border-2 border-emerald-300/40 object-cover"
+													className="h-20 w-20 p-2 max-w-20 max-h-20 rounded-full border-2 border-emerald-300/40 object-fit"
 												/>
 												<div>
 													<h3 className="text-lg font-semibold text-stone-100">
@@ -115,8 +163,16 @@ export function Settings({ tabOpt }: SettingsProps) {
 												</div>
 											</div>
 											<div className="flex gap-2">
+												<input
+													ref={fileInputRef}
+													type="file"
+													accept="image/png,image/jpeg"
+													onChange={handleFileChange}
+													className="hidden"
+												/>
 												<button
 													type="button"
+													onClick={handleUploadClick}
 													className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 													Upload
 												</button>
@@ -128,7 +184,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 											</div>
 										</div>
 									</div>
-									<form className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<form
+										className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
+										onSubmit={handlePasswordChange}>
 										<label className="flex flex-col gap-1.5 sm:col-span-1">
 											<span className="text-sm font-semibold text-stone-300">Display Name</span>
 											<input
@@ -161,12 +219,15 @@ export function Settings({ tabOpt }: SettingsProps) {
 							{activeTab === "account" && (
 								<>
 									<h2 className="text-2xl font-bold">Account</h2>
-									<form className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<form
+										className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
+										onSubmit={handlePasswordChange}>
 										<label className="flex flex-col gap-1.5 sm:col-span-2">
 											<span className="text-sm font-semibold text-stone-300">
 												Current Password
 											</span>
 											<input
+												name="currentPassword"
 												type="password"
 												placeholder="Enter current password"
 												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
@@ -176,6 +237,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<label className="flex flex-col gap-1.5 sm:col-span-1">
 											<span className="text-sm font-semibold text-stone-300">New Password</span>
 											<input
+												name="newPassword"
 												type="password"
 												placeholder="New password"
 												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
@@ -187,6 +249,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												Confirm Password
 											</span>
 											<input
+												name="confirmPassword"
 												type="password"
 												placeholder="Confirm password"
 												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"

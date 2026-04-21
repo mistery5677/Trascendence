@@ -2,32 +2,44 @@ import { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useAuth } from "../../contexts/UserContext";
+import successIcon from "../../assets/succsfully_register.gif";
 
 type LoginProps = {
-	onClose: () => void;
-	onOpenSignup: () => void;
+	// onClose: () => void;
+	// onOpenSignup: () => void;
+	onModal: (modal: "signup" | "login" | null) => void;
 };
 
-export function Login({ onClose, onOpenSignup }: LoginProps) {
+export function Login({ onModal }: LoginProps) {
 	const { login } = useAuth();
 
 	const show = useModalReveal(80);
 
+	// Show the password that you are typing
 	const [showPassword, setShowPassword] = useState(false);
 
+	// If the credentials are wrong
+	const [invalidCredentials, wrongCredentials] = useState(false);
+	const [successMessage, validCredentials] = useState(false);
+
+	// Handle login button
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
-		// const data = Object.fromEntries(formData.entries());
 		const identity = formData.get("identity") as string;
 		const password = formData.get("password") as string;
 		// const rememberMe = formData.get("remember-me") as string;
 
 		try {
+			wrongCredentials(false);
 			await login(identity, password);
-			onClose();
+			validCredentials(true);
+			setTimeout(() => {
+				onModal(null);
+			}, 1500);
 		} catch (error) {
 			console.log(error);
+			wrongCredentials(true);
 		}
 	};
 
@@ -36,7 +48,7 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 			{/* Backdrop */}
 			<div
 				className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 ${show ? "opacity-100" : "opacity-0"}`}
-				onClick={onClose}>
+				onClick={() => onModal(null)}>
 				{/* Card */}
 				<div
 					className={`w-full max-w-md mx-4 transition-all transform duration-300 ease-out ${show ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}
@@ -59,7 +71,25 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 								Welcome back to the board
 							</p>
 						</div>
-
+						{successMessage ? (
+						<div className="success-container"style={{
+							display: 'flex',          
+							flexDirection: 'column',  
+							alignItems: 'center',     
+							justifyContent: 'center', 
+							textAlign: 'center',      
+							minHeight: '350px',       
+							padding: '20px'
+						}}>
+							<div className="success-icon-wrapper">
+								<img src={successIcon} alt="success" />
+							</div>
+							<h2>Challenger Accepted!</h2>
+							<p>
+								Login with success. <br />
+							</p>
+						</div>
+						) : (
 						<form
 							className="space-y-5"
 							onSubmit={handleSubmit}>
@@ -138,20 +168,32 @@ export function Login({ onClose, onOpenSignup }: LoginProps) {
 							{/* Submit */}
 							<button
 								type="submit"
-								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2">
+								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+								style={{
+									opacity: (1) ? 1 : 0.5,
+									cursor: (1) ? 'pointer' : 'not-allowed'
+								}}>
 								Log In to Play
 							</button>
+							{invalidCredentials && (
+								<div style={{ fontSize: '13px', marginBottom: '10px', textAlign: 'left' }}>
+									<span style={{ color:'#EF4444', transition: 'color 0.3s' }}>
+										Credentials are wrong
+									</span>
+								</div>
+							)}
 
 							<p className="text-board-text-muted text-sm text-center">
 								Don't have an account?{" "}
 								<button
 									type="button"
-									onClick={onOpenSignup}
+									onClick={() => onModal("signup")}
 									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
 									Join the game
 								</button>
 							</p>
 						</form>
+						)}
 					</div>
 				</div>
 			</div>

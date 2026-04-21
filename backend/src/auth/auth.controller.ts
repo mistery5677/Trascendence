@@ -5,9 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Res,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -53,6 +53,10 @@ export class AuthController {
   @Get('/me')
   @UseGuards(AuthGuard)
   async getProfile(@Req() req) {
+<<<<<<< HEAD
     return await this.authService.getProfile(req.user.email);
+=======
+    return await this.authService.getProfile(req.user.userEmail);
+>>>>>>> origin
   }
 }

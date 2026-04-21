@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
 import { Error, Home, Play, Settings } from "../../pages";
@@ -13,32 +13,15 @@ export function MainRouter() {
 
 	const [activeModal, setActiveModal] = useState<ActivateModal>(null);
 
-	const openSignup = () => setActiveModal("signup");
-	const openLogin = () => setActiveModal("login");
-	const closeModal = () => setActiveModal(null);
-
 	if (state.isLoading) {
 		return <FallBack />;
 	}
 	return (
 		<BrowserRouter>
-			<NavBar
-				onOpenSignup={openSignup}
-				onOpenLogin={openLogin}
-			/>
-			{activeModal === "signup" && (
-				<Signup
-					onClose={closeModal}
-					onOpenLogin={openLogin}
-				/>
-			)}
+			<NavBar onModal={setActiveModal} />
+			{activeModal === "signup" && <Signup onModal={setActiveModal} />}
 
-			{activeModal === "login" && (
-				<Login
-					onClose={closeModal}
-					onOpenSignup={openSignup}
-				/>
-			)}
+			{activeModal === "login" && <Login onModal={setActiveModal} />}
 			<Routes>
 				{MultiRoute(RouterPaths.HOME, <Home />)}
 

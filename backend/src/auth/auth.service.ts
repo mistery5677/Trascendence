@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Injectable,
   Req,
   UnauthorizedException,
@@ -40,7 +40,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Credentials');
     }
 
+<<<<<<< HEAD
     const payload = { sub: user.id, email: user.email };
+=======
+    const payload = { userId: user.id, userEmail: user.email };
+>>>>>>> origin
 
     const token = await this.jwtService.signAsync(payload);
 
@@ -53,7 +57,7 @@ export class AuthService {
     );
 
     if (userByEmail) {
-      throw new BadRequestException('User with this email already exist');
+      throw new ConflictException('User with this email already exist');
     }
 
     const userByUsername = await this.usersService.findOneByUsername(
@@ -61,7 +65,7 @@ export class AuthService {
     );
 
     if (userByUsername) {
-      throw new BadRequestException('User with this username already exist');
+      throw new ConflictException('User with this username already exist');
     }
     const { password, ...rest } = registerDto;
 
