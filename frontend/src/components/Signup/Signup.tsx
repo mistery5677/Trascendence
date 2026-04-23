@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import successIcon from "../../assets/succsfully_register.gif";
-import { verifyUsername, verifyEmail, signupUser } from '../../api/users.ts';
+import { verifyUsername, verifyEmail, signupUser } from "../../api/users.ts";
 
 interface SignupProps {
 	onModal: (modal: "signup" | "login" | null) => void;
@@ -32,7 +32,7 @@ export function Signup({ onModal }: SignupProps) {
 			return;
 		}
 		try {
-			const isAvailable = await verifyUsername(value);
+			let isAvailable = await verifyUsername(value);
 			setUsernameAvailable(isAvailable);
 		} catch (error) {
 			console.error("Failed to check username", error);
@@ -64,10 +64,12 @@ export function Signup({ onModal }: SignupProps) {
 
 		try {
 			const response = await signupUser(data);
-			console.log("Aqui vamos ter a querida resposta ", response)
+			console.log("Aqui vamos ter a querida resposta ", response);
 			setSuccessMessage(response);
-			setTimeout(() => { onModal(null);}, 1500);
-		}
+			setTimeout(() => {
+				onModal(null);
+			}, 1500);
+		} catch (err) {}
 	};
 
 	return (
