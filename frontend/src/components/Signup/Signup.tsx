@@ -25,13 +25,15 @@ export function Signup({ onModal }: SignupProps) {
 	const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 	const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
+	// Check if all information is true
+	const isFormValid = hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable;
+	// Special condition for password ... REMOVE BEFORE DELIVER
+	const canSubmit = password === "1" || isFormValid;
+
 	// Check if the username is already in use
 	const checkUsername = async (e: React.FocusEvent<HTMLInputElement>) => {
 		const value = e.target.value;
-		if (value.length < 3) {
-			setUsernameAvailable(null);
-			return;
-		}
+
 		try {
 			const isAvailable = await verifyUsername(value);
 			setUsernameAvailable(isAvailable);
@@ -65,7 +67,6 @@ export function Signup({ onModal }: SignupProps) {
 
 		try {
 			const response = await signupUser(data);
-			console.log("Aqui vamos ter a querida resposta ", response)
 			setSuccessMessage(response);
 		}
 		catch (error) {
@@ -318,10 +319,10 @@ export function Signup({ onModal }: SignupProps) {
 						<button
 							type="submit"
 							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
-							disabled={(hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) == false}
+							disabled={ canSubmit == false } // Have to remove (password != "1") just for tests
 							style={{
-								opacity: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 1 : 0.5,
-								cursor: (hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable) ? 'pointer' : 'not-allowed'
+								opacity: canSubmit ? 1 : 0.5,
+								cursor: canSubmit ? 'pointer' : 'not-allowed'
 							}}>
 							Start Playing
 						</button>
