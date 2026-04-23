@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useModalReveal } from "../../hooks/useModalReveal";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import successIcon from "../../assets/succsfully_register.gif";
+import { verifyUsername, verifyEmail, signupUser } from '../../api/users.ts';
 
 interface SignupProps {
 	onModal: (modal: "signup" | "login" | null) => void;
@@ -31,11 +32,8 @@ export function Signup({ onModal }: SignupProps) {
 			return;
 		}
 		try {
-			const response = await fetch(`/api/users/check-username?username=${value}`);
-			if (response.ok) {
-				const data = await response.json();
-				setUsernameAvailable(data.isAvailable);
-			}
+			const isAvailable = await verifyUsername(value);
+			setUsernameAvailable(isAvailable);
 		} catch (error) {
 			console.error("Failed to check username", error);
 		}
@@ -50,11 +48,8 @@ export function Signup({ onModal }: SignupProps) {
 			return;
 		}
 		try {
-			const response = await fetch(`/api/users/check-email?email=${value}`);
-			if (response.ok) {
-				const data = await response.json();
-				setEmailAvailable(data.isAvailable);
-			}
+			const response = await verifyEmail(value);
+			setEmailAvailable(response);
 		} catch (error) {
 			console.error("Failed to verify email", error);
 		}
@@ -68,18 +63,10 @@ export function Signup({ onModal }: SignupProps) {
 		console.log("Data ready for backend", data);
 
 		try {
-			const response = await fetch("/api/auth/signup", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(data),
-			});
-
-			if (response.ok) setSuccessMessage(true);
-			setTimeout(() => {
-				onModal(null);
-			}, 1500);
-		} catch (error) {
-			console.error("Error communicating with the server", error);
+			const response = await signupUser(data);
+			console.log("Aqui vamos ter a querida resposta ", response)
+			setSuccessMessage(response);
+			setTimeout(() => { onModal(null);}, 1500);
 		}
 	};
 
