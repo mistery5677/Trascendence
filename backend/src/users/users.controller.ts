@@ -93,7 +93,6 @@ export class UsersController {
   }
 
   @Get('check-email')
-  @HttpCode(HttpStatus.OK)
   async checkEmail(@Query('email') email: string) {
     const user = await this.usersService.findOneByEmail(email);
 
