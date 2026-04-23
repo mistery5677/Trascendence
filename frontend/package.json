@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@tabler/icons-react": "^3.41.1",
@@ -18,8 +20,10 @@
     "chess.js": "^1.4.0",
     "react": "^19.2.0",
     "react-chessboard": "^5.10.0",
+    "react-countdown-circle-timer": "^3.2.1",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.14.0",
+    "react-toastify": "^11.1.0",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {

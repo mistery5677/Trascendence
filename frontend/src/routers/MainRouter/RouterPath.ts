@@ -6,4 +6,5 @@ export const RouterPaths = {
 	SETTINGS: "/settings",
 	PROFILE: "/profile",
 	ERROR: "*",
+	ZE: "/ze",
 };

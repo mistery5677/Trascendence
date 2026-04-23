@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
-import { Error, Home, Play, Settings } from "../../pages";
+import { Error, Home, Play, Settings, Ze } from "../../pages";
 import { FallBack, Login, Signup } from "../../components";
 import { MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
@@ -14,8 +14,13 @@ export function MainRouter() {
 	const [activeModal, setActiveModal] = useState<ActivateModal>(null);
 
 	if (state.isLoading) {
-		return <FallBack />;
+		return (
+			<div>
+				<FallBack />
+			</div>
+		);
 	}
+
 	return (
 		<BrowserRouter>
 			<NavBar onModal={setActiveModal} />
@@ -30,17 +35,17 @@ export function MainRouter() {
 					element={<Error />}
 				/>
 				<Route
+					path={RouterPaths.ZE}
+					element={<Ze />}
+				/>
+				<Route
 					path={RouterPaths.PLAY}
 					element={<Play />}></Route>
 				{state.user && (
 					<Route
 						path={RouterPaths.SETTINGS}
-						element={<Settings tabOpt="account" />}></Route>
+						element={<Settings tabOpt={"profile"} />}></Route>
 				)}
-
-				<Route
-					path={RouterPaths.PROFILE}
-					element={<Settings tabOpt="profile" />}></Route>
 			</Routes>
 		</BrowserRouter>
 	);
