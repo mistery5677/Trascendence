@@ -33,10 +33,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.matchMakingService.removeFromQueue(client);
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage('sendMessage')
   handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
-    console.log(data);
-    // this.server.emit('messageserver', data);
-    client.broadcast.emit('messageserver', data);
+    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+    const { gameId, message } = parsedData;
+
+    console.log(`Sending Message to the room: ${gameId}`);
+
+    if (gameId) {
+      this.server.to(gameId).emit('receiveMessage', {
+        from: client.data.user.email,
+        message: message,
+      });
+    } else {
+      console.error("ERROR: gameId Wasn't sended on message");
+    }
   }
 }

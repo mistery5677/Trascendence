@@ -31,8 +31,8 @@ export class WsGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token);
 
       client.data.user = {
-        userId: payload.sub,
-        email: payload.email,
+        userId: payload.userId,
+        userEmail: payload.userEmail,
       };
       this.logger.log('Valid Token');
       return true;

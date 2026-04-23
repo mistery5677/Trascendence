@@ -16,7 +16,7 @@ export class MatchMakingService {
     const user = client.data.user;
 
     this.logger.log(
-      `Player ${client.data.userEmail} joined the queue. Current queue size: ${this.queue.length}`,
+      `Player ${client.data.user.userEmail} joined the queue. Current queue size: ${this.queue.length}`,
     );
 
     if (this.queue.length >= 2) {
@@ -30,6 +30,9 @@ export class MatchMakingService {
     if (!player1 || !player2) return;
 
     const gameId = uuidv4();
+
+    player1.join(gameId);
+    player2.join(gameId);
 
     const matchData = {
       gameId,
