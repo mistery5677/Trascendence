@@ -23,7 +23,35 @@ model user {
     nickname  String?
     username  String   @unique // Means that we only have one username with that specific name
     password  String //Save a encrypted password
+    
+    // Avatar profile
     avatarUrl String? // The '?' means optional
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    // Porfile statistics
+    wins      Int @default(0)
+    losses   Int @default(0)
+    draws     Int @default(0)    
+    elo       Int @default(800)
+
+    // Player position
+    matchesAsPlayerA MatchHistory[] @relation("PlayerAMatches")
+    matchesAsPlayerB MatchHistory[] @relation("PlayerBMatches")
+}
+
+model MatchHistory {
+    id          Int         @id @default(autoincrement())
+    createdAt   DateTime    @default(now()) //Stores the date
+
+    // Player A (White pieces)
+    playerAId   Int
+    playerA     user    @relation("PlayerAMatches", fields: [playerAId], references: [id])
+
+    // Player B (Black pieces)
+    playerBId   Int
+    playerB     user    @relation("PlayerBMatches", fields: [playerBId], references: [id])
+
+    // Result of the match (PLAYER_A_WINS | PLAYER_B_WINS | DRAW)
+    result      String
 }

@@ -20,8 +20,6 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'node:path';
 import { diskStorage } from 'multer';
-import type { Request } from 'express';
-import { Console } from 'node:console';
 
 @Controller('/users')
 export class UsersController {
