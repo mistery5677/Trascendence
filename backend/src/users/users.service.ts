@@ -9,6 +9,8 @@ import * as bcryptjs from 'bcryptjs';
 
 import { PrismaService } from 'src/prisma.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { emit } from 'node:process';
+import { IS_EMAIL } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -28,14 +30,16 @@ export class UsersService {
   }
 
   async findOneByUsername(username: string) {
+    if (!username) return null;
     return this.prisma.user.findUnique({ where: { username: username } });
   }
   async findOneByEmail(email: string) {
+    if (!email) return null;
     return this.prisma.user.findUnique({ where: { email: email } });
   }
 
   async updateAvatar(email: string, avatarUrl: string) {
-    const user = this.findOneByEmail(email);
+    const user = await this.findOneByEmail(email);
 
     if (!user) {
       throw new NotFoundException('User not Found');
@@ -78,6 +82,41 @@ export class UsersService {
     return await this.prisma.user.update({
       where: { email },
       data: { boardTheme: boardTheme },
+    });
+  }
+
+  async updateUsername(userEmail: string, newUsername: string) {
+    const user = await this.findOneByEmail(userEmail);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const existingUser = await this.findOneByUsername(newUsername);
+
+    if (existingUser && existingUser.id !== user.id) {
+      throw new ForbiddenException('Username already on use');
+    }
+
+    return await this.prisma.user.update({
+      where: { email: userEmail },
+      data: { username: newUsername },
+    });
+  }
+
+  async updateEmail(currentEmail: string, newEmail: string) {
+    const user = await this.findOneByEmail(currentEmail);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const existingUser = await this.findOneByEmail(newEmail);
+
+    if (existingUser && existingUser.id !== user.id) {
+      throw new ForbiddenException('Email already on use');
+    }
+
+    return await this.prisma.user.update({
+      where: { email: currentEmail },
+      data: { email: newEmail },
     });
   }
 

@@ -14,6 +14,7 @@ import {
   Patch,
   Body,
   Query,
+  Header,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
@@ -27,6 +28,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @Header('Cache-Control', 'no-store')
   findAll() {
     return this.usersService.findAll();
   }
@@ -93,6 +95,24 @@ export class UsersController {
       userEmail,
       parseInt(boardTheme),
     );
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('me/email')
+  async updateEmail(@Body() body, @Req() req) {
+    const currentEmail = req.user.userEmail;
+    const { email } = body;
+
+    return await this.usersService.updateEmail(currentEmail, email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('me/username')
+  async updateUsername(@Body() body, @Req() req) {
+    const userEmail = req.user.userEmail;
+    const { username } = body;
+
+    return await this.usersService.updateUsername(userEmail, username);
   }
 
   @Get('check-username')
