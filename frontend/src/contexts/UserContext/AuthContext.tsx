@@ -7,7 +7,7 @@ type AuthContextValue = {
 	dispatch: React.Dispatch<AuthAction>;
 	login: (email: string, password: string) => Promise<void>;
 	logout: () => Promise<void>;
-	refreshMe: () => Promise<void>;
+	refreshMe: (options?: { silent?: boolean }) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);

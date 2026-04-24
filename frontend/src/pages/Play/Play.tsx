@@ -1,9 +1,18 @@
-import { useState } from "react";
-import { Board } from "../../components";
+import { useEffect, useState } from "react";
+import { Board, Timer } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 
 export function Play() {
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
+	const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
+
+	useEffect(() => {
+		setTimerKey((prevKey) => prevKey + 1);
+	}, [currentTurn]);
+
+	const handleTurnChange = (newTurn: PieceColor) => {
+		setCurrentTurn(newTurn);
+	};
 
 	return (
 		<div className="min-h-[calc(100vh-5rem)] bg-linear-to-b from-slate-950 via-stone-950 to-slate-900 font-sans flex flex-col items-center py-12 relative overflow-hidden">
@@ -45,6 +54,11 @@ export function Play() {
 							</div>
 						</div>
 					</div>
+					<Timer
+						key={timerKey}
+						startTimerInSeconds={30}
+						isRunning={currentTurn === "w"}
+					/>
 
 					{/* VS / result */}
 					<div className="flex flex-col items-center px-1 sm:px-2 shrink-0">
@@ -55,6 +69,12 @@ export function Play() {
 							VS
 						</div>
 					</div>
+
+					<Timer
+						key={timerKey + 1}
+						startTimerInSeconds={30}
+						isRunning={currentTurn === "b"}
+					/>
 
 					{/* right user */}
 					<div
@@ -89,7 +109,7 @@ export function Play() {
 				{/* Board */}
 				<div className="w-full max-w-2xl px-2">
 					<div className="p-3 sm:p-6 bg-slate-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
-						<Board onTurnChange={setCurrentTurn} />
+						<Board onTurnChange={handleTurnChange} />
 					</div>
 				</div>
 			</div>

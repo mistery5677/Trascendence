@@ -5,3 +5,5 @@ export { Signup } from "./Signup/Signup";
 export { Login } from "./Login/Login";
 export { Board } from "./Board/Board";
 export { FallBack } from "./FallBack/FallBack";
+export { Timer } from "./Timer/Timer";
+export { ToastWrapper } from "./ToastWrapper/ToastWrapper";

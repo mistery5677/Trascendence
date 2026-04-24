@@ -5,8 +5,6 @@ import { useAuth } from "../../contexts/UserContext";
 import successIcon from "../../assets/succsfully_register.gif";
 
 type LoginProps = {
-	// onClose: () => void;
-	// onOpenSignup: () => void;
 	onModal: (modal: "signup" | "login" | null) => void;
 };
 
@@ -72,127 +70,136 @@ export function Login({ onModal }: LoginProps) {
 							</p>
 						</div>
 						{successMessage ? (
-						<div className="success-container"style={{
-							display: 'flex',          
-							flexDirection: 'column',  
-							alignItems: 'center',     
-							justifyContent: 'center', 
-							textAlign: 'center',      
-							minHeight: '350px',       
-							padding: '20px'
-						}}>
-							<div className="success-icon-wrapper">
-								<img src={successIcon} alt="success" />
-							</div>
-							<h2>Challenger Accepted!</h2>
-							<p>
-								Login with success. <br />
-							</p>
-						</div>
-						) : (
-						<form
-							className="space-y-5"
-							onSubmit={handleSubmit}>
-							{/* Username */}
-							<div>
-								<label className="text-board-text text-sm font-semibold mb-1.5 block">Username</label>
-								<div className="relative flex items-center">
-									<input
-										name="identity"
-										type="text"
-										required
-										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
-										placeholder="Enter your username or email"
+							<div
+								className="success-container"
+								style={{
+									display: "flex",
+									flexDirection: "column",
+									alignItems: "center",
+									justifyContent: "center",
+									textAlign: "center",
+									minHeight: "350px",
+									padding: "20px",
+								}}>
+								<div className="success-icon-wrapper">
+									<img
+										src={successIcon}
+										alt="success"
 									/>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="#94a3b8"
-										stroke="#94a3b8"
-										className="w-4 h-4 absolute right-4"
-										viewBox="0 0 24 24">
-										<circle
-											cx="10"
-											cy="7"
-											r="6"
-											data-original="#000000"></circle>
-										<path
-											d="M14 15H6a5 5 0 0 0-5 5 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 5 5 0 0 0-5-5zm8-4h-2.59l.3-.29a1 1 0 0 0-1.42-1.42l-2 2a1 1 0 0 0 0 1.42l2 2a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42l-.3-.29H22a1 1 0 0 0 0-2z"
-											data-original="#000000"></path>
-									</svg>
 								</div>
+								<h2>Challenger Accepted!</h2>
+								<p>
+									Login with success. <br />
+								</p>
 							</div>
+						) : (
+							<form
+								className="space-y-5"
+								onSubmit={handleSubmit}>
+								{/* Username */}
+								<div>
+									<label className="text-board-text text-sm font-semibold mb-1.5 block">
+										Username
+									</label>
+									<div className="relative flex items-center">
+										<input
+											name="identity"
+											type="text"
+											required
+											className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
+											placeholder="Enter your username or email"
+										/>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="#94a3b8"
+											stroke="#94a3b8"
+											className="w-4 h-4 absolute right-4"
+											viewBox="0 0 24 24">
+											<circle
+												cx="10"
+												cy="7"
+												r="6"
+												data-original="#000000"></circle>
+											<path
+												d="M14 15H6a5 5 0 0 0-5 5 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 5 5 0 0 0-5-5zm8-4h-2.59l.3-.29a1 1 0 0 0-1.42-1.42l-2 2a1 1 0 0 0 0 1.42l2 2a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42l-.3-.29H22a1 1 0 0 0 0-2z"
+												data-original="#000000"></path>
+										</svg>
+									</div>
+								</div>
 
-							{/* Password */}
-							<div>
-								<label className="text-board-text text-sm font-semibold mb-1.5 block">Password</label>
-								<div className="relative flex items-center">
-									<input
-										name="password"
-										type={showPassword ? "text" : "password"}
-										required
-										className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
-										placeholder="Enter your password"
-									/>
+								{/* Password */}
+								<div>
+									<label className="text-board-text text-sm font-semibold mb-1.5 block">
+										Password
+									</label>
+									<div className="relative flex items-center">
+										<input
+											name="password"
+											type={showPassword ? "text" : "password"}
+											required
+											className="w-full text-board-text text-sm border-2 border-board-border px-4 py-3 pr-10 rounded-xl focus:border-board-focus focus:outline-none bg-board-input placeholder-board-text-muted"
+											placeholder="Enter your password"
+										/>
+										<button
+											type="button"
+											className="absolute right-4 text-board-text-muted hover:text-board-text"
+											onClick={() => setShowPassword((prev) => !prev)}
+											aria-label="Toggle password visibility">
+											{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
+										</button>
+									</div>
+								</div>
+
+								{/* Remember + Forgot */}
+								<div className="flex flex-wrap items-center justify-between gap-4">
+									<div className="flex items-center">
+										<input
+											id="remember-me"
+											name="remember-me"
+											type="checkbox"
+											className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
+										/>
+										<label
+											htmlFor="remember-me"
+											className="ml-2 text-sm text-board-text-muted">
+											Remember me
+										</label>
+									</div>
+									<a
+										href="#"
+										className="text-sm text-board-focus hover:underline font-semibold">
+										Forgot password?
+									</a>
+								</div>
+
+								{/* Submit */}
+								<button
+									type="submit"
+									className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+									style={{
+										opacity: 1 ? 1 : 0.5,
+										cursor: 1 ? "pointer" : "not-allowed",
+									}}>
+									Log In to Play
+								</button>
+								{invalidCredentials && (
+									<div style={{ fontSize: "13px", marginBottom: "10px", textAlign: "left" }}>
+										<span style={{ color: "#EF4444", transition: "color 0.3s" }}>
+											Credentials are wrong
+										</span>
+									</div>
+								)}
+
+								<p className="text-board-text-muted text-sm text-center">
+									Don't have an account?{" "}
 									<button
 										type="button"
-										className="absolute right-4 text-board-text-muted hover:text-board-text"
-										onClick={() => setShowPassword((prev) => !prev)}
-										aria-label="Toggle password visibility">
-										{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
+										onClick={() => onModal("signup")}
+										className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+										Join the game
 									</button>
-								</div>
-							</div>
-
-							{/* Remember + Forgot */}
-							<div className="flex flex-wrap items-center justify-between gap-4">
-								<div className="flex items-center">
-									<input
-										id="remember-me"
-										name="remember-me"
-										type="checkbox"
-										className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
-									/>
-									<label
-										htmlFor="remember-me"
-										className="ml-2 text-sm text-board-text-muted">
-										Remember me
-									</label>
-								</div>
-								<a
-									href="#"
-									className="text-sm text-board-focus hover:underline font-semibold">
-									Forgot password?
-								</a>
-							</div>
-
-							{/* Submit */}
-							<button
-								type="submit"
-								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary hover:bg-button-primary-hover focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
-								style={{
-									opacity: (1) ? 1 : 0.5,
-									cursor: (1) ? 'pointer' : 'not-allowed'
-								}}>
-								Log In to Play
-							</button>
-							{invalidCredentials && (
-								<div style={{ fontSize: '13px', marginBottom: '10px', textAlign: 'left' }}>
-									<span style={{ color:'#EF4444', transition: 'color 0.3s' }}>
-										Credentials are wrong
-									</span>
-								</div>
-							)}
-
-							<p className="text-board-text-muted text-sm text-center">
-								Don't have an account?{" "}
-								<button
-									type="button"
-									onClick={() => onModal("signup")}
-									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
-									Join the game
-								</button>
-							</p>
-						</form>
+								</p>
+							</form>
 						)}
 					</div>
 				</div>

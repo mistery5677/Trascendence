@@ -1,5 +1,5 @@
 import { IconUser } from "@tabler/icons-react";
-
+import { Link, useNavigate } from "react-router-dom";
 import {
 	Disclosure,
 	DisclosureButton,
@@ -11,6 +11,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/UserContext";
+import { useEffect, useState } from "react";
 
 const navigation = [
 	{ name: "Login", href: "/login", current: false },
@@ -25,20 +26,30 @@ function classNames(...classes: (string | undefined | false)[]): string {
 type NavBarProps = {
 	onModal: (modal: "signup" | "login" | null) => void;
 };
+
 export function NavBar({ onModal }: NavBarProps) {
 	const { state, logout } = useAuth();
+	const navigate = useNavigate();
+	const [avatarUrlKey, setAvatarUrlKey] = useState(Date.now());
+
+	useEffect(() => {
+		if (state.user) {
+			setAvatarUrlKey(Date.now());
+		}
+	}, [state.user, state.user?.avatarUrl]);
 
 	const handleLogout = async () => {
 		console.log("POST Logout");
 
 		try {
 			await logout();
+			navigate("/");
 		} catch (err) {
 			console.log(err);
 		}
 	};
 
-	const avatarSrc = state.user?.avatarUrl; // -> /api/assets/avatars/default1.png
+	const avatarSrc = state.user?.avatarUrl ? `${state.user.avatarUrl}?t=${avatarUrlKey}` : undefined; // -> /api/assets/avatars/default1.png
 	const isLoggedIn = !!state.user;
 
 	return (
@@ -145,14 +156,14 @@ export function NavBar({ onModal }: NavBarProps) {
 								className="relative ml-4">
 								<MenuButton
 									disabled={!state.user}
-									className="relative flex rounded-full p-2 ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
+									className="relative flex rounded-full ring-2 ring-emerald-300/40 hover:ring-emerald-300/70 transition-all duration-200 focus:outline-none focus:ring-emerald-400 hover:scale-[1.03] active:scale-95 shadow-sm">
 									<span className="absolute -inset-1.5" />
 									<span className="sr-only">Open user menu</span>
 									{avatarSrc ? (
 										<img
 											src={avatarSrc}
 											alt="avatar"
-											className="size-7 rounded-full object-fit"
+											className="size-10 rounded-full object-fit"
 										/>
 									) : (
 										<IconUser
@@ -165,13 +176,6 @@ export function NavBar({ onModal }: NavBarProps) {
 								<MenuItems
 									transition
 									className="absolute right-0 z-10 mt-3 w-56 origin-top-right rounded-2xl bg-slate-900/95 py-2 border border-emerald-300/20 shadow-[0_12px_36px_-14px_rgba(0,0,0,0.8)] transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-75 data-leave:ease-in overflow-hidden">
-									<MenuItem>
-										<a
-											href="/profile"
-											className="block px-4 py-2.5 text-sm font-medium text-stone-300 hover:bg-emerald-400/12 hover:text-stone-100 transition-colors">
-											Your Profile
-										</a>
-									</MenuItem>
 									<MenuItem>
 										<a
 											href="/settings"
