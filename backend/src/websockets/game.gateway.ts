@@ -5,20 +5,28 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
+  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WsGuard } from './guard/ws.guard';
+// import { WsGuard } from './guard/ws.guard';
 import { MatchMakingService } from './matchmaking/matchmaking.service';
+import { JwtService } from '@nestjs/jwt';
+import { WsMiddleware } from './middleware/ws.middleware';
 
 @WebSocketGateway()
-@UseGuards(WsGuard)
-export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
+// @UseGuards(WsGuard)
+export class GameGateway
+  implements OnGatewayConnection, OnGatewayInit, OnGatewayDisconnect
+{
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
-  constructor(private readonly matchMakingService: MatchMakingService) {}
+  constructor(
+    private readonly matchMakingService: MatchMakingService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket) {
@@ -27,6 +35,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+  }
+
+  afterInit() {
+    this.server.use(WsMiddleware(this.jwtService));
   }
 
   handleDisconnect(client: Socket) {
