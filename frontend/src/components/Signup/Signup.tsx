@@ -24,13 +24,15 @@ export function Signup({ onModal }: SignupProps) {
 	const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 	const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
+	// Check if all information is true
+	const isFormValid = hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable;
+	// Special condition for password ... REMOVE BEFORE DELIVER
+	const canSubmit = password === "1" || isFormValid;
+
 	// Check if the username is already in use
 	const checkUsername = async (e: React.FocusEvent<HTMLInputElement>) => {
 		const value = e.target.value;
-		if (value.length < 3) {
-			setUsernameAvailable(null);
-			return;
-		}
+
 		try {
 			let isAvailable = await verifyUsername(value);
 			setUsernameAvailable(isAvailable);
@@ -64,7 +66,6 @@ export function Signup({ onModal }: SignupProps) {
 
 		try {
 			const response = await signupUser(data);
-			console.log("Aqui vamos ter a querida resposta ", response);
 			setSuccessMessage(response);
 			setTimeout(() => {
 				onModal(null);
@@ -292,107 +293,74 @@ export function Signup({ onModal }: SignupProps) {
 										{showPassword ? <IconEye size={18} /> : <IconEyeOff size={18} />}
 									</button>
 								</div>
-								{/* Password requirements */}
-								<div
-									style={{
-										display: "flex",
-										flexDirection: "column",
-										gap: "3px",
-										fontSize: "13px",
-										marginTop: "10px",
-										textAlign: "left",
-									}}>
-									{/* Password Length */}
-									<span
-										style={{
-											color: hasMinLength ? "#10B981" : "#EF4444",
-											transition: "color 0.3s",
-										}}>
-										{hasMinLength ? "✓" : "✗"} More than 6 letters
-									</span>
-
-									{/* Special characters */}
-									<span
-										style={{
-											color: hasSpecialChar ? "#10B981" : "#EF4444",
-											transition: "color 0.3s",
-										}}>
-										{hasSpecialChar ? "✓" : "✗"} At least one special character (!@#$...)
-									</span>
-
-									{/* Upper case letter */}
-									<span
-										style={{
-											color: hasUpperCase ? "#10B981" : "#EF4444",
-											transition: "color 0.3s",
-										}}>
-										{hasUpperCase ? "✓" : "✗"} At least one upper case
-									</span>
-								</div>
 							</div>
 
-							{/* Terms */}
-							<div className="flex items-center">
-								<input
-									id="remember-me"
-									name="remember-me"
-									type="checkbox"
-									className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
-								/>
-								<label
-									htmlFor="remember-me"
-									className="ml-2 text-sm text-board-text-muted">
-									I accept the{" "}
-									<a
-										href="javascript:void(0);"
-										className="text-board-focus font-semibold hover:underline">
-										Rules of Play
-									</a>
-								</label>
-							</div>
+							{/* Password requirements */}
+							<div style={{ 
+								display: 'flex', 
+								flexDirection: 'column', 
+								gap: '3px', 
+								fontSize: '13px', 
+								marginTop: '10px',
+								textAlign: 'left'
+							}}>
+								{/* Password Length */}
+								<span style={{ color: hasMinLength ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasMinLength ? '✓' : '✗'} More than 6 letters
+								</span>
 
-							{/* Submit */}
+								{/* Special characters */}
+								<span style={{ color: hasSpecialChar ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasSpecialChar ? '✓' : '✗'} At least one special character (!@#$...)
+								</span>
+
+								{/* Upper case letter */}
+								<span style={{ color: hasUpperCase ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{hasUpperCase ? '✓' : '✗'} At least one upper case
+								</span>
+							</div>
+						{/* Terms */}
+						<div className="flex items-center">
+							<input
+								id="remember-me"
+								name="remember-me"
+								type="checkbox"
+								className="h-4 w-4 shrink-0 accent-board-focus border-board-border rounded"
+							/>
+							<label
+								htmlFor="remember-me"
+								className="ml-2 text-sm text-board-text-muted">
+								I accept the{" "}
+								<a
+									href="javascript:void(0);"
+									className="text-board-focus font-semibold hover:underline">
+									Rules of Play
+								</a>
+							</label>
+						</div>
+
+						{/* Submit */}
+						<button
+							type="submit"
+							className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
+							disabled={ canSubmit == false } // Have to remove (password != "1") just for tests
+							style={{
+								opacity: canSubmit ? 1 : 0.5,
+								cursor: canSubmit ? 'pointer' : 'not-allowed'
+							}}>
+							Start Playing
+						</button>
+						<p className="text-board-text-muted text-sm text-center">
+							Already have an account?{" "}
 							<button
-								type="submit"
-								className="w-full py-3 px-4 text-sm font-bold tracking-wide rounded-xl text-white bg-button-primary border-2 border-button-primary hover:bg-white hover:text-board-text focus:outline-none cursor-pointer shadow-lg transition-all mt-2"
-								disabled={
-									(hasMinLength &&
-										hasSpecialChar &&
-										hasUpperCase &&
-										usernameAvailable &&
-										emailAvailable) == false
-								}
-								style={{
-									opacity:
-										hasMinLength &&
-										hasSpecialChar &&
-										hasUpperCase &&
-										usernameAvailable &&
-										emailAvailable
-											? 1
-											: 0.5,
-									cursor:
-										hasMinLength &&
-										hasSpecialChar &&
-										hasUpperCase &&
-										usernameAvailable &&
-										emailAvailable
-											? "pointer"
-											: "not-allowed",
-								}}>
-								Start Playing
+								type="button"
+								onClick={() => onModal("login")}
+								className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
+								Log in here
 							</button>
-							<p className="text-board-text-muted text-sm text-center">
-								Already have an account?{" "}
-								<button
-									type="button"
-									onClick={() => onModal("login")}
-									className="text-board-focus font-bold hover:underline cursor-pointer bg-transparent border-none p-0">
-									Log in here
-								</button>
-							</p>
-						</form>
-					)}
+						</p>
+					</form>
+					)};
 				</div>
 			</div>
 		</div>

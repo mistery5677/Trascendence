@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import { updateAvatar, updatePassword } from "../../api/users";
 import { toast } from "react-toastify";
@@ -77,6 +77,25 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
+    useEffect(() => {
+		if (!state.user?.id)
+		{
+			console.log("Id is null");
+			return ;
+		}
+		console.log("The id is: ", state.user.id);
+		console.log("The elo: ", state.user.elo)
+        async function fetchStats() {
+            try {
+                const response = await fetch(`/api/users/profile/${state.user?.id}`);
+                const data = await response.json();
+            } catch (error) {
+                console.error("Failed to get the stats:", error);
+            }
+        }
+        fetchStats();
+    });
+
 	return (
 		<>
 			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -87,6 +106,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 							Manage your profile, account security, and game preferences.
 						</p>
 					</header>
+				</div>
 
 					<div className="overflow-hidden rounded-2xl border border-stone-700/70 bg-stone-800/70">
 						<div className="grid grid-cols-1 lg:grid-cols-[220px_1fr]">
@@ -292,7 +312,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 								)}
 
 								{activeTab === "board" && (
-									<>
+									<form>
 										<h2 className="text-2xl font-bold">Board Theme</h2>
 										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											<button
@@ -311,10 +331,101 @@ export function Settings({ tabOpt }: SettingsProps) {
 												Midnight
 											</button>
 										</div>
-									</>
+									</form>
 								)}
-							</section>
-						</div>
+
+								{activeTab === "account" && (
+								<>
+									<h2 className="text-2xl font-bold">Account</h2>
+									<div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Victorys</p>
+											<p className="text-3xl font-bold text-green-400">{state?.user?.wins || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Defeats</p>
+											<p className="text-3xl font-bold text-red-400">{state?.user?.losses || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Draws</p>
+											<p className="text-3xl font-bold text-yellow-400">{state?.user?.draws || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
+											<p className="text-board-focus text-sm uppercase">Elo</p>
+											<p className="text-3xl font-bold text-white">{state?.user?.elo || 1000}</p>
+										</div>
+									</div>
+									<form
+										className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
+										onSubmit={handlePasswordChange}>
+										<label className="flex flex-col gap-1.5 sm:col-span-2">
+											<span className="text-sm font-semibold text-stone-300">
+												Current Password
+											</span>
+											<input
+												name="currentPassword"
+												type="password"
+												placeholder="Enter current password"
+												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
+											/>
+										</label>
+
+										<label className="flex flex-col gap-1.5 sm:col-span-1">
+											<span className="text-sm font-semibold text-stone-300">New Password</span>
+											<input
+												name="newPassword"
+												type="password"
+												placeholder="New password"
+												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
+											/>
+										</label>
+
+										<label className="flex flex-col gap-1.5 sm:col-span-1">
+											<span className="text-sm font-semibold text-stone-300">
+												Confirm Password
+											</span>
+											<input
+												name="confirmPassword"
+												type="password"
+												placeholder="Confirm password"
+												className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
+											/>
+										</label>
+										
+										<div className="sm:col-span-2">
+											<button
+												type="submit"
+												className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+												Update password
+											</button>
+										</div>
+									</form>
+								</>
+							)}
+
+							{activeTab === "board" && (
+								<div>
+									<h2 className="text-2xl font-bold">Board Theme</h2>
+									<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+										<button
+											type="button"
+											className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+											Classic
+										</button>
+										<button
+											type="button"
+											className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+											Forest
+										</button>
+										<button
+											type="button"
+											className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+											Midnight
+										</button>
+									</div>
+								</div>
+							)}
+						</section>
 					</div>
 				</div>
 			</main>

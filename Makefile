@@ -61,4 +61,16 @@ db-push:
 studio:
 	docker exec -it chess_backend npx prisma studio
 
+# Deletes all volumes to free some space
+atomic-bomb:
+	docker volume rm $(docker volume ls -q)
+
+# Restart backend
+backend-restart:
+	docker restart chess_backend
+
+# Intall prisma client
+install-prisma:
+	docker exec -it chess_backend sh -c "npm install @prisma/client && npx prisma generate"
+
 .PHONY: all up up-d down clean fclean re logs

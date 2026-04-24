@@ -2,6 +2,7 @@ import { Chessboard } from "react-chessboard";
 import { useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
+import { handleGameOver } from "../../api/matches";
 
 export type PieceColor = "w" | "b";
 
@@ -34,8 +35,6 @@ export function Board({ onTurnChange }: BoardProps) {
 
 		// Check if the game is finished
 		if (chessGame.isGameOver()){
-			console.log("Match finished");
-
 			if (chessGame.isCheckmate()){
 				// If the black ('b') is playing and has check-mate, whites win
 				const result = chessGame.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
