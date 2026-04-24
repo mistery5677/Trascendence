@@ -72,15 +72,11 @@ export function Play() {
 								: "opacity-65 scale-100"
 						}`}>
 						{/* image */}
-						<img
-							src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fit=facearea&facepad=2&w=256&h=256&q=80"
-							className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-4 object-cover shadow-lg transition-all duration-500 ${
+						<img src={state.user?.avatarUrl} className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
 								currentTurn === "w"
 									? "ring-emerald-300 shadow-emerald-700/20"
 									: "ring-slate-700 shadow-none border border-slate-600"
-							}`}
-							alt="Player 1"
-						/>
+							}`}></img>
 						{/* user name & rank */}
 						<div className="flex flex-col justify-center items-start">
 							<div
