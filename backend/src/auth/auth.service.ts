@@ -94,6 +94,7 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      boardTheme: user.boardTheme,
       score: {
         elo: user.elo,
         wins: user.wins,

@@ -13,5 +13,6 @@ export class getProfileDto {
   avatarUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
+  boardTheme!: number;
   score!: Score;
 }

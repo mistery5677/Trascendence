@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -64,6 +65,22 @@ export class UsersService {
     });
   }
 
+  async updateBoardTheme(email: string, boardTheme: number) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // !For now
+    if (boardTheme < 1 || boardTheme > 3)
+      throw new ForbiddenException("Theme with that index doesn't exist");
+
+    return await this.prisma.user.update({
+      where: { email },
+      data: { boardTheme: boardTheme },
+    });
+  }
+
   findAll() {
     return this.prisma.user.findMany({
       select: {
@@ -89,7 +106,7 @@ export class UsersService {
         losses: true,
         avatarUrl: true,
       },
-    })
+    });
   }
 
   async remove(id: number) {
