@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import {
 	updateAvatar,
+	updateBoardTheme,
 	updateEmail,
 	updatePassword,
 	updateUserName,
@@ -128,6 +129,10 @@ export function Settings({ tabOpt }: SettingsProps) {
 				console.log(err);
 			}
 		}
+	};
+
+	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
+		await updateBoardTheme(themeId);
 	};
 
 	return (
@@ -345,16 +350,19 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											<button
 												type="button"
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
-												Classic
-											</button>
-											<button
-												type="button"
+												onClick={handleBoardTheme(1)}
 												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
 												Forest
 											</button>
 											<button
 												type="button"
+												onClick={handleBoardTheme(2)}
+												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												Classic
+											</button>
+											<button
+												type="button"
+												onClick={handleBoardTheme(3)}
 												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
 												Midnight
 											</button>

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 
-
 export type PieceColor = "w" | "b";
 
 type DraggingPieceDataType = {
@@ -25,16 +24,38 @@ interface BoardProps {
 	onGameOver?: (result:string) => void; // We check if the game is finished
 }
 
+const themes = {
+	classic: {
+		background: "#8b4513",
+		pieces: "#5a3825",
+		border: "#3e2723",
+	},
+	midnight: {
+		background: "#2c3e50",
+		pieces: "#34495e",
+		border: "#ecf0f1",
+	},
+	forest: {
+		background: "#4caf50",
+		pieces: "#2e7d32",
+		border: "#1b5e20",
+	},
+};
+
 export function Board({ onTurnChange, onGameOver }: BoardProps) {
+	const { state } = useAuth();
+	const themeArray = [themes.forest, themes.classic, themes.midnight];
+
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
 	// Get the current user
-	const { state } = useAuth();
+	// const { state } = useAuth();
 	const myUserId = state?.user?.id;
 
+	
 	useEffect(() => {
 		if (onTurnChange) {
 			onTurnChange(chessGame.turn());
@@ -105,7 +126,7 @@ export function Board({ onTurnChange, onGameOver }: BoardProps) {
 			backgroundColor: "var(--color-board-light)",
 		},
 		darkSquareStyle: {
-			backgroundColor: "var(--color-board-dark)",
+			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
 		},
 	};
 

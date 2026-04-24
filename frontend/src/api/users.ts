@@ -96,3 +96,21 @@ export async function updateEmail(email: string): Promise<boolean> {
   const data = await response.json();
   return data;
 }
+
+export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> {
+	let data;
+
+	try {
+		const response = await fetch("/api/users/me/board-theme", {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ boardTheme: boardThemeVal }),
+		});
+		data = await response.json();
+	} catch (error) {
+		console.log(error);
+		throw new Error("Failed to update board-theme.");
+	}
+
+	return data;
+}
