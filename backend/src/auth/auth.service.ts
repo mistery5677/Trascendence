@@ -94,10 +94,12 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      elo: user.elo,
-      wins: user.wins,
-      losses: user.losses,
-      draws: user.draws,
+      score: {
+        elo: user.elo,
+        wins: user.wins,
+        losses: user.losses,
+        draws: user.draws,
+      },
     };
   }
 }
