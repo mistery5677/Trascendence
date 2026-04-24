@@ -17,14 +17,14 @@ export class MatchesService {
 
     // Who wins, we increment 8 points to the elo
     if (result === 'PLAYER_A_WINS') {
-    
+
       // Player A wins
       await this.prisma.user.update({
         where: { id: playerAId },
         data: { wins: { increment: 1 }, elo: { increment: 8 } },
       });
 
-      // Player B wins
+      // Player B loss
       await this.prisma.user.update({
         where: { id: playerBId },
         data: { losses: { increment: 1 }, elo: { decrement: 8 } },
@@ -37,12 +37,22 @@ export class MatchesService {
         where: { id: playerBId },
         data: { wins: { increment: 1 }, elo: { increment: 8 } },
       });
-      // Player A wins
+      // Player A loss
       await this.prisma.user.update({
         where: { id: playerAId },
         data: { losses: { increment: 1 }, elo: { decrement: 8 } },
       });
 
+    } else { // We increment draws
+      await this.prisma.user.update({
+        where: { id: playerAId },
+        data: { draws: {increment: 1}}
+      });
+
+      await this.prisma.user.update({
+        where: { id: playerAId },
+        data: { draws: {increment: 1}}
+      });
     }
     // If it is a draw, we don't add any poits to the player elo
 

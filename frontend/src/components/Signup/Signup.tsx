@@ -360,7 +360,7 @@ export function Signup({ onModal }: SignupProps) {
 							</button>
 						</p>
 					</form>
-					)};
+					)}
 				</div>
 			</div>
 		</div>
