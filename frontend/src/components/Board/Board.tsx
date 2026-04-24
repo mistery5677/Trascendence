@@ -31,6 +31,22 @@ export function Board({ onTurnChange }: BoardProps) {
 		if (onTurnChange) {
 			onTurnChange(chessGame.turn());
 		}
+
+		// Check if the game is finished
+		if (chessGame.isGameOver()){
+			console.log("Match finished");
+
+			if (chessGame.isCheckmate()){
+				// If the black ('b') is playing and has check-mate, whites win
+				const result = chessGame.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
+
+				// Call handle game over and use tests id
+				handleGameOver(1, 2, result);
+			}
+			else if (chessGame.isDraw() || chessGame.isStalemate() || chessGame.isThreefoldRepetition()){
+				handleGameOver(1, 2, 'DRAW');
+			}
+		}
 	}, [chessPosition, onTurnChange, chessGame]);
 
 	function makeRandomMove() {
