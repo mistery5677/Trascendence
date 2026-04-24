@@ -6,6 +6,11 @@ export type User = {
   avatarUrl: string;
   createdAt: string;
   updateAt: string;
+
+  wins: number;
+  losses: number;
+  draws: number;
+  elo: number;
 };
 
 export type AuthState = {

@@ -31,7 +31,7 @@ model user {
 
     // Porfile statistics
     wins      Int @default(0)
-    losses   Int @default(0)
+    losses    Int @default(0)
     draws     Int @default(0)    
     elo       Int @default(800)
 

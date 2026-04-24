@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import { updateAvatar, updatePassword } from "../../api/users";
 
@@ -64,6 +64,25 @@ export function Settings({ tabOpt }: SettingsProps) {
 			console.log(err);
 		}
 	};
+
+    useEffect(() => {
+		if (!state.user?.id)
+		{
+			console.log("Id is null");
+			return ;
+		}
+		console.log("The id is: ", state.user.id);
+		console.log("The elo: ", state.user.elo)
+        async function fetchStats() {
+            try {
+                const response = await fetch(`/api/users/profile/${state.user?.id}`);
+                const data = await response.json();
+            } catch (error) {
+                console.error("Failed to get the stats:", error);
+            }
+        }
+        fetchStats();
+    });
 
 	return (
 		<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -219,6 +238,24 @@ export function Settings({ tabOpt }: SettingsProps) {
 							{activeTab === "account" && (
 								<>
 									<h2 className="text-2xl font-bold">Account</h2>
+									<div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Victorys</p>
+											<p className="text-3xl font-bold text-green-400">{state?.user?.wins || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Defeats</p>
+											<p className="text-3xl font-bold text-red-400">{state?.user?.losses || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center">
+											<p className="text-gray-400 text-sm uppercase">Draws</p>
+											<p className="text-3xl font-bold text-yellow-400">{state?.user?.draws || 0}</p>
+										</div>
+										<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
+											<p className="text-board-focus text-sm uppercase">Elo</p>
+											<p className="text-3xl font-bold text-white">{state?.user?.elo || 1000}</p>
+										</div>
+									</div>
 									<form
 										className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
 										onSubmit={handlePasswordChange}>

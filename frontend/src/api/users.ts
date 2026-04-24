@@ -1,3 +1,4 @@
+// Change the password
 export async function updatePassword(
   currentPassword: string,
   newPassword: string,
@@ -11,6 +12,7 @@ export async function updatePassword(
   if (!res.ok) throw new Error("Failed to update password");
 }
 
+// Updates the provile image
 export async function updateAvatar(picture: File) {
   
 	// TODO:Change backend requires formData to work,
@@ -26,6 +28,7 @@ export async function updateAvatar(picture: File) {
   if (!res.ok) throw new Error("Failed to update Avatar");
 }
 
+// Check if the username is avilable when we try to create a new account
 export async function verifyUsername(username: string): Promise<boolean> {
     const response = await fetch(`/api/users/check-username?username=${username}`);
     if (!response.ok) {
@@ -35,6 +38,7 @@ export async function verifyUsername(username: string): Promise<boolean> {
     return data.isAvailable;
 }
 
+// Check if the email is available when we try to create a new account
 export async function verifyEmail(email: string): Promise<boolean> {
     const response = await fetch(`/api/users/check-email?email=${email}`);
     
@@ -46,6 +50,7 @@ export async function verifyEmail(email: string): Promise<boolean> {
     return data.isAvailable;
 }
 
+// Function to sign up connecting to api
 export async function signupUser(userData: Record<string, any>): Promise<boolean> {
     const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -60,3 +65,5 @@ export async function signupUser(userData: Record<string, any>): Promise<boolean
 	const data = await response.json();
 	return data;
 }
+
+

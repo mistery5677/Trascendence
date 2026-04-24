@@ -6,4 +6,8 @@ export class getProfileDto {
   avatarUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
+  elo!: number;
+  wins!: number;
+  losses!: number;
+  draws!: number;
 }
