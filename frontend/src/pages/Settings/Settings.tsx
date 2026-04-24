@@ -1,6 +1,13 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
-import { updateAvatar, updatePassword, verifyEmail } from "../../api/users";
+import {
+	updateAvatar,
+	updateEmail,
+	updatePassword,
+	updateUserName,
+	verifyEmail,
+	verifyUsername,
+} from "../../api/users";
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
@@ -62,13 +69,22 @@ export function Settings({ tabOpt }: SettingsProps) {
 		const newPassword = formData.get("newPassword") as string | null;
 		const confirmPassword = formData.get("confirmPassword") as string | null;
 
-		if (!currentPassword || !newPassword || !confirmPassword) {
-			console.error("All fields are required");
+		if (!currentPassword && !newPassword && !confirmPassword) {
+			toastWrapper.warn("All fields is required.");
+		}
+		if (!currentPassword) {
+			toastWrapper.warn("Current password is required.");
+			return;
+		} else if (!newPassword) {
+			toastWrapper.warn("New password is required.");
+			return;
+		} else if (!confirmPassword) {
+			toastWrapper.warn("Please confirm your new password.");
 			return;
 		}
 
 		if (newPassword !== confirmPassword) {
-			console.error("Passwords do not match");
+			toastWrapper.warn("Passwords confirmation does not match.");
 			return;
 		}
 		try {
@@ -88,15 +104,30 @@ export function Settings({ tabOpt }: SettingsProps) {
 		const displayName = formData.get("displayName") as string | null;
 		const email = formData.get("email") as string | null;
 
-		try {
-			if (email) {
-				const isAvailable = await verifyEmail(email);
-				if (!isAvailable) {
-					console.log("Email isn't available");
-					toastWrapper.warn("Email already in use!", { style: { fontSize: 14 } });
-				}
+		if (email) {
+			const isAvailable = await verifyEmail(email);
+			if (!isAvailable) {
+				toastWrapper.warn("Email already in use!");
+				return;
 			}
-		} catch (err) {}
+			try {
+				await updateEmail(email);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		if (displayName) {
+			const isAvailable = await verifyUsername(displayName);
+			if (!isAvailable) {
+				toastWrapper.warn("Username already in use!");
+				return;
+			}
+			try {
+				await updateUserName(displayName);
+			} catch (err) {
+				console.log(err);
+			}
+		}
 	};
 
 	return (
@@ -263,7 +294,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 											onSubmit={handlePasswordChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-2">
 												<span className="text-sm font-semibold text-stone-300">
-													Current Password
+													Current Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="currentPassword"
@@ -275,7 +306,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													New Password
+													New Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="newPassword"
@@ -287,7 +318,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													Confirm Password
+													Confirm Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="confirmPassword"

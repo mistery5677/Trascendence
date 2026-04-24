@@ -9,7 +9,7 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 	if (!res.ok) throw new Error("Failed to update password");
 }
 
-// Updates the provile image
+// Updates the profile image
 export async function updateAvatar(picture: File) {
 	// TODO:Change backend requires formData to work,
 	const formData = new FormData();
@@ -24,7 +24,7 @@ export async function updateAvatar(picture: File) {
 	if (!res.ok) throw new Error("Failed to update Avatar");
 }
 
-// Check if the username is avilable when we try to create a new account
+// Check if the username is available when we try to create a new account
 export async function verifyUsername(username: string): Promise<boolean> {
 	const response = await fetch(`/api/users/check-username?username=${username}`);
 	if (!response.ok) {
@@ -55,9 +55,37 @@ export async function signupUser(userData: Record<string, any>): Promise<boolean
 	});
 
 	if (!response.ok) {
-		throw new Error("Failed to sign up user");
+		throw new Error("Failed to sign up user.");
 	}
 
+	const data = await response.json();
+	return data;
+}
+
+export async function updateUserName(username: string): Promise<boolean> {
+	const response = await fetch("api/users/me/username", {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(username),
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to change userName.");
+	}
+	const data = await response.json();
+	return data;
+}
+
+export async function updateEmail(email: string): Promise<boolean> {
+	const response = await fetch("api/users/me/email", {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(email),
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to change email.");
+	}
 	const data = await response.json();
 	return data;
 }
