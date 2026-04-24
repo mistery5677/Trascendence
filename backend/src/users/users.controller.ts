@@ -85,10 +85,11 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @Patch('/me/board-theme')
+  @Patch('me/board-theme')
   async updateBoardTheme(@Body() body, @Req() req) {
     const userEmail = req.user.userEmail;
     const { boardTheme } = body;
+
     return await this.usersService.updateBoardTheme(
       userEmail,
       parseInt(boardTheme),

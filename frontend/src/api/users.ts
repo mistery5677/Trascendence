@@ -63,10 +63,10 @@ export async function signupUser(userData: Record<string, any>): Promise<boolean
 }
 
 export async function updateUserName(username: string): Promise<boolean> {
-	const response = await fetch("api/users/me/username", {
+	const response = await fetch("/api/users/me/username", {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(username),
+		body: JSON.stringify({ username: username }),
 	});
 
 	if (!response.ok) {
@@ -77,15 +77,33 @@ export async function updateUserName(username: string): Promise<boolean> {
 }
 
 export async function updateEmail(email: string): Promise<boolean> {
-	const response = await fetch("api/users/me/email", {
+	const response = await fetch("/api/users/me/email", {
 		method: "PATCH",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(email),
+		body: JSON.stringify({ email: email }),
 	});
 
 	if (!response.ok) {
 		throw new Error("Failed to change email.");
 	}
 	const data = await response.json();
+	return data;
+}
+
+export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> {
+	let data;
+
+	try {
+		const response = await fetch("/api/users/me/board-theme", {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ boardTheme: boardThemeVal }),
+		});
+		data = await response.json();
+	} catch (error) {
+		console.log(error);
+		throw new Error("Failed to update board-theme.");
+	}
+
 	return data;
 }

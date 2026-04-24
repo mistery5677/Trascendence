@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Board, Timer } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
+import { useAuth } from "../../contexts/UserContext";
 
 export function Play() {
+	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
 
@@ -46,7 +48,7 @@ export function Play() {
 						<div className="flex flex-col justify-center items-start">
 							<div
 								className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${currentTurn === "w" ? "text-stone-100" : "text-slate-400"}`}>
-								Player 1
+								{state.user ? state.user?.name : "Player 1"}
 							</div>
 							<div
 								className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${currentTurn === "w" ? "text-emerald-300" : "text-slate-500"}`}>
