@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/UserContext";
 import { updateAvatar, updatePassword } from "../../api/users";
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
-
+import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
 function tabClass(isActive: boolean): string {
 	if (isActive) {
 		return "rounded-xl border border-sky-300/35 bg-sky-500/15 px-4 py-3 text-left text-xl font-bold text-sky-100";
@@ -97,25 +97,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										onClick={() => setActiveTab("profile")}
 										className={tabClass(activeTab === "profile")}>
 										<div className="flex flex-row gap-2">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												className="icon icon-tabler icons-tabler-outline icon-tabler-user">
-												<path
-													stroke="none"
-													d="M0 0h24v24H0z"
-													fill="none"
-												/>
-												<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-												<path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-											</svg>
+											<IconUser stroke={2} />
 											Profile
 										</div>
 									</button>
@@ -124,25 +106,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										onClick={() => setActiveTab("account")}
 										className={tabClass(activeTab === "account")}>
 										<div className="flex flex-row gap-2">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												className="icon icon-tabler icons-tabler-outline icon-tabler-device-laptop">
-												<path
-													stroke="none"
-													d="M0 0h24v24H0z"
-													fill="none"
-												/>
-												<path d="M3 19l18 0" />
-												<path d="M5 7a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -8" />
-											</svg>
+											<IconDeviceLaptop stroke={2} />
 											Account
 										</div>
 									</button>
@@ -150,7 +114,10 @@ export function Settings({ tabOpt }: SettingsProps) {
 										type="button"
 										onClick={() => setActiveTab("board")}
 										className={tabClass(activeTab === "board")}>
-										Board Theme
+										<div className="flex flex-row gap-2">
+											<IconPalette stroke={2} />
+											Board Theme
+										</div>
 									</button>
 								</nav>
 							</aside>
@@ -241,6 +208,32 @@ export function Settings({ tabOpt }: SettingsProps) {
 								{activeTab === "account" && (
 									<>
 										<h2 className="text-2xl font-bold">Account</h2>
+										<div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
+											<div className="bg-white/5 p-4 rounded-xl text-center">
+												<p className="text-gray-400 text-sm uppercase">Victories</p>
+												<p className="text-3xl font-bold text-green-400">
+													{state?.user?.score?.wins || 0}
+												</p>
+											</div>
+											<div className="bg-white/5 p-4 rounded-xl text-center">
+												<p className="text-gray-400 text-sm uppercase">Defeats</p>
+												<p className="text-3xl font-bold text-red-400">
+													{state?.user?.score?.losses || 0}
+												</p>
+											</div>
+											<div className="bg-white/5 p-4 rounded-xl text-center">
+												<p className="text-gray-400 text-sm uppercase">Draws</p>
+												<p className="text-3xl font-bold text-yellow-400">
+													{state?.user?.score?.draws || 0}
+												</p>
+											</div>
+											<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
+												<p className="text-board-focus text-sm uppercase">Elo</p>
+												<p className="text-3xl font-bold text-white">
+													{state?.user?.score?.elo || 1000}
+												</p>
+											</div>
+										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
 											onSubmit={handlePasswordChange}>
@@ -292,7 +285,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 								)}
 
 								{activeTab === "board" && (
-									<>
+									<div>
 										<h2 className="text-2xl font-bold">Board Theme</h2>
 										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											<button
@@ -311,7 +304,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												Midnight
 											</button>
 										</div>
-									</>
+									</div>
 								)}
 							</section>
 						</div>

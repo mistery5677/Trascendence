@@ -16,7 +16,6 @@ export class RegisterDto {
   avatarUrl!: string;
 
   @IsString()
-  @MinLength(6)
   @Transform(({ value }) => value.trim())
   password!: string;
 }
