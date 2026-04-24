@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
-import { updateAvatar, updatePassword } from "../../api/users";
+import { updateAvatar, updatePassword, verifyEmail } from "../../api/users";
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
+
 function tabClass(isActive: boolean): string {
 	if (isActive) {
 		return "rounded-xl border border-sky-300/35 bg-sky-500/15 px-4 py-3 text-left text-xl font-bold text-sky-100";
@@ -71,10 +72,31 @@ export function Settings({ tabOpt }: SettingsProps) {
 			return;
 		}
 		try {
+			console.log("current: ", currentPassword);
+			console.log("newPassword: ", newPassword);
 			await updatePassword(currentPassword, newPassword);
 		} catch (err) {
 			console.log(err);
 		}
+	};
+
+	const handleProfileChange = async (e: React.SubmitEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		const formData = new FormData(e.currentTarget);
+
+		const displayName = formData.get("displayName") as string | null;
+		const email = formData.get("email") as string | null;
+
+		try {
+			if (email) {
+				const isAvailable = await verifyEmail(email);
+				if (!isAvailable) {
+					console.log("Email isn't available");
+					toastWrapper.warn("Email already in use!", { style: { fontSize: 14 } });
+				}
+			}
+		} catch (err) {}
 	};
 
 	return (
@@ -163,17 +185,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 														Upload
 													</button>
-													<button
+													{/* <button
 														type="button"
 														className="rounded-xl border border-stone-600 bg-stone-700/80 px-4 py-2 text-sm font-semibold text-stone-200 transition-colors hover:bg-stone-800">
 														Remove
-													</button>
+													</button> */}
 												</div>
 											</div>
 										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-											onSubmit={handlePasswordChange}>
+											onSubmit={handleProfileChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
 													Display Name
@@ -181,6 +203,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<input
 													type="text"
 													placeholder="Your name"
+													name="displayName"
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
 											</label>
@@ -189,6 +212,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<span className="text-sm font-semibold text-stone-300">Email</span>
 												<input
 													type="email"
+													name="email"
 													placeholder="you@email.com"
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>

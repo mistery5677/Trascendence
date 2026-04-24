@@ -89,7 +89,7 @@ export class UsersService {
         losses: true,
         avatarUrl: true,
       },
-    })
+    });
   }
 
   async remove(id: number) {

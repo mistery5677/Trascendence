@@ -1,15 +1,12 @@
 // Change the password
-export async function updatePassword(
-  currentPassword: string,
-  newPassword: string,
-) {
-  const res = await fetch("/api/users/me/password", {
-    method: "PATCH",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ currentPassword, newPassword }),
-  });
-  if (!res.ok) throw new Error("Failed to update password");
+export async function updatePassword(currentPassword: string, newPassword: string) {
+	const res = await fetch("/api/users/me/password", {
+		method: "PATCH",
+		credentials: "include",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ currentPassword, newPassword }),
+	});
+	if (!res.ok) throw new Error("Failed to update password");
 }
 
 // Updates the provile image
