@@ -20,6 +20,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'node:path';
 import { diskStorage } from 'multer';
+import { brotliDecompress } from 'node:zlib';
 
 @Controller('/users')
 export class UsersController {
@@ -80,6 +81,17 @@ export class UsersController {
       userEmail,
       currentPassword,
       newPassword,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('/me/board-theme')
+  async updateBoardTheme(@Body() body, @Req() req) {
+    const userEmail = req.user.userEmail;
+    const { boardTheme } = body;
+    return await this.usersService.updateBoardTheme(
+      userEmail,
+      parseInt(boardTheme),
     );
   }
 

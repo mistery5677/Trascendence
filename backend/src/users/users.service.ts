@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -61,6 +62,22 @@ export class UsersService {
     return await this.prisma.user.update({
       where: { email },
       data: { password: hashedPassword, updatedAt: new Date() },
+    });
+  }
+
+  async updateBoardTheme(email: string, boardTheme: number) {
+    const user = await this.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // !For now
+    if (boardTheme < 1 || boardTheme > 3)
+      throw new ForbiddenException("Theme with that index doesn't exist");
+
+    return await this.prisma.user.update({
+      where: { email },
+      data: { boardTheme: boardTheme },
     });
   }
 

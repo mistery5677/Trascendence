@@ -1,3 +1,10 @@
+export class Score {
+  elo!: number;
+  wins!: number;
+  losses!: number;
+  draws!: number;
+}
+
 export class getProfileDto {
   id!: number;
   name!: string | null;
@@ -6,8 +13,6 @@ export class getProfileDto {
   avatarUrl!: string | null;
   createdAt!: Date;
   updatedAt!: Date;
-  elo!: number;
-  wins!: number;
-  losses!: number;
-  draws!: number;
+  boardTheme!: number;
+  score!: Score;
 }

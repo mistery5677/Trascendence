@@ -17,23 +17,25 @@ datasource db {
 // Class for the user 
 // We use 'model' to e store the information in a table
 model user {
-    id        Int      @id @default(autoincrement())
-    email     String   @unique
-    name      String?
-    nickname  String?
-    username  String   @unique // Means that we only have one username with that specific name
-    password  String //Save a encrypted password
-    
+    id       Int     @id @default(autoincrement())
+    email    String  @unique
+    name     String?
+    nickname String?
+    username String  @unique // Means that we only have one username with that specific name
+    password String //Save a encrypted password
+
     // Avatar profile
     avatarUrl String? // The '?' means optional
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    boardTheme Int @default(1)
+
     // Porfile statistics
-    wins      Int @default(0)
-    losses    Int @default(0)
-    draws     Int @default(0)    
-    elo       Int @default(800)
+    wins   Int @default(0)
+    losses Int @default(0)
+    draws  Int @default(0)
+    elo    Int @default(800)
 
     // Player position
     matchesAsPlayerA MatchHistory[] @relation("PlayerAMatches")
@@ -41,17 +43,17 @@ model user {
 }
 
 model MatchHistory {
-    id          Int         @id @default(autoincrement())
-    createdAt   DateTime    @default(now()) //Stores the date
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) //Stores the date
 
     // Player A (White pieces)
-    playerAId   Int
-    playerA     user    @relation("PlayerAMatches", fields: [playerAId], references: [id])
+    playerAId Int
+    playerA   user @relation("PlayerAMatches", fields: [playerAId], references: [id])
 
     // Player B (Black pieces)
-    playerBId   Int
-    playerB     user    @relation("PlayerBMatches", fields: [playerBId], references: [id])
+    playerBId Int
+    playerB   user @relation("PlayerBMatches", fields: [playerBId], references: [id])
 
     // Result of the match (PLAYER_A_WINS | PLAYER_B_WINS | DRAW)
-    result      String
+    result String
 }
