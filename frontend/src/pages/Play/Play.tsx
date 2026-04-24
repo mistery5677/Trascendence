@@ -6,6 +6,9 @@ export function Play() {
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
 
+	// We create a 'state' to store te game result
+	const [gameResult, setGameResult] = useState<string | null>(null);
+
 	useEffect(() => {
 		setTimerKey((prevKey) => prevKey + 1);
 	}, [currentTurn]);
@@ -14,6 +17,10 @@ export function Play() {
 		setCurrentTurn(newTurn);
 	};
 
+	const handleGameOver = (result: string) => {
+		setGameResult(result);
+	}
+
 	return (
 		<div className="min-h-[calc(100vh-5rem)] bg-linear-to-b from-slate-950 via-stone-950 to-slate-900 font-sans flex flex-col items-center py-12 relative overflow-hidden">
 			{/* Ambient Glowing Background */}
@@ -21,7 +28,37 @@ export function Play() {
 				<div className="absolute top-[20%] -left-[10%] w-[36vw] h-[36vw] bg-emerald-700/20 rounded-full blur-[110px]"></div>
 				<div className="absolute bottom-[10%] right-[5%] w-[30vw] h-[30vw] bg-emerald-500/12 rounded-full blur-[95px]"></div>
 			</div>
+			{gameResult && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="bg-slate-900 border border-emerald-500/30 p-10 rounded-3xl flex flex-col items-center gap-6 shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] transform transition-all scale-105">
+                        
+                        <h2 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">
+                            {gameResult === 'PLAYER_A_WINS' ? 'VICTORY!' : 
+                             gameResult === 'PLAYER_B_WINS' ? 'DEFEAT' : 'DRAW'}
+                        </h2>
+                        
+                        <p className="text-slate-400 text-lg">
+                            {gameResult === 'PLAYER_A_WINS' ? 'You crushed the bot! +8 ELO' : 
+                             gameResult === 'PLAYER_B_WINS' ? 'Better luck next time. -8 ELO' : 'A tough battle with no clear winner.'}
+                        </p>
 
+                        <div className="flex gap-4 mt-4">
+                            <button 
+                                onClick={() => window.location.reload()} 
+                                className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all"
+                            >
+                                Play Again
+                            </button>
+                            <a 
+                                href="/settings" 
+                                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold rounded-xl transition-all"
+                            >
+                                View Stats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
 			<div className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center h-full gap-8 px-4">
 				{/* Player vs Player Header Area */}
 				<div className="flex flex-row text-white w-full justify-between items-center bg-slate-900/70 p-4 sm:p-6 rounded-2xl border border-emerald-300/15 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm">
@@ -109,7 +146,7 @@ export function Play() {
 				{/* Board */}
 				<div className="w-full max-w-2xl px-2">
 					<div className="p-3 sm:p-6 bg-slate-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
-						<Board onTurnChange={handleTurnChange} />
+						<Board onTurnChange={handleTurnChange} onGameOver={handleGameOver} />
 					</div>
 				</div>
 			</div>
