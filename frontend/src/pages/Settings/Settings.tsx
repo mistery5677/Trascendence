@@ -1,9 +1,18 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
-import { updateAvatar, updatePassword } from "../../api/users";
+import {
+	updateAvatar,
+	updateBoardTheme,
+	updateEmail,
+	updatePassword,
+	updateUserName,
+	verifyEmail,
+	verifyUsername,
+} from "../../api/users";
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
+
 function tabClass(isActive: boolean): string {
 	if (isActive) {
 		return "rounded-xl border border-sky-300/35 bg-sky-500/15 px-4 py-3 text-left text-xl font-bold text-sky-100";
@@ -61,20 +70,69 @@ export function Settings({ tabOpt }: SettingsProps) {
 		const newPassword = formData.get("newPassword") as string | null;
 		const confirmPassword = formData.get("confirmPassword") as string | null;
 
-		if (!currentPassword || !newPassword || !confirmPassword) {
-			console.error("All fields are required");
+		if (!currentPassword && !newPassword && !confirmPassword) {
+			toastWrapper.warn("All fields is required.");
+		}
+		if (!currentPassword) {
+			toastWrapper.warn("Current password is required.");
+			return;
+		} else if (!newPassword) {
+			toastWrapper.warn("New password is required.");
+			return;
+		} else if (!confirmPassword) {
+			toastWrapper.warn("Please confirm your new password.");
 			return;
 		}
 
 		if (newPassword !== confirmPassword) {
-			console.error("Passwords do not match");
+			toastWrapper.warn("Passwords confirmation does not match.");
 			return;
 		}
 		try {
+			console.log("current: ", currentPassword);
+			console.log("newPassword: ", newPassword);
 			await updatePassword(currentPassword, newPassword);
 		} catch (err) {
 			console.log(err);
 		}
+	};
+
+	const handleProfileChange = async (e: React.SubmitEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		const formData = new FormData(e.currentTarget);
+
+		const displayName = formData.get("displayName") as string | null;
+		const email = formData.get("email") as string | null;
+
+		if (email) {
+			const isAvailable = await verifyEmail(email);
+			if (!isAvailable) {
+				toastWrapper.warn("Email already in use!");
+				return;
+			}
+			try {
+				await updateEmail(email);
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		if (displayName) {
+			const isAvailable = await verifyUsername(displayName);
+			if (!isAvailable) {
+				toastWrapper.warn("Username already in use!");
+				return;
+			}
+			try {
+				await updateUserName(displayName);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+	};
+
+	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
+		await updateBoardTheme(themeId);
 	};
 
 	return (
@@ -163,17 +221,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 														Upload
 													</button>
-													<button
+													{/* <button
 														type="button"
 														className="rounded-xl border border-stone-600 bg-stone-700/80 px-4 py-2 text-sm font-semibold text-stone-200 transition-colors hover:bg-stone-800">
 														Remove
-													</button>
+													</button> */}
 												</div>
 											</div>
 										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-											onSubmit={handlePasswordChange}>
+											onSubmit={handleProfileChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
 													Display Name
@@ -181,6 +239,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<input
 													type="text"
 													placeholder="Your name"
+													name="displayName"
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
 											</label>
@@ -189,6 +248,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<span className="text-sm font-semibold text-stone-300">Email</span>
 												<input
 													type="email"
+													name="email"
 													placeholder="you@email.com"
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
@@ -239,7 +299,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 											onSubmit={handlePasswordChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-2">
 												<span className="text-sm font-semibold text-stone-300">
-													Current Password
+													Current Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="currentPassword"
@@ -251,7 +311,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													New Password
+													New Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="newPassword"
@@ -263,7 +323,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													Confirm Password
+													Confirm Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="confirmPassword"
@@ -290,16 +350,19 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											<button
 												type="button"
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
-												Classic
-											</button>
-											<button
-												type="button"
+												onClick={handleBoardTheme(1)}
 												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
 												Forest
 											</button>
 											<button
 												type="button"
+												onClick={handleBoardTheme(2)}
+												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												Classic
+											</button>
+											<button
+												type="button"
+												onClick={handleBoardTheme(3)}
 												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
 												Midnight
 											</button>

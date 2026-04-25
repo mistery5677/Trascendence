@@ -3,6 +3,7 @@ import { useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
+import { useAuth } from "../../contexts/UserContext";
 
 export type PieceColor = "w" | "b";
 
@@ -20,14 +21,41 @@ type PieceDropHandlerArgs = {
 
 interface BoardProps {
 	onTurnChange?: (color: PieceColor) => void;
+	onGameOver?: (result:string) => void; // We check if the game is finished
 }
 
-export function Board({ onTurnChange }: BoardProps) {
+const themes = {
+	classic: {
+		background: "#8b4513",
+		pieces: "#5a3825",
+		border: "#3e2723",
+	},
+	midnight: {
+		background: "#2c3e50",
+		pieces: "#34495e",
+		border: "#ecf0f1",
+	},
+	forest: {
+		background: "#4caf50",
+		pieces: "#2e7d32",
+		border: "#1b5e20",
+	},
+};
+
+export function Board({ onTurnChange, onGameOver }: BoardProps) {
+	const { state } = useAuth();
+	const themeArray = [themes.forest, themes.classic, themes.midnight];
+
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
+	// Get the current user
+	// const { state } = useAuth();
+	const myUserId = state?.user?.id;
+
+	
 	useEffect(() => {
 		if (onTurnChange) {
 			onTurnChange(chessGame.turn());
@@ -35,18 +63,28 @@ export function Board({ onTurnChange }: BoardProps) {
 
 		// Check if the game is finished
 		if (chessGame.isGameOver()){
+			// We do this verification to pass trought the "handleGameOver" function
+			if (myUserId == undefined || onGameOver == undefined)
+			{
+				console.error("Could not get the id of the current player");
+				return ;
+			}
+
+			// Check if the game finished with a checkmate
 			if (chessGame.isCheckmate()){
 				// If the black ('b') is playing and has check-mate, whites win
 				const result = chessGame.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
-
-				// Call handle game over and use tests id
-				handleGameOver(1, 2, result);
+				
+				handleGameOver(myUserId, 2, result);
+				onGameOver(result); // Notify the Play.tsx about the result of the game
+				
 			}
 			else if (chessGame.isDraw() || chessGame.isStalemate() || chessGame.isThreefoldRepetition()){
-				handleGameOver(1, 2, 'DRAW');
+				handleGameOver(myUserId, 2, 'DRAW');
+				onGameOver("DRAW");
 			}
 		}
-	}, [chessPosition, onTurnChange, chessGame]);
+	}, [chessPosition, onTurnChange, chessGame, myUserId, onGameOver]);
 
 	function makeRandomMove() {
 		const possibleMoves = chessGame.moves();
@@ -88,7 +126,7 @@ export function Board({ onTurnChange }: BoardProps) {
 			backgroundColor: "var(--color-board-light)",
 		},
 		darkSquareStyle: {
-			backgroundColor: "var(--color-board-dark)",
+			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
 		},
 	};
 
