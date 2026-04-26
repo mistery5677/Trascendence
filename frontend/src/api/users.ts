@@ -114,3 +114,36 @@ export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> 
 
 	return data;
 }
+
+export interface PlayerData {
+  id: number;
+  rank: number;
+  username: string;
+  avatarUrl?: string;
+  elo: number;
+  wins: number;
+  losses: number;
+}
+
+// Calls the backend to get the best 10 players
+export async function getLeaderboard(): Promise<PlayerData[]> {
+  let data;
+
+  try {
+    const response = await fetch("/api/users/leaderboard", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    
+    if (response.ok == false) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    data = await response.json();
+  } catch (error) {
+    console.log(error);
+    throw new Error("Failed to fetch leaderboard data.");
+  }
+
+  return data;
+}

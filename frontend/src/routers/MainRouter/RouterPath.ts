@@ -7,4 +7,5 @@ export const RouterPaths = {
 	PROFILE: "/profile",
 	ERROR: "*",
 	ZE: "/ze",
+	LEADERBOARDS: "/leaderboards"
 };

@@ -129,4 +129,11 @@ export class UsersController {
 
     return { isAvailable: !user };
   }
+  
+  // Call the getLeaderboard function
+  @Get('leaderboard')
+  @Header('Cache-Control', 'no-store') // Prevent browser from saving old leaderboards
+  async getLeaderboard() {
+    return this.usersService.getLeaderboard();
+  }
 }
