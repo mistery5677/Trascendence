@@ -21,6 +21,7 @@ type PieceDropHandlerArgs = {
 
 interface BoardProps {
 	onTurnChange?: (color: PieceColor) => void;
+	onGameOver?: (result:string) => void; // We check if the game is finished
 }
 
 const themes = {
@@ -41,7 +42,7 @@ const themes = {
 	},
 };
 
-export function Board({ onTurnChange }: BoardProps) {
+export function Board({ onTurnChange, onGameOver }: BoardProps) {
 	const { state } = useAuth();
 	const themeArray = [themes.forest, themes.classic, themes.midnight];
 
@@ -50,24 +51,40 @@ export function Board({ onTurnChange }: BoardProps) {
 
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
+	// Get the current user
+	// const { state } = useAuth();
+	const myUserId = state?.user?.id;
+
+	
 	useEffect(() => {
 		if (onTurnChange) {
 			onTurnChange(chessGame.turn());
 		}
 
 		// Check if the game is finished
-		if (chessGame.isGameOver()) {
-			if (chessGame.isCheckmate()) {
-				// If the black ('b') is playing and has check-mate, whites win
-				const result = chessGame.turn() === "b" ? "PLAYER_A_WINS" : "PLAYER_B_WINS";
+		if (chessGame.isGameOver()){
+			// We do this verification to pass trought the "handleGameOver" function
+			if (myUserId == undefined || onGameOver == undefined)
+			{
+				console.error("Could not get the id of the current player");
+				return ;
+			}
 
-				// Call handle game over and use tests id
-				handleGameOver(1, 2, result);
-			} else if (chessGame.isDraw() || chessGame.isStalemate() || chessGame.isThreefoldRepetition()) {
-				handleGameOver(1, 2, "DRAW");
+			// Check if the game finished with a checkmate
+			if (chessGame.isCheckmate()){
+				// If the black ('b') is playing and has check-mate, whites win
+				const result = chessGame.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
+				
+				handleGameOver(myUserId, 2, result);
+				onGameOver(result); // Notify the Play.tsx about the result of the game
+				
+			}
+			else if (chessGame.isDraw() || chessGame.isStalemate() || chessGame.isThreefoldRepetition()){
+				handleGameOver(myUserId, 2, 'DRAW');
+				onGameOver("DRAW");
 			}
 		}
-	}, [chessPosition, onTurnChange, chessGame]);
+	}, [chessPosition, onTurnChange, chessGame, myUserId, onGameOver]);
 
 	function makeRandomMove() {
 		const possibleMoves = chessGame.moves();
