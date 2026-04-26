@@ -157,4 +157,29 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
+
+  
+  // Find all the users to create the leaderboard
+  async getLeaderboard() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+        elo: true,
+        wins: true,
+        losses: true,
+      },
+      orderBy: {
+        elo: 'desc', // Orders the elos in a decrescent way
+      },
+      take: 10, // Limits to 10 to not overload the data base
+    });
+
+    // Calculate the position of each user
+    return users.map((user, index) => ({
+      ...user,
+      rank: index + 1,
+    }));
+  }
 }
