@@ -24,8 +24,12 @@ install-backend:
 	cd backend && npm ci
 
 up:
-	$(COMPOSE) up --build
-	
+	$(COMPOSE) up -d --build
+	$(MAKE) generate
+	$(MAKE) db-push
+	$(COMPOSE) restart backend
+	$(MAKE) logs
+
 
 # Builds the docker, with the option to use the terminal at the same time
 up-d:
