@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import {
 	updateAvatar,
@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
 import styles from "./style.module.css";
+import { Profile } from "../../components/index";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
@@ -32,12 +33,15 @@ export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
 	const { state, refreshMe } = useAuth();
 	const [avatarUrlKey, setAvatarUrlKey] = useState(Date.now());
-
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	const handleUploadClick = () => {
 		fileInputRef.current?.click();
 	};
+
+	useEffect(() => {
+		document.title = "Settings | 42 Transcendence";
+	}, []);
 
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -223,8 +227,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 							<section className="relative border-t border-stone-700/70 p-6 lg:border-t-0">
 								<div className="absolute top-5 bottom-5 left-0 hidden w-px bg-stone-700/70 lg:block" />
 								{activeTab === "profile" && (
+									<div>
+										<div className="text-stone-400 text-lg">
+											Profile info is now shown in your public profile.
+										</div>
+										<Profile />
+									</div>
+								)}
+
+								{activeTab === "account" && (
 									<>
-										<h2 className="text-2xl font-bold">Profile</h2>
+										<h2 className="text-2xl font-bold">Account</h2>
 										<div className="mt-6 rounded-2xl border border-stone-700/80 bg-stone-900/45 p-5">
 											<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex items-center gap-4">
@@ -261,11 +274,6 @@ export function Settings({ tabOpt }: SettingsProps) {
 														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 														Upload
 													</button>
-													{/* <button
-														type="button"
-														className="rounded-xl border border-stone-600 bg-stone-700/80 px-4 py-2 text-sm font-semibold text-stone-200 transition-colors hover:bg-stone-800">
-														Remove
-													</button> */}
 												</div>
 											</div>
 										</div>
@@ -317,38 +325,6 @@ export function Settings({ tabOpt }: SettingsProps) {
 												</button>
 											</div>
 										</form>
-									</>
-								)}
-
-								{activeTab === "account" && (
-									<>
-										<h2 className="text-2xl font-bold">Account</h2>
-										<div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Victories</p>
-												<p className="text-3xl font-bold text-green-400">
-													{state?.user?.score?.wins || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Defeats</p>
-												<p className="text-3xl font-bold text-red-400">
-													{state?.user?.score?.losses || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Draws</p>
-												<p className="text-3xl font-bold text-yellow-400">
-													{state?.user?.score?.draws || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
-												<p className="text-board-focus text-sm uppercase">Elo</p>
-												<p className="text-3xl font-bold text-white">
-													{state?.user?.score?.elo || 1000}
-												</p>
-											</div>
-										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
 											onSubmit={handlePasswordChange}>

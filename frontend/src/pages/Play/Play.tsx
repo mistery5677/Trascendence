@@ -86,7 +86,7 @@ export function Play() {
 						<div className="flex flex-col justify-center items-start">
 							<div
 								className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${currentTurn === "w" ? "text-stone-100" : "text-slate-400"}`}>
-								{state.user ? state.user?.name : "Player 1"}
+								{state.user ? state.user?.username : "Player 1"}
 							</div>
 							<div
 								className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${currentTurn === "w" ? "text-emerald-300" : "text-slate-500"}`}>

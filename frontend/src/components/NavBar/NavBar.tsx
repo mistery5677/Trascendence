@@ -17,7 +17,7 @@ const navigation = [
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
 	{ name: "Play", href: "/play", current: false },
-	{ name: "LeaderBoards", href: "/leaderboards", current: false},
+	{ name: "LeaderBoards", href: "/leaderboards", current: false },
 ];
 
 function classNames(...classes: (string | undefined | false)[]): string {
@@ -89,11 +89,10 @@ export function NavBar({ onModal }: NavBarProps) {
 						</a>
 						<div className="hidden sm:ml-auto sm:flex sm:items-center">
 							<a
-                                href="/leaderboards"
-                                className="mr-4 text-stone-300 hover:text-emerald-200 hover:bg-emerald-400/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-                            >
-                                Leaderboards
-                            </a>
+								href="/leaderboards"
+								className="mr-4 text-stone-300 hover:text-emerald-200 hover:bg-emerald-400/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+								Leaderboards
+							</a>
 							<div className="flex items-center rounded-full bg-stone-900/40 border border-emerald-300/10 p-1.5 overflow-visible">
 								<div
 									className={classNames(
@@ -188,6 +187,13 @@ export function NavBar({ onModal }: NavBarProps) {
 											href="/settings"
 											className="block px-4 py-2.5 text-sm font-medium text-stone-300 hover:bg-emerald-400/12 hover:text-stone-100 transition-colors">
 											Settings
+										</a>
+									</MenuItem>
+									<MenuItem>
+										<a
+											href="/history"
+											className="block px-4 py-2.5 text-sm font-medium text-stone-300 hover:bg-emerald-400/12 hover:text-stone-100 transition-colors">
+											History
 										</a>
 									</MenuItem>
 									<MenuItem>

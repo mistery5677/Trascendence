@@ -7,3 +7,4 @@ export { Board } from "./Board/Board";
 export { FallBack } from "./FallBack/FallBack";
 export { Timer } from "./Timer/Timer";
 export { ToastWrapper } from "./ToastWrapper/ToastWrapper";
+export { Profile } from "./Profile/Profile";

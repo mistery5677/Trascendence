@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
-import { Error, Home, Play, Settings, Ze, LeaderBoards, History } from "../../pages";
+import { Error, Home, Play, Settings, Ze, LeaderBoards, HistoryPage } from "../../pages";
 import { FallBack, Login, Signup } from "../../components";
 import { MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
@@ -42,9 +42,9 @@ export function MainRouter() {
 					path={RouterPaths.PLAY}
 					element={<Play />}></Route>
 				<Route
-                    path={RouterPaths.LEADERBOARDS}
-                    element={<LeaderBoards />}
-                />
+					path={RouterPaths.LEADERBOARDS}
+					element={<LeaderBoards />}
+				/>
 				{state.user && (
 					<Route
 						path={RouterPaths.SETTINGS}
@@ -53,7 +53,7 @@ export function MainRouter() {
 				{state.user && (
 					<Route
 						path={RouterPaths.HISTORY}
-						element={<History />}></Route>
+						element={<HistoryPage />}></Route>
 				)}
 			</Routes>
 		</BrowserRouter>

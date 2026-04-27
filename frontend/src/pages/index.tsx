@@ -4,4 +4,4 @@ export { Play } from "./Play/Play";
 export { Settings } from "./Settings/Settings";
 export { Ze } from "./Ze/Ze";
 export { LeaderBoards } from "./LeaderBoards/LeaderBoards";
-export { History } from "./History/History";
+export { HistoryPage } from "./History/History";
