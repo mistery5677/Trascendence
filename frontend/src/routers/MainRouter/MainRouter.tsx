@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
-import { Error, Home, Play, Settings, Ze } from "../../pages";
+import { Error, History, Home, Play, Settings, Ze } from "../../pages";
 import { FallBack, Login, Signup } from "../../components";
 import { MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
@@ -45,6 +45,11 @@ export function MainRouter() {
 					<Route
 						path={RouterPaths.SETTINGS}
 						element={<Settings tabOpt={"profile"} />}></Route>
+				)}
+				{state.user && (
+					<Route
+						path={RouterPaths.HISTORY}
+						element={<History />}></Route>
 				)}
 			</Routes>
 		</BrowserRouter>

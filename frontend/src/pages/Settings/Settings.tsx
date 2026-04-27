@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
+import styles from "./style.module.css";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
@@ -113,6 +114,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 			}
 			try {
 				await updateEmail(email);
+				toastWrapper.success("Email updated successfully.");
 			} catch (error) {
 				console.log(error);
 			}
@@ -125,14 +127,52 @@ export function Settings({ tabOpt }: SettingsProps) {
 			}
 			try {
 				await updateUserName(displayName);
+				toastWrapper.success("Nickname changed successfully.");
 			} catch (err) {
 				console.log(err);
 			}
 		}
 	};
 
+	const [userNameAvailable, setUserNameAvailable] = useState<boolean>(true);
+	const [emailAvailable, setEmailAvailable] = useState<boolean>(true);
+
+	const handleUserVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+
+		if (!value) {
+			setUserNameAvailable(true);
+		}
+
+		try {
+			let isAvailable = await verifyUsername(value);
+			setUserNameAvailable(isAvailable);
+		} catch (error) {
+			console.log(error);
+			toastWrapper.warn("Failed to check username.");
+		}
+	};
+
+	const handleEmailVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+
+		if (!value || value.length == 0) {
+			setEmailAvailable(true);
+			return;
+		}
+
+		try {
+			let isAvailable = await verifyEmail(value);
+			setEmailAvailable(isAvailable);
+		} catch (error) {
+			console.log(error);
+			toastWrapper.warn("Failed to check email.");
+		}
+	};
+
 	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
 		await updateBoardTheme(themeId);
+		toastWrapper.success("Board theme update successfully.");
 	};
 
 	return (
@@ -239,9 +279,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<input
 													type="text"
 													placeholder="Your name"
+													onBlur={handleUserVerification}
 													name="displayName"
-													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
+													className={`rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400`}
 												/>
+												{userNameAvailable == false ? (
+													<div>
+														<div className="text-[14px] pl-2 text-red-500">
+															* Display Name isn't available.
+														</div>
+													</div>
+												) : null}
 											</label>
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
@@ -250,14 +298,21 @@ export function Settings({ tabOpt }: SettingsProps) {
 													type="email"
 													name="email"
 													placeholder="you@email.com"
+													onBlur={handleEmailVerification}
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
+												{emailAvailable == false ? (
+													<div className="text-[14px] text-red-500">
+														* Email isn't available.
+													</div>
+												) : null}
 											</label>
 
 											<div className="sm:col-span-2">
 												<button
 													type="submit"
-													className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+													disabled={!userNameAvailable || !emailAvailable}
+													className={`rounded-md border border-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 ${!userNameAvailable || !emailAvailable ? "bg-emerald-300" : "bg-button-primary hover:bg-button-primary-hover"}`}>
 													Save changes
 												</button>
 											</div>
@@ -351,19 +406,19 @@ export function Settings({ tabOpt }: SettingsProps) {
 											<button
 												type="button"
 												onClick={handleBoardTheme(1)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium ${styles["custom-button-forest"]} hover:border-2`}>
 												Forest
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(2)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-classic"]}`}>
 												Classic
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(3)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-midnight"]}`}>
 												Midnight
 											</button>
 										</div>
