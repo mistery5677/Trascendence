@@ -79,9 +79,9 @@ export class AuthService {
     });
   }
 
-  async getProfile(email: string): Promise<getProfileDto> {
-    const user = await this.usersService.findOneByEmail(email);
-
+  async getProfile(id: number): Promise<getProfileDto> {
+    // const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneById(id);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
