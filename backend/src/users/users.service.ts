@@ -140,6 +140,11 @@ export class UsersService {
         wins: true,
         losses: true,
         avatarUrl: true,
+        createdAt: true,
+        name: true,
+        boardTheme: true,
+        draws: true,
+        updatedAt: true,
       },
     });
   }
