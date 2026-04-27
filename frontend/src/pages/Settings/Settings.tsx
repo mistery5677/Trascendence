@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import {
 	updateAvatar,
@@ -12,6 +12,8 @@ import {
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
+import styles from "./style.module.css";
+import { Profile } from "../../components/index";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
@@ -31,12 +33,15 @@ export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
 	const { state, refreshMe } = useAuth();
 	const [avatarUrlKey, setAvatarUrlKey] = useState(Date.now());
-
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
 	const handleUploadClick = () => {
 		fileInputRef.current?.click();
 	};
+
+	useEffect(() => {
+		document.title = "Settings | 42 Transcendence";
+	}, []);
 
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -113,6 +118,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 			}
 			try {
 				await updateEmail(email);
+				toastWrapper.success("Email updated successfully.");
 			} catch (error) {
 				console.log(error);
 			}
@@ -125,14 +131,52 @@ export function Settings({ tabOpt }: SettingsProps) {
 			}
 			try {
 				await updateUserName(displayName);
+				toastWrapper.success("Nickname changed successfully.");
 			} catch (err) {
 				console.log(err);
 			}
 		}
 	};
 
+	const [userNameAvailable, setUserNameAvailable] = useState<boolean>(true);
+	const [emailAvailable, setEmailAvailable] = useState<boolean>(true);
+
+	const handleUserVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+
+		if (!value) {
+			setUserNameAvailable(true);
+		}
+
+		try {
+			let isAvailable = await verifyUsername(value);
+			setUserNameAvailable(isAvailable);
+		} catch (error) {
+			console.log(error);
+			toastWrapper.warn("Failed to check username.");
+		}
+	};
+
+	const handleEmailVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+
+		if (!value || value.length == 0) {
+			setEmailAvailable(true);
+			return;
+		}
+
+		try {
+			let isAvailable = await verifyEmail(value);
+			setEmailAvailable(isAvailable);
+		} catch (error) {
+			console.log(error);
+			toastWrapper.warn("Failed to check email.");
+		}
+	};
+
 	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
 		await updateBoardTheme(themeId);
+		toastWrapper.success("Board theme update successfully.");
 	};
 
 	return (
@@ -183,8 +227,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 							<section className="relative border-t border-stone-700/70 p-6 lg:border-t-0">
 								<div className="absolute top-5 bottom-5 left-0 hidden w-px bg-stone-700/70 lg:block" />
 								{activeTab === "profile" && (
+									<div>
+										<div className="text-stone-400 text-lg">
+											Profile info is now shown in your public profile.
+										</div>
+										<Profile />
+									</div>
+								)}
+
+								{activeTab === "account" && (
 									<>
-										<h2 className="text-2xl font-bold">Profile</h2>
+										<h2 className="text-2xl font-bold">Account</h2>
 										<div className="mt-6 rounded-2xl border border-stone-700/80 bg-stone-900/45 p-5">
 											<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex items-center gap-4">
@@ -221,11 +274,6 @@ export function Settings({ tabOpt }: SettingsProps) {
 														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 														Upload
 													</button>
-													{/* <button
-														type="button"
-														className="rounded-xl border border-stone-600 bg-stone-700/80 px-4 py-2 text-sm font-semibold text-stone-200 transition-colors hover:bg-stone-800">
-														Remove
-													</button> */}
 												</div>
 											</div>
 										</div>
@@ -239,9 +287,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<input
 													type="text"
 													placeholder="Your name"
+													onBlur={handleUserVerification}
 													name="displayName"
-													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
+													className={`rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400`}
 												/>
+												{userNameAvailable == false ? (
+													<div>
+														<div className="text-[14px] pl-2 text-red-500">
+															* Display Name isn't available.
+														</div>
+													</div>
+												) : null}
 											</label>
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
@@ -250,50 +306,25 @@ export function Settings({ tabOpt }: SettingsProps) {
 													type="email"
 													name="email"
 													placeholder="you@email.com"
+													onBlur={handleEmailVerification}
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
+												{emailAvailable == false ? (
+													<div className="text-[14px] text-red-500">
+														* Email isn't available.
+													</div>
+												) : null}
 											</label>
 
 											<div className="sm:col-span-2">
 												<button
 													type="submit"
-													className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+													disabled={!userNameAvailable || !emailAvailable}
+													className={`rounded-md border border-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 ${!userNameAvailable || !emailAvailable ? "bg-emerald-300" : "bg-button-primary hover:bg-button-primary-hover"}`}>
 													Save changes
 												</button>
 											</div>
 										</form>
-									</>
-								)}
-
-								{activeTab === "account" && (
-									<>
-										<h2 className="text-2xl font-bold">Account</h2>
-										<div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Victories</p>
-												<p className="text-3xl font-bold text-green-400">
-													{state?.user?.score?.wins || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Defeats</p>
-												<p className="text-3xl font-bold text-red-400">
-													{state?.user?.score?.losses || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center">
-												<p className="text-gray-400 text-sm uppercase">Draws</p>
-												<p className="text-3xl font-bold text-yellow-400">
-													{state?.user?.score?.draws || 0}
-												</p>
-											</div>
-											<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
-												<p className="text-board-focus text-sm uppercase">Elo</p>
-												<p className="text-3xl font-bold text-white">
-													{state?.user?.score?.elo || 1000}
-												</p>
-											</div>
-										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
 											onSubmit={handlePasswordChange}>
@@ -351,19 +382,19 @@ export function Settings({ tabOpt }: SettingsProps) {
 											<button
 												type="button"
 												onClick={handleBoardTheme(1)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium ${styles["custom-button-forest"]} hover:border-2`}>
 												Forest
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(2)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-classic"]}`}>
 												Classic
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(3)}
-												className="rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-emerald-400/70">
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-midnight"]}`}>
 												Midnight
 											</button>
 										</div>

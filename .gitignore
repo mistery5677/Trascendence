@@ -5,7 +5,7 @@ build/
 *.log
 .DS_Store
 /generated/prisma
-
+NOTES.md
 
 
 backend/assets/avatars/uploaded/

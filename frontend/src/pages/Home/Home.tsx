@@ -1,9 +1,14 @@
 import pinGif from "../../assets/PinChessPlaying.gif";
 import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../routers/MainRouter/RouterPath";
-import { UserGroupIcon, ChartBarIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { UserGroupIcon, ChartBarIcon } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
 
 export function Home() {
+	useEffect(() => {
+		document.title = "Home | 42 Transcendence";
+	}, []);
+
 	const navigate = useNavigate();
 
 	const features = [

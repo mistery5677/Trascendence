@@ -5,6 +5,7 @@ export const RouterPaths = {
 	PLAY: "/play",
 	SETTINGS: "/settings",
 	PROFILE: "/profile",
+	HISTORY: "/history",
 	ERROR: "*",
 	ZE: "/ze",
 	LEADERBOARDS: "/leaderboards"
