@@ -1,4 +1,3 @@
-import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,13 +9,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-// import { WsGuard } from './guard/ws.guard';
 import { MatchMakingService } from './matchmaking/matchmaking.service';
 import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from './middleware/ws.middleware';
+import { timeStamp } from 'node:console';
 
 @WebSocketGateway()
-// @UseGuards(WsGuard)
 export class GameGateway
   implements OnGatewayConnection, OnGatewayInit, OnGatewayDisconnect
 {
@@ -54,8 +52,9 @@ export class GameGateway
 
     if (gameId) {
       this.server.to(gameId).emit('receiveMessage', {
-        from: client.data.user.email,
+        from: client.data.user.userEmail,
         message: message,
+        timeStamp: new Date().toISOString(),
       });
     } else {
       console.error("ERROR: gameId Wasn't sended on message");

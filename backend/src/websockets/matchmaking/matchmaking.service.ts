@@ -8,8 +8,12 @@ export class MatchMakingService {
   private readonly logger = new Logger(MatchMakingService.name);
 
   addToQueue(client: Socket, server: Server) {
-    if (this.queue.find((c) => c.id === client.id)) {
-      this.logger.warn(`Player ${client.data.userEmail} is already on queue`);
+    if (
+      this.queue.find((c) => c.data.user.userId === client.data.user.userId)
+    ) {
+      this.logger.warn(
+        `Player ${client.data.user.userEmail} is already on queue`,
+      );
       return;
     }
     this.queue.push(client);

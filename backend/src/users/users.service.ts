@@ -1,16 +1,12 @@
 import {
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcryptjs from 'bcryptjs';
-
 import { PrismaService } from 'src/prisma.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
-import { emit } from 'node:process';
-import { IS_EMAIL } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -158,7 +154,6 @@ export class UsersService {
     }
   }
 
-  
   // Find all the users to create the leaderboard
   async getLeaderboard() {
     const users = await this.prisma.user.findMany({
