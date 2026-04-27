@@ -97,38 +97,4 @@ export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
       <button onClick={sendMessage}>Send</button>
     </div>
   );
-
-  //   return (
-  //     <div className="flex flex-col items-center justify-center w-full mt-10">
-  //       <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-xl border border-gray-700">
-  //         <h2 className="text-white text-xl mb-4 font-bold text-center">
-  //           Game Chat
-  //         </h2>
-
-  //         <div className="h-64 overflow-y-auto bg-black p-4 rounded mb-4 border border-gray-900">
-  //           {messages.map((m, i) => (
-  //             <p key={i} className="text-gray-200 mb-1">
-  //               <span className="text-blue-400 font-bold">{m.from}:</span>{" "}
-  //               {m.message}
-  //             </p>
-  //           ))}
-  //         </div>
-
-  //         <div className="flex gap-2">
-  //           <input
-  //             className="flex-1 bg-gray-700 text-white p-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-  //             value={input}
-  //             onChange={(e) => setInput(e.target.value)}
-  //             placeholder="Type a message..."
-  //           />
-  //           <button
-  //             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition"
-  //             onClick={sendMessage}
-  //           >
-  //             Send
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
 }
