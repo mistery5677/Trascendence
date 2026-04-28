@@ -52,7 +52,7 @@ export class GameGateway
 
     if (gameId) {
       this.server.to(gameId).emit('receiveMessage', {
-        from: client.data.user.userEmail,
+        from: client.data.user.username,
         message: message,
         timeStamp: new Date().toISOString(),
       });

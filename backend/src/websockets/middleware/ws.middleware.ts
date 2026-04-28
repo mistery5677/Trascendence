@@ -12,7 +12,7 @@ export const WsMiddleware = (jwtService: JwtService) => {
         throw new Error('Unauthorized');
       }
       const payload = await jwtService.verifyAsync(token);
-      socket.data.user = { userId: payload.userId, userEmail: payload.userEmail };
+      socket.data.user = { userId: payload.userId, username: payload.username };
       next();
     } catch (err: any) {
       next(new Error('Unauthorized'));

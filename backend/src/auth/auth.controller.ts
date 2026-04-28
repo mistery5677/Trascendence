@@ -25,7 +25,7 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { token, email } = await this.authService.login(loginDto);
+    const { token, username } = await this.authService.login(loginDto);
 
     response.cookie('access_token', token, {
       httpOnly: true,
@@ -34,7 +34,7 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24,
     });
 
-    return { message: 'Login Successful', email };
+    return { message: 'Login Successful', username };
   }
 
   @Post('/signup')
