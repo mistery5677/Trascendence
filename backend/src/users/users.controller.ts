@@ -66,21 +66,21 @@ export class UsersController {
     if (!file) {
       throw new BadRequestException('File not received Correctly');
     }
-    const userEmail = req.user.userEmail;
+    const userId = req.user.userId;
 
     const avatarUrl = `/assets/avatars/uploaded/${file.filename}`;
 
     console.log(avatarUrl);
-    return await this.usersService.updateAvatar(userEmail, avatarUrl);
+    return await this.usersService.updateAvatar(parseInt(userId), avatarUrl);
   }
 
   @UseGuards(AuthGuard)
   @Patch('me/password')
   async updatePassword(@Body() body, @Req() req) {
     const { currentPassword, newPassword } = body;
-    const userEmail = req.user.userEmail;
+    const userId = req.user.userId;
     return await this.usersService.updatePassword(
-      userEmail,
+      parseInt(userId),
       currentPassword,
       newPassword,
     );
@@ -89,11 +89,11 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch('me/board-theme')
   async updateBoardTheme(@Body() body, @Req() req) {
-    const userEmail = req.user.userEmail;
+    const userId = req.user.userId;
     const { boardTheme } = body;
 
     return await this.usersService.updateBoardTheme(
-      userEmail,
+      parseInt(userId),
       parseInt(boardTheme),
     );
   }
@@ -101,19 +101,19 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch('me/email')
   async updateEmail(@Body() body, @Req() req) {
-    const currentEmail = req.user.userEmail;
+    const userId = req.user.userId;
     const { email } = body;
 
-    return await this.usersService.updateEmail(currentEmail, email);
+    return await this.usersService.updateEmail(parseInt(userId), email);
   }
 
   @UseGuards(AuthGuard)
   @Patch('me/username')
   async updateUsername(@Body() body, @Req() req) {
-    const userEmail = req.user.userEmail;
+    const userId = req.user.userId;
     const { username } = body;
 
-    return await this.usersService.updateUsername(userEmail, username);
+    return await this.usersService.updateUsername(parseInt(userId), username);
   }
 
   @Get('check-username')
@@ -129,7 +129,7 @@ export class UsersController {
 
     return { isAvailable: !user };
   }
-  
+
   // Call the getLeaderboard function
   @Get('leaderboard')
   @Header('Cache-Control', 'no-store') // Prevent browser from saving old leaderboards
