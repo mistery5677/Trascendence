@@ -91,7 +91,7 @@ export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
 
         <div className="text-white">
           {messages.map((m, i) => (
-            <p key={i} className="flex">
+            <p key={i} className="flex gap-2">
               <b className="text-blue-500 pl-2">{m.from}:</b> {m.message}
               <div className="flex w-full justify-end">
                 <p className="text-white/30">{m.timeStamp}</p>
