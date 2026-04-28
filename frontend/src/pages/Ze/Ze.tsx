@@ -63,9 +63,9 @@ function StatusDisplay({ isConnected }: { isConnected: boolean }) {
 }
 
 export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
-  const [messages, setMessages] = useState<{ from: string; message: string }[]>(
-    [],
-  );
+  const [messages, setMessages] = useState<
+    { from: string; message: string; timeStamp: string }[]
+  >([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -91,8 +91,11 @@ export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
 
         <div className="text-white">
           {messages.map((m, i) => (
-            <p key={i}>
+            <p key={i} className="flex">
               <b className="text-blue-500 pl-2">{m.from}:</b> {m.message}
+              <div className="flex w-full justify-end">
+                <p className="text-white/30">{m.timeStamp}</p>
+              </div>
             </p>
           ))}
         </div>
