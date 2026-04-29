@@ -10,7 +10,7 @@ export function Ze() {
 }
 
 function ZeLayout() {
-  const { gameId, socket } = useGame(); // ¡Aquí ya no necesitas props!
+  const { gameId, socket } = useGame(); 
 
   return (
     <div className="p-8">
