@@ -4,23 +4,27 @@ import { GameProvider, useGame } from "./Context/GameContext";
 export function Ze() {
   return (
     <GameProvider>
-      <GameLayout />
+      <ZeLayout />
     </GameProvider>
   );
 }
 
-function GameLayout() {
+function ZeLayout() {
   const { gameId, socket } = useGame(); // ¡Aquí ya no necesitas props!
 
   return (
     <div className="p-8">
-      {gameId && socket ? (
-        <div className="flex min-h-screen items-center justify-end pr-2">
-          <Chat />
-        </div>
-      ) : (
-        <StatusDisplay />
-      )}
+      {gameId && socket ? <GameLayout /> : <StatusDisplay />}
+    </div>
+  );
+}
+
+function GameLayout() {
+  return (
+    <div>
+      <div className="flex min-h-screen items-center justify-end pr-2">
+        <Chat />
+      </div>
     </div>
   );
 }
