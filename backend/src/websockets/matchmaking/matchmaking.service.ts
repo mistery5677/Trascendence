@@ -38,13 +38,17 @@ export class MatchMakingService {
     player1.join(gameId);
     player2.join(gameId);
 
-    const matchData = {
+    player1.emit('matchFound', {
       gameId,
-      opponent: player2.data.user.email,
-    };
+      color: 'w',
+      opponent: player2.data.user.username,
+    });
 
-    // Emit to the room (both players)
-    server.to(gameId).emit('matchFound', matchData);
+    player2.emit('matchFound', {
+      gameId,
+      color: 'b',
+      opponent: player1.data.user.username,
+    });
 
     this.logger.log(
       `Match created: ${gameId} | Players: ${player1.data.user.username} vs ${player2.data.user.username}`,

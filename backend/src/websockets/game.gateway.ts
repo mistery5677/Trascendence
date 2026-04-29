@@ -26,11 +26,6 @@ export class GameGateway
     private readonly jwtService: JwtService,
   ) {}
 
-  @SubscribeMessage('joinQueue')
-  handleJoinQueue(@ConnectedSocket() client: Socket) {
-    this.matchMakingService.addToQueue(client, this.server);
-  }
-
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
@@ -41,6 +36,22 @@ export class GameGateway
 
   handleDisconnect(client: Socket) {
     this.matchMakingService.removeFromQueue(client);
+  }
+
+  @SubscribeMessage('joinQueue')
+  handleJoinQueue(@ConnectedSocket() client: Socket) {
+    this.matchMakingService.addToQueue(client, this.server);
+  }
+
+  @SubscribeMessage('joinGame') handleJoinGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string },
+  ) {
+    client.join(data.gameId);
+
+    //! Implement when function it`s
+    // const gameState = this.gameService.getGameState(data.gameId);
+    // client.emit('gameState', gameState);
   }
 
   @SubscribeMessage('sendMessage')
