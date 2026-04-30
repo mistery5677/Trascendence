@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
-import { Error, Home, Play, Settings, Ze, LeaderBoards, HistoryPage } from "../../pages";
+import { Error, Home, PlayWrapper, Settings, Ze, LeaderBoards, HistoryPage } from "../../pages";
 import { FallBack, Login, Signup } from "../../components";
 import { MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
+
 
 type ActivateModal = "signup" | "login" | null;
 
@@ -40,7 +41,7 @@ export function MainRouter() {
 				/>
 				<Route
 					path={RouterPaths.PLAY}
-					element={<Play />}></Route>
+					element={<PlayWrapper />}></Route>
 				<Route
 					path={RouterPaths.LEADERBOARDS}
 					element={<LeaderBoards />}

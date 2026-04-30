@@ -6,4 +6,7 @@
 		"scrollbar.shadow": "#00000000"
 	},
 	"material-icon-theme.activeIconPack": "nest",
+	"cSpell.words": [
+		"uuidv"
+	],
 }

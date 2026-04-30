@@ -4,131 +4,136 @@ import { Chess } from "chess.js";
 import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
+import { useGame } from "../../pages/Ze/Context/GameContext";
 
 export type PieceColor = "w" | "b";
 
 type DraggingPieceDataType = {
-	isSparePiece: boolean;
-	position: string; // e.g. "a8" or "wP"
-	pieceType: string; // e.g. "wP" for white pawn, "bK" for black king
+  isSparePiece: boolean;
+  position: string; // e.g. "a8" or "wP"
+  pieceType: string; // e.g. "wP" for white pawn, "bK" for black king
 };
 
 type PieceDropHandlerArgs = {
-	piece: DraggingPieceDataType;
-	sourceSquare: string;
-	targetSquare: string | null;
+  piece: DraggingPieceDataType;
+  sourceSquare: string;
+  targetSquare: string | null;
 };
 
 interface BoardProps {
-	onTurnChange?: (color: PieceColor) => void;
-	onGameOver?: (result:string) => void; // We check if the game is finished
+  onTurnChange?: (color: PieceColor) => void;
+  onGameOver?: (result: string) => void; // We check if the game is finished
 }
 
 const themes = {
-	classic: {
-		background: "#8b4513",
-		pieces: "#5a3825",
-		border: "#3e2723",
-	},
-	midnight: {
-		background: "#2c3e50",
-		pieces: "#34495e",
-		border: "#ecf0f1",
-	},
-	forest: {
-		background: "#4caf50",
-		pieces: "#2e7d32",
-		border: "#1b5e20",
-	},
+  classic: {
+    background: "#8b4513",
+    pieces: "#5a3825",
+    border: "#3e2723",
+  },
+  midnight: {
+    background: "#2c3e50",
+    pieces: "#34495e",
+    border: "#ecf0f1",
+  },
+  forest: {
+    background: "#4caf50",
+    pieces: "#2e7d32",
+    border: "#1b5e20",
+  },
 };
 
 export function Board({ onTurnChange, onGameOver }: BoardProps) {
-	const { state } = useAuth();
-	const themeArray = [themes.forest, themes.classic, themes.midnight];
+  const { state } = useAuth();
+  const themeArray = [themes.forest, themes.classic, themes.midnight];
 
-	const chessGameRef = useRef(new Chess());
-	const chessGame = chessGameRef.current;
+  const chessGameRef = useRef(new Chess());
+  const chessGame = chessGameRef.current;
 
-	const [chessPosition, setChessPosition] = useState(chessGame.fen());
+  const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
-	// Get the current user
-	// const { state } = useAuth();
-	const myUserId = state?.user?.id;
+  const { socket, gameId, color } = useGame();
 
-	
-	useEffect(() => {
-		if (onTurnChange) {
-			onTurnChange(chessGame.turn());
-		}
+  useEffect(() => {
+    if (!socket) return;
 
-		// Check if the game is finished
-		if (chessGame.isGameOver()){
-			// We do this verification to pass trought the "handleGameOver" function
-			if (myUserId == undefined || onGameOver == undefined)
-			{
-				console.error("Could not get the id of the current player");
-				return ;
-			}
+    socket.on("move", (data: { move: any; nextTurn: string }) => {
+      if (onTurnChange) {
+        onTurnChange(data.nextTurn as PieceColor);
+      }
 
-			// Check if the game finished with a checkmate
-			if (chessGame.isCheckmate()){
-				// If the black ('b') is playing and has check-mate, whites win
-				const result = chessGame.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
-				
-				handleGameOver(myUserId, 2, result);
-				onGameOver(result); // Notify the Play.tsx about the result of the game
-				
-			}
-			else if (chessGame.isDraw() || chessGame.isStalemate() || chessGame.isThreefoldRepetition()){
-				handleGameOver(myUserId, 2, 'DRAW');
-				onGameOver("DRAW");
-			}
-		}
-	}, [chessPosition, onTurnChange, chessGame, myUserId, onGameOver]);
+      if (data.move.color == color) return;
 
-	function makeRandomMove() {
-		const possibleMoves = chessGame.moves();
+      try {
+        chessGame.move(data.move);
+        setChessPosition(chessGame.fen());
+        if (onTurnChange) {
+          onTurnChange(data.nextTurn as PieceColor);
+        }
+      } catch (err) {
+        console.error("Error applying server movement:", err);
+      }
+    });
+    return () => {
+      socket.off("move");
+    };
+  }, [socket, chessGame, onTurnChange, color]);
 
-		if (chessGame.isGameOver()) {
-			return;
-		}
+  useEffect(() => {
+    if (!socket) return;
 
-		const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-		chessGame.move(randomMove);
-		setChessPosition(chessGame.fen());
-	}
+    socket.on("gameOver", (data: { result: string; reason: string }) => {
+      if (onGameOver) {
+        onGameOver(data.result);
+      }
+    });
+    return () => {
+      socket.off("gameOver");
+    };
+  }, [socket, onGameOver]);
 
-	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-		if (!targetSquare) {
-			return false;
-		}
+  function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
+    if (!gameId || !socket) return false;
 
-		try {
-			chessGame.move({
-				from: sourceSquare,
-				to: targetSquare,
-				promotion: "q",
-			});
+    if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
 
-			setChessPosition(chessGame.fen());
-			setTimeout(makeRandomMove, 500);
-			return true;
-		} catch {
-			return false;
-		}
-	}
+    if (!targetSquare) {
+      return false;
+    }
 
-	const chessboardOptions = {
-		position: chessPosition,
-		onPieceDrop,
-		id: "play-vs-random",
-		lightSquareStyle: {
-			backgroundColor: "var(--color-board-light)",
-		},
-		darkSquareStyle: {
-			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
-		},
-	};
+    const moveData = {
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q",
+    };
 
-	return <Chessboard options={chessboardOptions} />;
+    try {
+      const move = chessGame.move(moveData);
+      if (!move) return false;
+
+      socket.emit("move", { gameId, move: moveData });
+
+      setChessPosition(chessGame.fen());
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const chessboardOptions = {
+    position: chessPosition,
+    onPieceDrop,
+    id: "play-vs-random",
+    boardOrientation: color === "b" ? "black" : "white",
+    lightSquareStyle: {
+      backgroundColor: "var(--color-board-light)",
+    },
+    darkSquareStyle: {
+      backgroundColor:
+        themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]
+          ?.background,
+    },
+  };
+
+  return <Chessboard options={chessboardOptions} />;
 }

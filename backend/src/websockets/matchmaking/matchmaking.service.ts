@@ -1,11 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
+import { GameService } from '../game.service';
 
 @Injectable()
 export class MatchMakingService {
   private queue: Socket[] = [];
   private readonly logger = new Logger(MatchMakingService.name);
+
+  constructor(private readonly gameService: GameService) {}
 
   addToQueue(client: Socket, server: Server) {
     if (
@@ -17,7 +20,6 @@ export class MatchMakingService {
       return;
     }
     this.queue.push(client);
-    const user = client.data.user;
 
     this.logger.log(
       `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
@@ -34,6 +36,13 @@ export class MatchMakingService {
     if (!player1 || !player2) return;
 
     const gameId = uuidv4();
+
+    this.gameService.createGame(
+      gameId,
+      'online',
+      player1.data.user.userId,
+      player2.data.user.userId,
+    );
 
     player1.join(gameId);
     player2.join(gameId);
