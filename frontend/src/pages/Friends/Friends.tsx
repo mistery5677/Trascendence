@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/UserContext"; // Ajusta o caminho se for preciso
-import { sendFriendRequest } from "../../api/friendRequest";
+import { sendFriendRequest, acceptFriendRequest, declineFriendRequest, getPendingFriendRequests, getFriendsList, removeFriend } from "../../api/friendRequest";
 
 type Friends = "list" | "requests" | "add";
 
@@ -29,6 +29,74 @@ export function Friends() {
             alert(error.message || 'Error sending the friend request');
         }
     }
+
+    // Handle the accept friend request button
+    const handleAccept = async (senderId: number) => {
+        try {
+            await acceptFriendRequest(senderId);
+            // Allows to allways have the pending request updated.
+            setRequests((actualRequest) => actualRequest.filter(req => req.senderId !== senderId));
+            alert('Friend request accepted!');
+        } catch (error) {
+            alert('Error accepting friend request.');
+        }
+    };
+
+    // Handle the decline friend request button
+    const handleDecline = async (senderId: number) => {
+        try {
+            await declineFriendRequest(senderId);
+            // Allows to allways have the pending request updated.
+            setRequests((actualRequest) => actualRequest.filter(req => req.senderId !== senderId));
+        } catch (error) {
+            alert('Error declining friend request.');
+        }
+    };
+    
+    // Handle the remove friend from the list
+    const handleRemoveFriend = async (friendId: number, username: string) => {
+        if (!confirm(`Are you sure you want to remove ${username} from your friends?`)) return;
+
+        try {
+            await removeFriend(friendId);
+            // Update the friends list after you remove the friend
+            setFriends((prev) => prev.filter(f => f.id !== friendId));
+        } catch (error) {
+            alert("Error removing friend.");
+        }
+    };
+
+    // Updates automatically the friend request list, when we accept or decline
+    useEffect(() => {
+        if (activeTab === "requests") {
+            // Loads the friends request
+            const fetchRequests = async () => {
+                try {
+                    const data = await getPendingFriendRequests();
+                    setRequests(data); // Fill the request list with the backend
+                } catch (error) {
+                    console.error("Failed to load the friend request:", error);
+                }
+            };
+
+            fetchRequests();
+        }
+
+        else if (activeTab === "list") {
+            // Loads the friends list
+            const fetchFriendsList = async () => {
+                try {
+                    const data = await getFriendsList();
+                    setFriends(data);
+                } catch (error) {
+                    console.error("Failed to get the friends list: ", error);
+                }
+            };
+
+            fetchFriendsList();
+        }
+
+    }, [activeTab]); // If the activeTab change we just update the request list
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-8 bg-slate-900/80 text-white rounded-3xl shadow-2xl border border-emerald-500/20 backdrop-blur-md">
@@ -80,9 +148,18 @@ export function Friends() {
                                         <p className="text-sm text-emerald-400">ELO: {friend.elo}</p>
                                     </div>
                                 </div>
-                                <button className="px-4 py-2 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-900 rounded-lg font-bold transition-all">
-                                    Challenge ⚔️
-                                </button>
+                                <div className="flex gap-2">
+                                    <button className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-lg font-bold transition-all">
+                                        Play ⚔️
+                                    </button>
+                                    <button 
+                                        onClick={() => handleRemoveFriend(friend.id, friend.username)}
+                                        className="px-3 py-2 bg-slate-700 hover:bg-red-500/20 hover:text-red-400 text-slate-400 rounded-lg transition-all"
+                                        title="Remove Friend"
+                                    >
+                                        <span className="text-sm">Unfriend</span>
+                                    </button>
+                                </div>
                             </div>
                         ))
                     )}
@@ -102,10 +179,14 @@ export function Friends() {
                                     <p className="font-bold text-stone-200">User ID: {req.senderId} wants to be your friend!</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-lg font-bold transition-all">
+                                    <button 
+                                        onClick={() => handleAccept(req.senderId)}
+                                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-lg font-bold transition-all">
                                         Accept
                                     </button>
-                                    <button className="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all">
+                                    <button 
+                                        onClick={() => handleDecline(req.senderId)}
+                                        className="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg font-bold transition-all">
                                         Decline
                                     </button>
                                 </div>

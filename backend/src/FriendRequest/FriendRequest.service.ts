@@ -51,4 +51,107 @@ export class FriendRequestService {
       }
     });
   }
+
+  // Get the pending requests
+  async getPendingRequests(userId: number) {
+    return await this.prisma.friendRequest.findMany({
+      where: {
+        receiverId: userId,
+        status: 'PENDING',
+      },
+      // The prisma pulls all the sender information
+      include: {
+        sender: {
+          select: { username: true } // Show the username instead of the Id
+        }
+      }
+    });
+  }
+
+  // Accept friend requests
+  async acceptRequest(receiverId: number, senderId: number) {
+    // Search for the right pending request
+    const request = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: senderId,
+        receiverId: receiverId,
+        status: 'PENDING',
+      },
+    });
+
+    // If the request is already resolved, we throw an error
+    if (request == null) {
+      throw new NotFoundException("Friend request not found or already processed");
+    }
+
+    // Update the status for 'ACCEPTED'
+    return await this.prisma.friendRequest.update({
+      where: { id: request.id },
+      data: { status: 'ACCEPTED' },
+    });
+  }
+
+  // Decline friend request
+  async declineRequest(receiverId: number, senderId: number) {
+    // Search for the right pending request
+    const request = await this.prisma.friendRequest.findFirst({
+      where: {
+        senderId: senderId,
+        receiverId: receiverId,
+        status: 'PENDING',
+      },
+    });
+
+    // If the request is already resolved, we throw an error
+    if (request == null) {
+      throw new NotFoundException("Friend request not found");
+    }
+
+    // We just delete the request from the data base
+    return await this.prisma.friendRequest.delete({
+      where: { id: request.id },
+    });
+  }
+
+  // Get all the friends 
+  async getFriends(userId: number) {
+    const friends = await this.prisma.friendRequest.findMany({
+      where: {
+        status: 'ACCEPTED',
+        OR: [
+          { senderId: userId },
+          { receiverId: userId },
+        ],
+      },
+      include: {
+        sender: true,
+        receiver: true,
+      },
+    });
+    
+    return friends.map(rel => {
+      return rel.senderId === userId ? rel.receiver : rel.sender;
+    });
+  }
+
+  // Remove the friend from the list
+  async removeFriend(userId: number, friendId: number) {
+    // Check the status if it is accepted
+    const relation = await this.prisma.friendRequest.findFirst({
+      where: {
+        status: 'ACCEPTED',
+        OR: [
+          { senderId: userId, receiverId: friendId },
+          { senderId: friendId, receiverId: userId },
+        ],
+      },
+    });
+
+    if (!relation)
+      throw new NotFoundException("Friendship not found");
+
+    return await this.prisma.friendRequest.delete({
+      where: { id: relation.id },
+    });
+  }
 }
