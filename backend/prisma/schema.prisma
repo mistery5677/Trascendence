@@ -40,6 +40,9 @@ model user {
     // Player position
     matchesAsPlayerA MatchHistory[] @relation("PlayerAMatches")
     matchesAsPlayerB MatchHistory[] @relation("PlayerBMatches")
+
+    sentRequests     FriendRequest[] @relation("sentRequests")
+    receivedRequests FriendRequest[] @relation("receivedRequests")
 }
 
 model MatchHistory {
@@ -56,6 +59,19 @@ model MatchHistory {
 
     // Result of the match (PLAYER_A_WINS | PLAYER_B_WINS | DRAW)
     result String
+}
+
+model FriendRequest {
+  id          Int      @id @default(autoincrement())
+  senderId    Int
+  receiverId  Int
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt   DateTime @default(now()) // Maybe this is not needed
+
+  sender      user     @relation("sentRequests", fields: [senderId], references: [id])
+  receiver    user     @relation("receivedRequests", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId]) // Garants that you only have one friend request from the same person
 }
 
 // ! Example of new data base with UserPreferences

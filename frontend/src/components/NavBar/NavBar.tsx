@@ -9,6 +9,7 @@ import {
 	MenuItem,
 	MenuItems,
 } from "@headlessui/react";
+import { sendFriendRequest } from "../../api/friendRequest";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/UserContext";
 import { useEffect, useState } from "react";
@@ -17,7 +18,8 @@ const navigation = [
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
 	{ name: "Play", href: "/play", current: false },
-	{ name: "LeaderBoards", href: "/leaderboards", current: false },
+	{ name: "LeaderBoards", href: "/leaderboards", current: false},
+	{ name: "Friends", href:"/friends", current: false}
 ];
 
 function classNames(...classes: (string | undefined | false)[]): string {
@@ -182,6 +184,14 @@ export function NavBar({ onModal }: NavBarProps) {
 								<MenuItems
 									transition
 									className="absolute right-0 z-10 mt-3 w-56 origin-top-right rounded-2xl bg-slate-900/95 py-2 border border-emerald-300/20 shadow-[0_12px_36px_-14px_rgba(0,0,0,0.8)] transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-75 data-leave:ease-in overflow-hidden">
+									<MenuItem>
+										<a
+											href="/friends"
+											className="block px-4 py-2.5 text-sm font-medium text-stone-300 hover:bg-emerald-400/12 hover:text-stone-100 transition-colors">
+											Friends
+										</a>
+									</MenuItem>
+									
 									<MenuItem>
 										<a
 											href="/settings"

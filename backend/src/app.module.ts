@@ -3,8 +3,9 @@ import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { MatchesModule } from './matches/matches.module'
+import { FriendRequestModule } from './FriendRequest/FriendRequest.module';
 import { WebsocketsModule } from './websockets/websockets.module';
-import { MatchesModule } from './matches/matches.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MatchesModule } from './matches/matches.module';
     AuthModule,
     MatchesModule,
     WebsocketsModule,
+    FriendRequestModule,
   ], //Allows to all variables be accessed
   controllers: [],
   providers: [],
