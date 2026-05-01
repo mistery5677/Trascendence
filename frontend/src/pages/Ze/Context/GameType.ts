@@ -5,4 +5,6 @@ export type GameContextType = {
   gameId: string | null;
   color: "w" | "b" | null;
   isConnected: boolean;
+  fen: string;
+  currentTurn: "w" | "b";
 };

@@ -3,7 +3,8 @@ import { Board, Timer } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
 import { useSearchParams } from "react-router-dom";
-import { GameProvider } from "../Ze/Context/GameContext";
+import { GameProvider, useGame } from "../Ze/Context/GameContext";
+import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
 
 export function PlayWrapper() {
   const [searchParams] = useSearchParams();
@@ -25,7 +26,7 @@ export function PlayWrapper() {
   }
 
   return (
-    <GameProvider mode={mode}/* , gameId={gameId} */>
+    <GameProvider mode={mode} gameId={gameId}>
       <Play />
     </GameProvider>
   );
@@ -35,7 +36,7 @@ function Play() {
   const { state } = useAuth();
   const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
   const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
-
+  const { gameId, isConnected, color } = useGame();
   // We create a 'state' to store te game result
   const [gameResult, setGameResult] = useState<string | null>(null);
 
@@ -50,6 +51,10 @@ function Play() {
   const handleGameOver = (result: string) => {
     setGameResult(result);
   };
+
+  if (!gameId) {
+    return <MatchmakingLoading isConnected={isConnected} />;
+  }
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-linear-to-b from-slate-950 via-stone-950 to-slate-900 font-sans flex flex-col items-center py-12 relative overflow-hidden">
@@ -100,7 +105,7 @@ function Play() {
           {/* left user */}
           <div
             className={`flex flex-row items-center gap-3 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
-              currentTurn === "w"
+              currentTurn === color
                 ? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[1.03]"
                 : "opacity-65 scale-100"
             }`}
@@ -109,7 +114,7 @@ function Play() {
             <img
               src={state.user?.avatarUrl}
               className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
-                currentTurn === "w"
+                currentTurn === color
                   ? "ring-emerald-300 shadow-emerald-700/20"
                   : "ring-slate-700 shadow-none border border-slate-600"
               }`}
@@ -131,7 +136,7 @@ function Play() {
           <Timer
             key={timerKey}
             startTimerInSeconds={30}
-            isRunning={currentTurn === "w"}
+            isRunning={currentTurn === color}
           />
 
           {/* VS / result */}
@@ -147,13 +152,13 @@ function Play() {
           <Timer
             key={timerKey + 1}
             startTimerInSeconds={30}
-            isRunning={currentTurn === "b"}
+            isRunning={currentTurn !== color}
           />
 
           {/* right user */}
           <div
             className={`flex flex-row items-center gap-3 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
-              currentTurn === "b"
+              currentTurn !== color
                 ? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[1.03]"
                 : "opacity-65 scale-100"
             }`}
@@ -174,7 +179,7 @@ function Play() {
             {/* image */}
             <div
               className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-2xl sm:text-3xl shadow-lg transition-all duration-500 ${
-                currentTurn === "b"
+                currentTurn !== color
                   ? "ring-emerald-300 shadow-emerald-700/20 opacity-100"
                   : "ring-slate-700 shadow-none border border-slate-600"
               }`}

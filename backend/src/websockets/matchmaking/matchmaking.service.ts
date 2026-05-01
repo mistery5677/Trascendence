@@ -47,14 +47,24 @@ export class MatchMakingService {
     player1.join(gameId);
     player2.join(gameId);
 
-    player1.emit('matchFound', {
+    const game = this.gameService.getGame(gameId);
+    if (!game) return;
+
+    const commonData = {
       gameId,
+      fen: game.chess.fen(),
+      currentTurn: game.chess.turn(),
+      mode: 'online',
+    };
+
+    player1.emit('gameState', {
+      ...commonData,
       color: 'w',
       opponent: player2.data.user.username,
     });
 
-    player2.emit('matchFound', {
-      gameId,
+    player2.emit('gameState', {
+      ...commonData,
       color: 'b',
       opponent: player1.data.user.username,
     });
@@ -70,7 +80,7 @@ export class MatchMakingService {
 
     if (initialSize !== this.queue.length) {
       this.logger.log(
-        `Player ${client.data.user?.email || client.id} removed from queue.`,
+        `Player ${client.data.user?.username || client.id} removed from queue.`,
       );
     }
   }

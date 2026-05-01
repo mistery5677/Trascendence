@@ -46,40 +46,52 @@ export class GameGateway
     this.matchMakingService.addToQueue(client, this.server);
   }
 
-  @SubscribeMessage('startBotGame')
-  handleStartBot(@ConnectedSocket() client: Socket) {
-    const gameId = `bot_${uuidv4()}`;
-    console.log(gameId);
+  //   @SubscribeMessage('startBotGame')
+  //   handleStartBot(@ConnectedSocket() client: Socket) {
+  //     const gameId = `bot_${uuidv4()}`;
+  //     console.log(gameId);
 
-    this.gameService.createGame(gameId, 'bot', client.data.user.userId);
-    client.join(gameId);
+  //     this.gameService.createGame(gameId, 'bot', client.data.user.userId);
+  //     client.join(gameId);
 
-    client.emit('matchFound', {
-      gameId,
-      color: 'w',
-      opponent: 'Bot (Random moves)',
-    });
-  }
+  //     client.emit('matchFound', {
+  //       gameId,
+  //       color: 'w',
+  //       opponent: 'Bot (Random moves)',
+  //     });
+  //   }
 
-  @SubscribeMessage('joinGame') handleJoinGame(
+  @SubscribeMessage('joinGame')
+  handleJoinGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
     const game = this.gameService.getGame(data.gameId);
     if (!game) {
-      client.emit('error', { message: 'Game not found' });
+      client.emit('error', { message: 'Partida no encontrada' });
       return;
     }
 
+    // 1. Meter al socket en la sala (CRÍTICO para recibir movimientos)
     client.join(data.gameId);
 
-    //! Implement when function it`s
-    const gameState = this.gameService.getGameState(data.gameId);
+    // 2. Usar tu lógica de GameService
+    const state = this.gameService.getGameState(data.gameId);
+    if (!state) return;
+    const userId = client.data.user.userId;
+    const userColor = userId === game.playerW ? 'w' : 'b';
+
+    // 3. Emitir el mismo evento que el Matchmaking
     client.emit('gameState', {
-      ...gameState,
-      color: client.data.user.id === game.playerW ? 'w' : 'b',
+      gameId: data.gameId,
+      fen: state.fen,
+      currentTurn: state.turn, // Sincronizamos nombre con el frontend
+      color: userColor,
+      mode: state.mode,
+      opponent: userColor === 'w' ? 'Oponente' : 'Oponente', // Aquí podrías buscar el nombre real si quieres
     });
-    // client.emit('gameState', gameState);
+
+   console.log(`User ${userId} rejoin to the room ${data.gameId}`);
   }
 
   @SubscribeMessage('move')
@@ -109,9 +121,11 @@ export class GameGateway
   private processGameState(gameId: string, move: any): boolean {
     const game = this.gameService.getGame(gameId);
 
-    this.server
-      .to(gameId)
-      .emit('move', { move: move, nextTurn: game?.chess.turn() });
+    this.server.to(gameId).emit('move', {
+      move: move,
+      fen: game?.chess.fen(),
+      currentTurn: game?.chess.turn(),
+    });
 
     const gameOver = this.gameService.checkGameOver(gameId);
     if (gameOver) {

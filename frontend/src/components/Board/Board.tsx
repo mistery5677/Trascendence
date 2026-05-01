@@ -1,10 +1,11 @@
-import { Chessboard } from "react-chessboard";
+import { Chessboard, fenStringToPositionObject } from "react-chessboard";
 import { useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../pages/Ze/Context/GameContext";
+import { ChartNoAxesColumnIcon } from "lucide-react";
 
 export type PieceColor = "w" | "b";
 
@@ -52,48 +53,20 @@ export function Board({ onTurnChange, onGameOver }: BoardProps) {
 
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
-  const { socket, gameId, color } = useGame();
+  const { socket, gameId, color, fen, currentTurn } = useGame();
 
   useEffect(() => {
-    if (!socket) return;
-
-    socket.on("move", (data: { move: any; nextTurn: string }) => {
-      if (onTurnChange) {
-        onTurnChange(data.nextTurn as PieceColor);
-      }
-
-      if (data.move.color == color) return;
-
-      try {
-        chessGame.move(data.move);
-        setChessPosition(chessGame.fen());
-        if (onTurnChange) {
-          onTurnChange(data.nextTurn as PieceColor);
-        }
-      } catch (err) {
-        console.error("Error applying server movement:", err);
-      }
-    });
-    return () => {
-      socket.off("move");
-    };
-  }, [socket, chessGame, onTurnChange, color]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("gameOver", (data: { result: string; reason: string }) => {
-      if (onGameOver) {
-        onGameOver(data.result);
-      }
-    });
-    return () => {
-      socket.off("gameOver");
-    };
-  }, [socket, onGameOver]);
+    if (!socket || !gameId) return;
+    chessGame.load(fen);
+    setChessPosition(fen);
+    if (onTurnChange) onTurnChange(currentTurn);
+  }, [fen, currentTurn]);
 
   function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-    if (!gameId || !socket) return false;
+    console.log("My color:", color);
+    console.log("currentTurn:", currentTurn);
+
+    if (!gameId || !socket || currentTurn !== color) return false;
 
     if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
 

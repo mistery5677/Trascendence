@@ -9,16 +9,20 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider = ({
   children,
   mode,
+  gameId: urlGameId,
 }: {
   children: React.ReactNode;
   mode: string;
+  gameId: string | null;
 }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [gameId, setGameId] = useState<string | null>(null);
-  const [color, setColor] = useState<"w" | "b" | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
   const { state: authState } = useAuth();
   const navigate = useNavigate();
+  const [gameId, setGameId] = useState<string | null>(urlGameId);
+  const [color, setColor] = useState<"w" | "b" | null>(null);
+  const [fen, setFen] = useState("start");
+  const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
+  const [isConnected, setIsConnected] = useState(false);
 
   if (!authState.user) return;
 
@@ -27,10 +31,14 @@ export const GameProvider = ({
       withCredentials: true,
       path: "/socket.io",
     });
+
     socketInstance.on("connect", () => {
       console.log("Connected to server");
-      setIsConnected(true);
-      if (mode === "bot") {
+
+      if (urlGameId) {
+        console.log("Reconnecting to game:", urlGameId);
+        socketInstance.emit("joinGame", { gameId: urlGameId });
+      } else if (mode === "bot") {
         console.log("Starting game against Bot");
         socketInstance.emit("startBotGame");
       } else {
@@ -39,26 +47,33 @@ export const GameProvider = ({
       }
     });
 
-    socketInstance.on("connect_error", (err) => {
-      console.error("Connection Error:", err.message);
-      setIsConnected(false);
+    socketInstance.on("gameState", (data) => {
+      setGameId(data.gameId || urlGameId);
+      setColor(data.color);
+      setFen(data.fen);
+      setCurrentTurn(data.currentTurn);
+      setIsConnected(true);
+
+      if (data.gameId && !urlGameId)
+        navigate(`?mode=${mode}&gameId=${data.gameId}`);
     });
 
-    socketInstance.on("matchFound", (data) => {
-      setGameId(data.gameId);
-      setColor(data.color);
-      navigate(`?mode=${mode}&gameId=${data.gameId}`);
+    socketInstance.on("move", (data) => {
+      console.log("Move");
+      setFen(data.fen);
+      setCurrentTurn(data.currentTurn);
     });
 
     setSocket(socketInstance);
-
     return () => {
       socketInstance.disconnect();
     };
   }, []);
 
   return (
-    <GameContext.Provider value={{ socket, gameId, color, isConnected }}>
+    <GameContext.Provider
+      value={{ socket, gameId, color, isConnected, fen, currentTurn }}
+    >
       {children}
     </GameContext.Provider>
   );

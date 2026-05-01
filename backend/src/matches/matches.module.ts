@@ -6,5 +6,6 @@ import { PrismaService } from 'src/prisma.service'; // Confirma se o caminho do 
 @Module({
   controllers: [MatchesController],
   providers: [MatchesService, PrismaService],
+  exports: [MatchesService],
 })
 export class MatchesModule {}

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Chess } from 'chess.js';
+import { MatchesService } from 'src/matches/matches.service';
 
 interface GameOverResult {
   winner: string | null;
@@ -17,6 +18,7 @@ interface GameInstance {
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
+  constructor(private readonly matchesService: MatchesService) {}
 
   createGame(
     gameId: string,
@@ -35,7 +37,7 @@ export class GameService {
     return newGame;
   }
 
-  getGame(gameId: string) {
+  getGame(gameId: string): GameInstance | undefined {
     return this.games.get(gameId);
   }
 
@@ -73,7 +75,7 @@ export class GameService {
       mode: game.mode,
     };
   }
-  
+
   checkGameOver(gameId: string): GameOverResult | null {
     const game = this.getGame(gameId);
     if (!game || !game.chess.isGameOver()) return null;
@@ -90,6 +92,12 @@ export class GameService {
     } else if (chess.isThreefoldRepetition()) {
       reason = 'THREEFOLD_REPETITION';
     }
+
+    this.matchesService.saveMatchResult(
+      parseInt(game.playerB),
+      parseInt(game.playerW),
+      resultString,
+    );
 
     return {
       winner: resultString === 'DRAW' ? null : resultString,
