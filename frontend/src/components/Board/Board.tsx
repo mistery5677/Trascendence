@@ -44,7 +44,7 @@ const themes = {
   },
 };
 
-export function Board({ onTurnChange, onGameOver }: BoardProps) {
+export function Board({ onTurnChange }: BoardProps) {
   const { state } = useAuth();
   const themeArray = [themes.forest, themes.classic, themes.midnight];
 

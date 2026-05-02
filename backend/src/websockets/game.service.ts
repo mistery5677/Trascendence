@@ -3,9 +3,8 @@ import { Chess } from 'chess.js';
 import { MatchesService } from 'src/matches/matches.service';
 
 interface GameOverResult {
-  winner: string | null;
+  winnerColor: 'w' | 'b' | null;
   reason: 'CHECKMATE' | 'DRAW' | 'STALEMATE' | 'THREEFOLD_REPETITION';
-  resultString: 'PLAYER_A_WINS' | 'PLAYER_B_WINS' | 'DRAW';
 }
 
 interface GameInstance {
@@ -81,28 +80,36 @@ export class GameService {
     if (!game || !game.chess.isGameOver()) return null;
 
     const chess = game.chess;
-    let resultString: 'PLAYER_A_WINS' | 'PLAYER_B_WINS' | 'DRAW' = 'DRAW';
+    let winnerColor: 'w' | 'b' | null = null;
+
     let reason: GameOverResult['reason'] = 'DRAW';
 
     if (chess.isCheckmate()) {
       reason = 'CHECKMATE';
-      resultString = chess.turn() === 'b' ? 'PLAYER_A_WINS' : 'PLAYER_B_WINS';
+      winnerColor = chess.turn() === 'w' ? 'b' : 'w';
     } else if (chess.isStalemate()) {
       reason = 'STALEMATE';
     } else if (chess.isThreefoldRepetition()) {
       reason = 'THREEFOLD_REPETITION';
+    } else if (chess.isDraw()) {
+      reason = 'DRAW';
     }
 
-    this.matchesService.saveMatchResult(
-      parseInt(game.playerB),
-      parseInt(game.playerW),
-      resultString,
-    );
+    let winnerId: number | null = null;
+    if (winnerColor === 'w') winnerId = parseInt(game.playerW);
+    if (winnerColor === 'b') winnerId = parseInt(game.playerB);
+
+    if (game.mode === 'online') {
+      this.matchesService.saveMatchResult(
+        parseInt(game.playerB),
+        parseInt(game.playerW),
+        winnerId,
+      );
+    }
 
     return {
-      winner: resultString === 'DRAW' ? null : resultString,
+      winnerColor,
       reason,
-      resultString,
     };
   }
 }

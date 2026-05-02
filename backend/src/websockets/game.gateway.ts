@@ -68,30 +68,27 @@ export class GameGateway
   ) {
     const game = this.gameService.getGame(data.gameId);
     if (!game) {
-      client.emit('error', { message: 'Partida no encontrada' });
+      client.emit('error', { message: 'Game not Found' });
       return;
     }
 
-    // 1. Meter al socket en la sala (CRÍTICO para recibir movimientos)
     client.join(data.gameId);
 
-    // 2. Usar tu lógica de GameService
     const state = this.gameService.getGameState(data.gameId);
     if (!state) return;
     const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
 
-    // 3. Emitir el mismo evento que el Matchmaking
     client.emit('gameState', {
       gameId: data.gameId,
       fen: state.fen,
-      currentTurn: state.turn, // Sincronizamos nombre con el frontend
+      currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
-      opponent: userColor === 'w' ? 'Oponente' : 'Oponente', // Aquí podrías buscar el nombre real si quieres
+      //   opponent: userColor === 'w' ? 'Oponente' : 'Oponente',
     });
 
-   console.log(`User ${userId} rejoin to the room ${data.gameId}`);
+    console.log(`User ${userId} rejoin to the room ${data.gameId}`);
   }
 
   @SubscribeMessage('move')
@@ -130,8 +127,7 @@ export class GameGateway
     const gameOver = this.gameService.checkGameOver(gameId);
     if (gameOver) {
       this.server.to(gameId).emit('gameOver', {
-        result: gameOver.resultString,
-        reason: gameOver.reason,
+        gameOver:gameOver,
       });
       return true;
     }

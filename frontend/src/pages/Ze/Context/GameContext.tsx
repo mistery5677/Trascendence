@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType } from "./GameType";
+import type { GameContextType, GameOverState } from "./GameType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ export const GameProvider = ({
   const [fen, setFen] = useState("start");
   const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
   const [isConnected, setIsConnected] = useState(false);
+  const [gameOver, setGameOver] = useState<GameOverState>(null);
 
   if (!authState.user) return;
 
@@ -64,6 +65,11 @@ export const GameProvider = ({
       setCurrentTurn(data.currentTurn);
     });
 
+    socketInstance.on("gameOver", (data) => {
+      console.log("Game Finished:", data);
+      setGameOver(data.gameOver);
+    });
+
     setSocket(socketInstance);
     return () => {
       socketInstance.disconnect();
@@ -72,7 +78,7 @@ export const GameProvider = ({
 
   return (
     <GameContext.Provider
-      value={{ socket, gameId, color, isConnected, fen, currentTurn }}
+      value={{ socket, gameId, color, isConnected, fen, currentTurn, gameOver }}
     >
       {children}
     </GameContext.Provider>
