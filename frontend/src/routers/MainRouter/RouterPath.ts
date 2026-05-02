@@ -8,5 +8,6 @@ export const RouterPaths = {
 	HISTORY: "/history",
 	ERROR: "*",
 	ZE: "/ze",
-	LEADERBOARDS: "/leaderboards"
+	LEADERBOARDS: "/leaderboards",
+	FRIENDS: "/friends"
 };

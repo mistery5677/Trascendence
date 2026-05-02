@@ -52,9 +52,9 @@ export class GameGateway
 
     if (gameId) {
       this.server.to(gameId).emit('receiveMessage', {
-        from: client.data.user.userEmail,
+        from: client.data.user.username,
         message: message,
-        timeStamp: new Date().toISOString(),
+        timeStamp: new Date().toLocaleTimeString(),
       });
     } else {
       console.error("ERROR: gameId Wasn't sended on message");

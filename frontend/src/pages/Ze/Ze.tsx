@@ -45,8 +45,6 @@ export function Ze() {
 
   return (
     <div className="p-8">
-      <h1 className="text-white text-2xl">Zezinho Chat</h1>
-
       {gameId && socket ? (
         <Chat socket={socket} gameId={gameId} />
       ) : (
@@ -65,9 +63,9 @@ function StatusDisplay({ isConnected }: { isConnected: boolean }) {
 }
 
 export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
-  const [messages, setMessages] = useState<{ from: string; message: string }[]>(
-    [],
-  );
+  const [messages, setMessages] = useState<
+    { from: string; message: string; timeStamp: string }[]
+  >([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -85,16 +83,37 @@ export function Chat({ socket, gameId }: { socket: Socket; gameId: string }) {
   };
 
   return (
-    <div className="chat-container">
-      <div className="messages">
-        {messages.map((m, i) => (
-          <p key={i}>
-            <b>{m.from}:</b> {m.message}
-          </p>
-        ))}
+    <div className="flex   min-h-screen items-center justify-end pr-2">
+      <div className="bg-stone-900/50  max-w-100 flex-row align-center align-middle items-center justify-center rounded-2xl">
+        <h1 className="flex text-white text-2xl justify-center align-center border-b-2 border-amber-300">
+          Chat
+        </h1>
+
+        <div className="text-white">
+          {messages.map((m, i) => (
+            <p key={i} className="flex gap-2">
+              <b className="text-blue-500 pl-2">{m.from}:</b> {m.message}
+              <div className="flex w-full justify-end">
+                <p className="text-white/30">{m.timeStamp}</p>
+              </div>
+            </p>
+          ))}
+        </div>
+        <div className=" flex align-middle items-center gap-2 border-t-2 border-amber-300">
+          <input
+            className="flex h-max text-white pl-2"
+            placeholder="Write your message"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button
+            onClick={sendMessage}
+            className="bg-emerald-800 text-xl  hover:bg-emerald-700 transition rounded align-middle p-2 text-white "
+          >
+            Send
+          </button>
+        </div>
       </div>
-      <input value={input} onChange={(e) => setInput(e.target.value)} />
-      <button onClick={sendMessage}>Send</button>
     </div>
   );
 }

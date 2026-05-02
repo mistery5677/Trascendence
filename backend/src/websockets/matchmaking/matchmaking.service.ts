@@ -12,7 +12,7 @@ export class MatchMakingService {
       this.queue.find((c) => c.data.user.userId === client.data.user.userId)
     ) {
       this.logger.warn(
-        `Player ${client.data.user.userEmail} is already on queue`,
+        `Player ${client.data.user.username} is already on queue`,
       );
       return;
     }
@@ -20,7 +20,7 @@ export class MatchMakingService {
     const user = client.data.user;
 
     this.logger.log(
-      `Player ${client.data.user.userEmail} joined the queue. Current queue size: ${this.queue.length}`,
+      `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
     );
 
     if (this.queue.length >= 2) {
@@ -47,7 +47,7 @@ export class MatchMakingService {
     server.to(gameId).emit('matchFound', matchData);
 
     this.logger.log(
-      `Match created: ${gameId} | Players: ${player1.data.user.userEmail} vs ${player2.data.user.userEmail}`,
+      `Match created: ${gameId} | Players: ${player1.data.user.username} vs ${player2.data.user.username}`,
     );
   }
 

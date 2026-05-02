@@ -7,6 +7,7 @@ import {
 import * as bcryptjs from 'bcryptjs';
 import { PrismaService } from 'src/prisma.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { userInfo } from 'node:os';
 
 @Injectable()
 export class UsersService {
@@ -34,21 +35,21 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { email: email } });
   }
 
-  async updateAvatar(email: string, avatarUrl: string) {
-    const user = await this.findOneByEmail(email);
+  async updateAvatar(userId: number, avatarUrl: string) {
+    const user = await this.findOneById(userId);
 
     if (!user) {
       throw new NotFoundException('User not Found');
     }
 
     return await this.prisma.user.update({
-      where: { email },
+      where: { id: userId },
       data: { avatarUrl: avatarUrl, updatedAt: new Date() },
     });
   }
 
-  async updatePassword(email: string, current: string, newPassword: string) {
-    const user = await this.findOneByEmail(email);
+  async updatePassword(userId: number, current: string, newPassword: string) {
+    const user = await this.findOneByIdInternal(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -60,13 +61,13 @@ export class UsersService {
     const hashedPassword = await bcryptjs.hash(newPassword, salt);
 
     return await this.prisma.user.update({
-      where: { email },
+      where: { id: userId },
       data: { password: hashedPassword, updatedAt: new Date() },
     });
   }
 
-  async updateBoardTheme(email: string, boardTheme: number) {
-    const user = await this.findOneByEmail(email);
+  async updateBoardTheme(userId: number, boardTheme: number) {
+    const user = await this.findOneById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -76,13 +77,13 @@ export class UsersService {
       throw new ForbiddenException("Theme with that index doesn't exist");
 
     return await this.prisma.user.update({
-      where: { email },
+      where: { id: userId },
       data: { boardTheme: boardTheme },
     });
   }
 
-  async updateUsername(userEmail: string, newUsername: string) {
-    const user = await this.findOneByEmail(userEmail);
+  async updateUsername(userId: number, newUsername: string) {
+    const user = await this.findOneById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -93,13 +94,13 @@ export class UsersService {
     }
 
     return await this.prisma.user.update({
-      where: { email: userEmail },
+      where: { id: userId },
       data: { username: newUsername },
     });
   }
 
-  async updateEmail(currentEmail: string, newEmail: string) {
-    const user = await this.findOneByEmail(currentEmail);
+  async updateEmail(userId: number, newEmail: string) {
+    const user = await this.findOneById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -111,7 +112,7 @@ export class UsersService {
     }
 
     return await this.prisma.user.update({
-      where: { email: currentEmail },
+      where: { id: userId },
       data: { email: newEmail },
     });
   }
@@ -128,7 +129,11 @@ export class UsersService {
       },
     });
   }
-
+  async findOneByIdInternal(id: number) {
+    return await this.prisma.user.findUnique({
+      where: { id },
+    });
+  }
   async findOneById(id: number) {
     return await this.prisma.user.findUnique({
       where: { id },
