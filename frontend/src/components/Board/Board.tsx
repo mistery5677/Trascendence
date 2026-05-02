@@ -1,5 +1,5 @@
 import { Chessboard, fenStringToPositionObject } from "react-chessboard";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
@@ -57,41 +57,46 @@ export function Board({ onTurnChange }: BoardProps) {
 
   useEffect(() => {
     if (!socket || !gameId) return;
-    chessGame.load(fen);
-    setChessPosition(fen);
+    if (fen) {
+      chessGame.load(fen);
+      setChessPosition(fen);
+    }
     if (onTurnChange) onTurnChange(currentTurn);
   }, [fen, currentTurn]);
 
-  function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-    console.log("My color:", color);
-    console.log("currentTurn:", currentTurn);
+  const onPieceDrop = useCallback(
+    ({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
+      console.log("My color:", color);
+      console.log("currentTurn:", currentTurn);
 
-    if (!gameId || !socket || currentTurn !== color) return false;
+      if (!gameId || !socket || currentTurn !== color) return false;
 
-    if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
+      if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
 
-    if (!targetSquare) {
-      return false;
-    }
+      if (!targetSquare) {
+        return false;
+      }
 
-    const moveData = {
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: "q",
-    };
+      const moveData = {
+        from: sourceSquare,
+        to: targetSquare,
+        promotion: "q",
+      };
 
-    try {
-      const move = chessGame.move(moveData);
-      if (!move) return false;
+      try {
+        const move = chessGame.move(moveData);
+        if (!move) return false;
 
-      socket.emit("move", { gameId, move: moveData });
+        socket.emit("move", { gameId, move: moveData });
 
-      setChessPosition(chessGame.fen());
-      return true;
-    } catch {
-      return false;
-    }
-  }
+        setChessPosition(chessGame.fen());
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [socket, gameId, color, currentTurn, chessGame],
+  );
 
   const chessboardOptions = {
     position: chessPosition,

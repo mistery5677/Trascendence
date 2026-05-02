@@ -46,20 +46,27 @@ export class GameGateway
     this.matchMakingService.addToQueue(client, this.server);
   }
 
-    @SubscribeMessage('startBotGame')
-    handleStartBot(@ConnectedSocket() client: Socket) {
-      const gameId = `bot_${uuidv4()}`;
-      console.log(gameId);
+  @SubscribeMessage('startBotGame')
+  handleStartBot(@ConnectedSocket() client: Socket) {
+    const gameId = `bot_${uuidv4()}`;
 
-      this.gameService.createGame(gameId, 'bot', client.data.user.userId);
-      client.join(gameId);
+    const newGame = this.gameService.createGame(
+      gameId,
+      'bot',
+      client.data.user.userId,
+    );
 
-      client.emit('gameState', {
-        gameId,
-        color: 'w',
-        opponent: 'Bot (Random moves)',
-      });
-    }
+    client.join(gameId);
+
+    client.emit('gameState', {
+      gameId: gameId,
+      color: 'w',
+      opponent: 'Bot (Random moves)',
+      fen: newGame.chess.fen(),
+      currentTurn: newGame.chess.turn(), // Asegúrate de que esto sea 'w' o 'b'
+      mode: 'bot', 
+    });
+  }
 
   @SubscribeMessage('requestSurrender')
   handleSurrender() {}

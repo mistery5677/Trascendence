@@ -19,7 +19,7 @@ export const GameProvider = ({
   const { state: authState } = useAuth();
   const navigate = useNavigate();
   const [gameId, setGameId] = useState<string | null>(urlGameId);
-  const [color, setColor] = useState<"w" | "b" | null>(null);
+  const [color, setColor] = useState<"w" | "b" | null>("w");
   const [fen, setFen] = useState("start");
   const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
   const [isConnected, setIsConnected] = useState(false);
@@ -54,6 +54,8 @@ export const GameProvider = ({
       setFen(data.fen);
       setCurrentTurn(data.currentTurn);
       setIsConnected(true);
+
+      console.log("currentTurn inside GameContext: ", currentTurn);
 
       if (data.gameId && !urlGameId)
         navigate(`?mode=${mode}&gameId=${data.gameId}`);
