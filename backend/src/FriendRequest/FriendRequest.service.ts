@@ -1,23 +1,30 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class FriendRequestService {
   constructor(private prisma: PrismaService) {}
 
-  async sendRequest(senderId: number, targetUsername: string){
+  async sendRequest(senderId: number, targetUsername: string) {
     // Find the invited user
     const receiver = await this.prisma.user.findUnique({
-      where: { username: targetUsername},
+      where: { username: targetUsername },
     });
 
-    if (receiver == null){
-      throw new NotFoundException("Username not founded");
+    if (receiver == null) {
+      throw new NotFoundException('Username not found');
     }
 
     // Block to send the friend request from the sender
-    if (senderId == receiver.id){
-      throw new BadRequestException("You can not send a friend request to yourself");
+    if (senderId == receiver.id) {
+      throw new BadRequestException(
+        'You can not send a friend request to yourself.',
+      );
     }
 
     // Check if you already have a friend request with that user
@@ -31,15 +38,17 @@ export class FriendRequestService {
     });
 
     // Send a error if already have a friend request
-    if (existingRequest){
+    if (existingRequest) {
       // If the friend request is pending
-      if (existingRequest.status === 'PENDING'){
-        throw new ConflictException("Already exist a pendent friend request");
+      if (existingRequest.status === 'PENDING') {
+        throw new ConflictException(
+          'Already exist a pendent friend request with this user.',
+        );
       }
 
       // If you already are friends
-      if (existingRequest.status === 'ACCEPTED'){
-        throw new ConflictException("You already are friends");
+      if (existingRequest.status === 'ACCEPTED') {
+        throw new ConflictException('You already are friends');
       }
     }
 
@@ -48,7 +57,7 @@ export class FriendRequestService {
         senderId: senderId,
         receiverId: receiver.id,
         status: 'PENDING',
-      }
+      },
     });
   }
 
@@ -62,9 +71,9 @@ export class FriendRequestService {
       // The prisma pulls all the sender information
       include: {
         sender: {
-          select: { username: true } // Show the username instead of the Id
-        }
-      }
+          select: { username: true, avatarUrl: true }, // Show the username instead of the Id
+        },
+      },
     });
   }
 
@@ -81,7 +90,9 @@ export class FriendRequestService {
 
     // If the request is already resolved, we throw an error
     if (request == null) {
-      throw new NotFoundException("Friend request not found or already processed");
+      throw new NotFoundException(
+        'Friend request not found or already processed',
+      );
     }
 
     // Update the status for 'ACCEPTED'
@@ -104,7 +115,7 @@ export class FriendRequestService {
 
     // If the request is already resolved, we throw an error
     if (request == null) {
-      throw new NotFoundException("Friend request not found");
+      throw new NotFoundException('Friend request not found');
     }
 
     // We just delete the request from the data base
@@ -113,23 +124,20 @@ export class FriendRequestService {
     });
   }
 
-  // Get all the friends 
+  // Get all the friends
   async getFriends(userId: number) {
     const friends = await this.prisma.friendRequest.findMany({
       where: {
         status: 'ACCEPTED',
-        OR: [
-          { senderId: userId },
-          { receiverId: userId },
-        ],
+        OR: [{ senderId: userId }, { receiverId: userId }],
       },
       include: {
         sender: true,
         receiver: true,
       },
     });
-    
-    return friends.map(rel => {
+
+    return friends.map((rel) => {
       return rel.senderId === userId ? rel.receiver : rel.sender;
     });
   }
@@ -147,11 +155,12 @@ export class FriendRequestService {
       },
     });
 
-    if (!relation)
-      throw new NotFoundException("Friendship not found");
+    if (!relation) throw new NotFoundException('Friendship not found');
 
     return await this.prisma.friendRequest.delete({
       where: { id: relation.id },
     });
   }
+
+
 }

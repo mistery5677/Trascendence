@@ -147,3 +147,10 @@ export async function getLeaderboard(): Promise<PlayerData[]> {
 
   return data;
 }
+
+// Get users by username substring (for suggestions)
+export async function getUsers(username: string) {
+  const res = await fetch(`/api/users/search?username=${encodeURIComponent(username)}`);
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return await res.json();
+}

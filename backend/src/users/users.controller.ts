@@ -136,4 +136,9 @@ export class UsersController {
   async getLeaderboard() {
     return this.usersService.getLeaderboard();
   }
+
+  @Get('search')
+  async searchUsers(@Query('username') username: string) {
+    return await this.usersService.getUsers(username || '');
+  }
 }
