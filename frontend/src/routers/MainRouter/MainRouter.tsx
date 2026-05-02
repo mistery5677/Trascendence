@@ -42,13 +42,16 @@ export function MainRouter() {
 					path={RouterPaths.PLAY}
 					element={<Play />}></Route>
 				<Route
-                    path={RouterPaths.LEADERBOARDS}
-                    element={<LeaderBoards />}
-                />
-				<Route
-					path={RouterPaths.FRIENDS}
-					element={<Friends />}
+					path={RouterPaths.LEADERBOARDS}
+					element={<LeaderBoards />}
 				/>
+				{state.user && (
+					<Route
+						path={RouterPaths.FRIENDS}
+						element={<Friends />}
+					/>
+				)}
+
 				{state.user && (
 					<Route
 						path={RouterPaths.SETTINGS}

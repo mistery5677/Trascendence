@@ -187,4 +187,20 @@ export class UsersService {
       rank: index + 1,
     }));
   }
+
+  async getUsers(userName: string) {
+    return await this.prisma.user.findMany({
+      where: {
+        username: {
+          contains: userName,
+          mode: 'insensitive',
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+      },
+    });
+  }
 }
