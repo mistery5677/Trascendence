@@ -46,20 +46,23 @@ export class GameGateway
     this.matchMakingService.addToQueue(client, this.server);
   }
 
-  //   @SubscribeMessage('startBotGame')
-  //   handleStartBot(@ConnectedSocket() client: Socket) {
-  //     const gameId = `bot_${uuidv4()}`;
-  //     console.log(gameId);
+    @SubscribeMessage('startBotGame')
+    handleStartBot(@ConnectedSocket() client: Socket) {
+      const gameId = `bot_${uuidv4()}`;
+      console.log(gameId);
 
-  //     this.gameService.createGame(gameId, 'bot', client.data.user.userId);
-  //     client.join(gameId);
+      this.gameService.createGame(gameId, 'bot', client.data.user.userId);
+      client.join(gameId);
 
-  //     client.emit('matchFound', {
-  //       gameId,
-  //       color: 'w',
-  //       opponent: 'Bot (Random moves)',
-  //     });
-  //   }
+      client.emit('gameState', {
+        gameId,
+        color: 'w',
+        opponent: 'Bot (Random moves)',
+      });
+    }
+
+  @SubscribeMessage('requestSurrender')
+  handleSurrender() {}
 
   @SubscribeMessage('joinGame')
   handleJoinGame(
@@ -85,7 +88,6 @@ export class GameGateway
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
-      //   opponent: userColor === 'w' ? 'Oponente' : 'Oponente',
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
@@ -127,7 +129,7 @@ export class GameGateway
     const gameOver = this.gameService.checkGameOver(gameId);
     if (gameOver) {
       this.server.to(gameId).emit('gameOver', {
-        gameOver:gameOver,
+        gameOver: gameOver,
       });
       return true;
     }

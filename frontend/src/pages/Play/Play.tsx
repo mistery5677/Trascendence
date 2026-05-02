@@ -3,9 +3,10 @@ import { Board, Timer } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
 import { useSearchParams } from "react-router-dom";
-import { GameProvider, useGame } from "../Ze/Context/GameContext";
+import { GameProvider, useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
 import { GameOverModal } from "../../components/GameOver/GameOverModal";
+import { Chat } from "../../components/Chat/Chat";
 
 export function PlayWrapper() {
   const [searchParams] = useSearchParams();
@@ -37,9 +38,8 @@ function Play() {
   const { state } = useAuth();
   const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
   const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
-  const { gameId, isConnected, color, gameOver } = useGame();
+  const { gameId, isConnected, color } = useGame();
   // We create a 'state' to store te game result
-  const [gameResult, setGameResult] = useState<string | null>(null);
 
   useEffect(() => {
     setTimerKey((prevKey) => prevKey + 1);
@@ -47,10 +47,6 @@ function Play() {
 
   const handleTurnChange = (newTurn: PieceColor) => {
     setCurrentTurn(newTurn);
-  };
-
-  const handleGameOver = (result: string) => {
-    setGameResult(result);
   };
 
   if (!gameId) {
@@ -155,7 +151,9 @@ function Play() {
             </div>
           </div>
         </div>
-
+        {/* <div>
+          <Chat />
+        </div> */}
         {/* Board */}
         <div className="w-full max-w-2xl px-2">
           <div className="p-3 sm:p-6 bg-slate-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">

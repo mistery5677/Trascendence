@@ -1,4 +1,4 @@
-import { useGame } from "../../pages/Ze/Context/GameContext";
+import { useGame } from "../../contexts/GameContext/GameContext";
 
 export function GameOverModal() {
   const { gameOver, color } = useGame();

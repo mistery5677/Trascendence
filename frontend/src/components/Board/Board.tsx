@@ -4,7 +4,7 @@ import { Chess } from "chess.js";
 import { useState } from "react";
 import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
-import { useGame } from "../../pages/Ze/Context/GameContext";
+import { useGame } from "../../contexts/GameContext/GameContext";
 import { ChartNoAxesColumnIcon } from "lucide-react";
 
 export type PieceColor = "w" | "b";

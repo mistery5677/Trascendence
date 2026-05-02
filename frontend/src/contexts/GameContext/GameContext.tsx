@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameType";
 import { io, Socket } from "socket.io-client";
-import { useAuth } from "../../../contexts/UserContext";
+import { useAuth } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
