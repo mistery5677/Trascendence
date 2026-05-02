@@ -14,6 +14,7 @@ import { toastWrapper } from "../../adapters/toastWrapper";
 import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
 import styles from "./style.module.css";
 import { Profile } from "../../components/index";
+import { userNameValidation } from "../../hooks/userNameValidation";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
@@ -31,7 +32,7 @@ export type SettingsProps = {
 
 export function Settings({ tabOpt }: SettingsProps) {
 	const [activeTab, setActiveTab] = useState<SettingsTab>(tabOpt);
-	const { state, refreshMe } = useAuth();
+	const { state, refreshMe, dispatch } = useAuth();
 	const [avatarUrlKey, setAvatarUrlKey] = useState(Date.now());
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -47,14 +48,26 @@ export function Settings({ tabOpt }: SettingsProps) {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
+		// Validate file type
+		const validTypes = ["image/png", "image/jpeg"];
+		if (!validTypes.includes(file.type)) {
+			toastWrapper.warn("Only PNG or JPG images are allowed.");
+			return;
+		}
+
+		// Validate file size (2MB max)
+		const maxSize = 2 * 1024 * 1024;
+		if (file.size > maxSize) {
+			toastWrapper.warn("Image size must be less than 2MB.");
+			return;
+		}
+
 		try {
 			await updateAvatar(file);
 			await refreshMe({ silent: true });
 			setAvatarUrlKey(Date.now());
 			toastWrapper.success("Photo uploaded successfully!", {
-				style: {
-					fontSize: "14px",
-				},
+				style: { fontSize: "14px" },
 			});
 		} catch (err) {
 			console.error("Error updating avatar:", err);
@@ -119,11 +132,17 @@ export function Settings({ tabOpt }: SettingsProps) {
 			try {
 				await updateEmail(email);
 				toastWrapper.success("Email updated successfully.");
+				if (state.user) {
+					dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, email: email } });
+				}
 			} catch (error) {
 				console.log(error);
 			}
 		}
 		if (displayName) {
+			if (!userNameValidation(displayName)) {
+				return toastWrapper.error("Username must be only alphabetical or numbers.");
+			}
 			const isAvailable = await verifyUsername(displayName);
 			if (!isAvailable) {
 				toastWrapper.warn("Username already in use!");
@@ -132,6 +151,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 			try {
 				await updateUserName(displayName);
 				toastWrapper.success("Nickname changed successfully.");
+				if (state.user) {
+					dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, username: displayName } });
+				}
 			} catch (err) {
 				console.log(err);
 			}
@@ -177,6 +199,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
 		await updateBoardTheme(themeId);
 		toastWrapper.success("Board theme update successfully.");
+		if (state.user) {
+			dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, boardTheme: themeId } });
+		}
 	};
 
 	return (
@@ -382,19 +407,19 @@ export function Settings({ tabOpt }: SettingsProps) {
 											<button
 												type="button"
 												onClick={handleBoardTheme(1)}
-												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium ${styles["custom-button-forest"]} hover:border-2`}>
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium ${styles["custom-button-forest"]} hover:border-3`}>
 												Forest
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(2)}
-												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-classic"]}`}>
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-3 ${styles["custom-button-classic"]}`}>
 												Classic
 											</button>
 											<button
 												type="button"
 												onClick={handleBoardTheme(3)}
-												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-2 ${styles["custom-button-midnight"]}`}>
+												className={`rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-3 ${styles["custom-button-midnight"]}`}>
 												Midnight
 											</button>
 										</div>
