@@ -14,4 +14,6 @@ export type GameContextType = {
   fen: string;
   currentTurn: "w" | "b";
   gameOver: GameOverState;
+  surrender: () => void;
+  proposeDraw: () => void;
 };

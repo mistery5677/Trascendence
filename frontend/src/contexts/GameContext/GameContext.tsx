@@ -27,6 +27,24 @@ export const GameProvider = ({
 
   if (!authState.user) return;
 
+  const surrender = () => {
+    if (socket && gameId) {
+      socket.emit("requestSurrender", { gameId });
+    }
+  };
+
+  const proposeDraw = () => {
+    if (socket && gameId) {
+      socket.emit("proposeDraw", { gameId });
+    }
+  };
+
+  const respondDraw = (response: Boolean) => {
+    if (socket && gameId) {
+      socket.emit("respondDraw", { gameId, response });
+    }
+  };
+
   useEffect(() => {
     const socketInstance = io("/", {
       withCredentials: true,
@@ -77,10 +95,46 @@ export const GameProvider = ({
       socketInstance.disconnect();
     };
   }, []);
+  useEffect(() => {
+    if (!socket || !gameId) {
+      return;
+    }
+
+    socket.on("drawProposed", (data) => {
+      console.log("Propose Sent to :", gameId);
+      const accept = window.confirm(
+        "Your opponent proposes a draw. Do you accept?",
+      );
+
+      socket.emit("respondDraw", {
+        gameId: gameId,
+        response: accept,
+      });
+    });
+
+    socket.on("drawRejected", () => {
+      alert("The draw proposal was rejected.");
+    });
+
+    return () => {
+      socket.off("drawPropose");
+      socket.off("drawRejected");
+    };
+  }, [socket, gameId]);
 
   return (
     <GameContext.Provider
-      value={{ socket, gameId, color, isConnected, fen, currentTurn, gameOver }}
+      value={{
+        socket,
+        gameId,
+        color,
+        isConnected,
+        fen,
+        currentTurn,
+        gameOver,
+        surrender,
+        proposeDraw,
+      }}
     >
       {children}
     </GameContext.Provider>

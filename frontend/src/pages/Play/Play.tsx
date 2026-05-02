@@ -7,6 +7,7 @@ import { GameProvider, useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
 import { GameOverModal } from "../../components/GameOver/GameOverModal";
 import { Chat } from "../../components/Chat/Chat";
+import { GameActions } from "../../components/Board/GameActions";
 
 export function PlayWrapper() {
   const [searchParams] = useSearchParams();
@@ -154,6 +155,10 @@ function Play() {
         {/* <div>
           <Chat />
         </div> */}
+        <div>
+          
+          <GameActions />
+        </div>
         {/* Board */}
         <div className="w-full max-w-2xl px-2">
           <div className="p-3 sm:p-6 bg-slate-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">

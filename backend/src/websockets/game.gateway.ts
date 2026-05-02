@@ -63,13 +63,49 @@ export class GameGateway
       color: 'w',
       opponent: 'Bot (Random moves)',
       fen: newGame.chess.fen(),
-      currentTurn: newGame.chess.turn(), // Asegúrate de que esto sea 'w' o 'b'
-      mode: 'bot', 
+      currentTurn: newGame.chess.turn(),
+      mode: 'bot',
     });
   }
 
   @SubscribeMessage('requestSurrender')
-  handleSurrender() {}
+  handleSurrender(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string },
+  ) {
+    console.log('Surrender ');
+    const result = this.gameService.surrender(
+      data.gameId,
+      client.data.user.userId,
+    );
+    if (result) {
+      console.log('Surrender emit');
+      this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+    }
+  }
+
+  @SubscribeMessage('proposeDraw')
+  handleDrawPropose(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string },
+  ) {
+    client.to(data.gameId).emit('drawProposed', { from: client.id });
+  }
+
+  @SubscribeMessage('respondDraw')
+  handleRespondDraw(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string; response: boolean },
+  ) {
+    console.log('gateWay respondDraw', data.response);
+    if (data.response) {
+      const result = this.gameService.forceDraw(data.gameId);
+      if (result)
+        this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+    } else {
+      client.to(data.gameId).emit('drawRejected');
+    }
+  }
 
   @SubscribeMessage('joinGame')
   handleJoinGame(

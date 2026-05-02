@@ -4,7 +4,12 @@ import { MatchesService } from 'src/matches/matches.service';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
-  reason: 'CHECKMATE' | 'DRAW' | 'STALEMATE' | 'THREEFOLD_REPETITION';
+  reason:
+    | 'CHECKMATE'
+    | 'DRAW'
+    | 'STALEMATE'
+    | 'THREEFOLD_REPETITION'
+    | 'RESIGNATION';
 }
 
 interface GameInstance {
@@ -111,5 +116,38 @@ export class GameService {
       winnerColor,
       reason,
     };
+  }
+  surrender(gameId: string, surrenderPlayerId: string): GameOverResult | null {
+    const game = this.getGame(gameId);
+    if (!game) return null;
+
+    const winnerColor: 'w' | 'b' =
+      surrenderPlayerId !== game.playerB ? 'b' : 'w';
+    const winnerId = winnerColor === 'w' ? game.playerW : game.playerB;
+
+    if (game.mode === 'online') {
+      this.matchesService.saveMatchResult(
+        parseInt(game.playerB),
+        parseInt(game.playerW),
+        parseInt(winnerId),
+      );
+    }
+    this.games.delete(gameId);
+
+    return { winnerColor, reason: 'RESIGNATION' };
+  }
+  forceDraw(gameId: string): GameOverResult | null {
+    const game = this.getGame(gameId);
+    if (!game) return null;
+
+    if (game.mode === 'online') {
+      this.matchesService.saveMatchResult(
+        parseInt(game.playerB),
+        parseInt(game.playerW),
+        null,
+      );
+    }
+    this.games.delete(gameId);
+    return { winnerColor: null, reason: 'DRAW' };
   }
 }
