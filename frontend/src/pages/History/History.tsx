@@ -33,52 +33,53 @@ export function HistoryPage() {
 	};
 	return (
 		<>
-			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
-				<div className="mx-auto w-full lg:w-[60%]">
+			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100 bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
+				<div className="mx-auto w-full lg:w-[60%] bg-stone-900/90 border border-stone-700 rounded-3xl p-8 shadow-lg shadow-slate-950/30">
 					{/* Header */}
 					<header className="mb-8">
-						<h1 className="text-4xl font-extrabold tracking-tight flex gap-2 items-center bg-linear-to-r from-emerald-200 via-emerald-300 to-emerald-500 bg-clip-text text-transparent">
-							<History className="text-white" />
+						<h1 className="text-4xl font-extrabold tracking-tight flex gap-2 items-center text-emerald-200">
+							<History className="text-emerald-300" />
 							HISTORY
 						</h1>
 					</header>
 					{/* GRID */}
-					<section className="flex mw-max">
-						<table className="grid grid-rows-5">
-							<thead className="text-xl font-stretch-20% bg-blue-400/20 rounded-t-2xl">
-								<tr className="flex">
-									<th
-										onClick={() => handleIcon(1)}
-										className="flex w-40 hover:bg-stone-700/40 rounded-tl-2xl transition items-center gap-2 justify-center p-4 hover:cursor-pointer">
-										Task {firstArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
-									</th>
-									<th
-										onClick={() => handleIcon(2)}
-										className="flex w-40 items-center gap-2 hover:bg-stone-700/40 justify-center hover:cursor-pointer">
-										Time {secondArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center hover:bg-stone-700/40 hover:cursor-pointer">
-										Data {arrowIcon["asc"]}
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center hover:bg-stone-700/40">
-										Status
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center rounded-tr-2xl hover:bg-stone-700/40">
-										Type
-									</th>
-								</tr>
-							</thead>
-
-							<tbody>
-								<tr>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-								</tr>
-							</tbody>
-						</table>
+					<section className="overflow-x-auto">
+						<div className="min-w-[800px]">
+							<table className="w-full table-auto rounded-3xl overflow-hidden border border-stone-700 bg-stone-950/80 text-left text-stone-100">
+								<thead className="bg-stone-900/80 text-stone-100">
+									<tr>
+										<th
+											onClick={() => handleIcon(1)}
+											className="w-40 px-4 py-4 text-sm font-semibold uppercase tracking-wide text-stone-200 hover:bg-stone-800/70 cursor-pointer transition">
+											Task {firstArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
+										</th>
+										<th
+											onClick={() => handleIcon(2)}
+											className="w-40 px-4 py-4 text-sm font-semibold uppercase tracking-wide text-stone-200 hover:bg-stone-800/70 cursor-pointer transition">
+											Time {secondArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
+										</th>
+										<th className="w-40 px-4 py-4 text-sm font-semibold uppercase tracking-wide text-stone-200 hover:bg-stone-800/70 cursor-pointer transition">
+											Data {arrowIcon["asc"]}
+										</th>
+										<th className="w-40 px-4 py-4 text-sm font-semibold uppercase tracking-wide text-stone-200 hover:bg-stone-800/70 cursor-pointer transition">
+											Status
+										</th>
+										<th className="w-40 px-4 py-4 rounded-tr-3xl text-sm font-semibold uppercase tracking-wide text-stone-200 hover:bg-stone-800/70 cursor-pointer transition">
+											Type
+										</th>
+									</tr>
+								</thead>
+								<tbody className="divide-y divide-stone-700">
+									<tr className="bg-stone-900/70">
+										<td className="px-4 py-4">{}</td>
+										<td className="px-4 py-4">{}</td>
+										<td className="px-4 py-4">{}</td>
+										<td className="px-4 py-4">{}</td>
+										<td className="px-4 py-4">{}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</section>
 				</div>
 			</main>

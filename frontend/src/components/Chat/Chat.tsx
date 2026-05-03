@@ -1,58 +1,87 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGame } from "../../contexts/GameContext/GameContext";
+import { ChatHeader, ChatMessages, ChatInput } from "./index";
 
 export function Chat() {
-  const { socket, gameId } = useGame();
+	const { socket, gameId } = useGame();
+	const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [messages, setMessages] = useState<
-    { from: string; message: string; timeStamp: string }[]
-  >([]);
-  const [input, setInput] = useState("");
+	const [messages, setMessages] = useState<{ from: string; message: string; timeStamp: string }[]>([]);
+	const [isAtBottom, setIsAtBottom] = useState(true);
+	const [pendingNewMessages, setPendingNewMessages] = useState(false);
 
-  useEffect(() => {
-    socket?.on("receiveMessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-    return () => {
-      socket?.off("receiveMessage");
-    };
-  }, [socket]);
+	useEffect(() => {
+		socket?.on("receiveMessage", (msg) => {
+			setMessages((prev) => {
+				if (!isAtBottom) {
+					setPendingNewMessages(true);
+				}
+				return [...prev, msg];
+			});
+		});
+		return () => {
+			socket?.off("receiveMessage");
+		};
+	}, [socket, isAtBottom]);
 
-  const sendMessage = () => {
-    socket?.emit("sendMessage", { gameId, message: input });
-    setInput("");
-  };
+	useEffect(() => {
+		const container = messageContainerRef.current;
+		if (!container) return;
 
-  return (
-    <div className="bg-stone-900/50  max-w-100 flex-row align-center align-middle items-center justify-center rounded-2xl">
-      <h1 className="flex text-white text-2xl justify-center align-center border-b-2 border-amber-300">
-        Chat
-      </h1>
+		const handleScroll = () => {
+			const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+			const atBottom = distanceFromBottom < 100;
+			setIsAtBottom(atBottom);
+			if (atBottom) {
+				setPendingNewMessages(false);
+			}
+		};
 
-      <div className="text-white">
-        {messages.map((m, i) => (
-          <div key={i} className="flex gap-2">
-            <b className="text-blue-500 pl-2">{m.from}:</b> {m.message}
-            <div className="flex w-full justify-end">
-              <p className="text-white/30">{m.timeStamp}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className=" flex align-middle items-center gap-2 border-t-2 border-amber-300">
-        <input
-          className="flex h-max text-white pl-2"
-          placeholder="Write your message"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button
-          onClick={sendMessage}
-          className="bg-emerald-800 text-xl  hover:bg-emerald-700 transition rounded align-middle p-2 text-white "
-        >
-          Send
-        </button>
-      </div>
-    </div>
-  );
+		container.addEventListener("scroll", handleScroll);
+		handleScroll();
+
+		return () => {
+			container.removeEventListener("scroll", handleScroll);
+		};
+	}, []);
+
+	useLayoutEffect(() => {
+		const container = messageContainerRef.current;
+		if (!container) return;
+
+		if (isAtBottom) {
+			container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+			setPendingNewMessages(false);
+		}
+	}, [messages, isAtBottom]);
+
+	const sendMessage = (message: string) => {
+		socket?.emit("sendMessage", { gameId, message });
+	};
+
+	const scrollToBottom = () => {
+		const container = messageContainerRef.current;
+		if (!container) return;
+		container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+		setPendingNewMessages(false);
+	};
+
+	return (
+		<div className="relative flex flex-col w-full max-w-lg h-[580px] mx-auto bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl shadow-2xl border border-stone-700 overflow-hidden">
+			<ChatHeader />
+			<div
+				ref={messageContainerRef}
+				className="flex-1 overflow-y-auto p-4 bg-stone-950/95">
+				<ChatMessages messages={messages} />
+			</div>
+			{pendingNewMessages && (
+				<button
+					className="absolute bottom-24 left-1/2 z-10 -translate-x-1/2 rounded-full bg-emerald-500/95 px-4 py-2 text-sm font-semibold text-stone-950 shadow-lg ring-1 ring-stone-700 hover:bg-emerald-400"
+					onClick={scrollToBottom}>
+					New messages
+				</button>
+			)}
+			<ChatInput onSendMessage={sendMessage} />
+		</div>
+	);
 }
