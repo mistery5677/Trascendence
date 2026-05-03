@@ -21,3 +21,28 @@ export async function handleGameOver(
         console.error("Failed to save the match");
     }
 }
+
+export async function getMatchHistory() {
+    try {
+        // The local storage get the user token
+        const token = localStorage.getItem('token'); 
+
+        const response = await fetch('/api/matches/history', {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json', // The information comes in Json format
+                'Authorization': `Bearer ${token}` // Validates the user token
+            }
+        });
+
+        if (response.ok) {
+            return await response.json(); // Return the needed information
+        } else {
+            console.error("Failed to load match history: Status", response.status);
+            return []; // Sends an empty array to not break it 
+        }
+    } catch (error) {
+        console.error("Failed to fetch match history", error);
+        return [];
+    }
+}
