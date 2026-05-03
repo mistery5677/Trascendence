@@ -2,21 +2,21 @@ import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 
-// @Controller('matches')
-// export class MatchesController {
-//   constructor(private readonly matchesService: MatchesService) {}
+@Controller('matches')
+export class MatchesController {
+  constructor(private readonly matchesService: MatchesService) {}
 
-  @Post('end')
-  async saveMatchResult(
-    @Body() body: { playerAId: number; playerBId: number; result: string }
-  ) {
-    // Return all the information
-    return this.matchesService.saveMatchResult(
-      body.playerAId, 
-      body.playerBId, 
-      body.result
-    );
-  }
+  // @Post('end')
+  // async saveMatchResult(
+  //   @Body() body: { playerAId: number; playerBId: number; result: string }
+  // ) {
+  //   // Return all the information
+  //   return this.matchesService.saveMatchResult(
+  //     body.playerAId, 
+  //     body.playerBId, 
+  //     body.result
+  //   );
+  // }
 
   @UseGuards(AuthGuard) // Checks for the user token
   @Get('history')
