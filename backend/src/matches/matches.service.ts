@@ -49,4 +49,22 @@ export class MatchesService {
 
     return { message: 'Match saved', matchId: match.id };
   }
+
+  // Get the information of the match
+  async getUserMatchHistory(userId: number) {
+    return await this.prisma.matchHistory.findMany({
+      where: {
+        OR: [
+          { playerAId : userId }, // User of the white pieces
+          { playerBId : userId}, // User of the black pieces
+        ],
+      },
+      orderBy: { createdAt: 'desc' }, // Order the match from the oldest one
+      include: {
+        // Get the username of the users
+        playerA: { select: { username: true } },
+        playerB: { select: { username: true } }
+      }
+    })
+  }
 }

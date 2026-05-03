@@ -1,11 +1,32 @@
 import { History } from "lucide-react";
 import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getMatchHistory } from "../../api/matches";
+import { useAuth } from "../../contexts/UserContext";
 
 export function HistoryPage() {
+	const { state } = useAuth(); // Get the logged user
+    const myUserId = state?.user?.id;
+
+	const [history, setHistory] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+
 	useEffect(() => {
 		document.title = "History | 42 Transcendence";
-	}, []);
+
+		const fetchHistory = async () => {
+			setLoading(true); // Loading system
+			const data = await getMatchHistory();
+			setHistory(data);
+			setLoading(false)
+		}
+
+		// Check if the myUserId is already loaded
+		if (myUserId){
+			fetchHistory();
+		}
+	}, [myUserId]);
 
 	const [firstArrow, setFirstArrow] = useState<boolean>(true);
 	const [secondArrow, setSecondArrow] = useState<boolean>(true);
@@ -31,6 +52,7 @@ export function HistoryPage() {
 				return null;
 		}
 	};
+
 	return (
 		<>
 			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
@@ -43,42 +65,84 @@ export function HistoryPage() {
 						</h1>
 					</header>
 					{/* GRID */}
-					<section className="flex mw-max">
-						<table className="grid grid-rows-5">
-							<thead className="text-xl font-stretch-20% bg-blue-400/20 rounded-t-2xl">
-								<tr className="flex">
-									<th
-										onClick={() => handleIcon(1)}
-										className="flex w-40 hover:bg-stone-700/40 rounded-tl-2xl transition items-center gap-2 justify-center p-4 hover:cursor-pointer">
-										Task {firstArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
-									</th>
-									<th
-										onClick={() => handleIcon(2)}
-										className="flex w-40 items-center gap-2 hover:bg-stone-700/40 justify-center hover:cursor-pointer">
-										Time {secondArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center hover:bg-stone-700/40 hover:cursor-pointer">
-										Data {arrowIcon["asc"]}
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center hover:bg-stone-700/40">
-										Status
-									</th>
-									<th className="flex w-40 gap-2 justify-center items-center rounded-tr-2xl hover:bg-stone-700/40">
-										Type
-									</th>
-								</tr>
-							</thead>
+					<section className="w-full mt-6">
+						<div className="w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-lg">
+							
+							<table className="w-full text-center border-collapse">
+								
+								{/* DATA HEADER */}
+								{ /* Thead defines a set of rows */ }
+								<thead className="text-xl bg-blue-400/20">
+									<tr>
+										<th onClick={() => handleIcon(1)} className="p-4 hover:bg-stone-700/40 cursor-pointer transition">
+											<div className="flex items-center justify-center gap-2">
+												Opponent {firstArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
+											</div>
+										</th>
+										<th onClick={() => handleIcon(2)} className="p-4 hover:bg-stone-700/40 cursor-pointer transition">
+											<div className="flex items-center justify-center gap-2">
+												Date {secondArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
+											</div>
+										</th>
+										<th className="p-4 hover:bg-stone-700/40">
+											Played As
+										</th>
+										<th className="p-4 hover:bg-stone-700/40">
+											Result
+										</th>
+									</tr>
+								</thead>
 
-							<tbody>
-								<tr>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-									<td>{}</td>
-								</tr>
-							</tbody>
-						</table>
+								{/* MATCH TABLE */}
+								<tbody>
+									{loading ? (
+										<tr>
+											<td colSpan={4} className="p-8 text-center text-slate-400">Loading matches...</td>
+										</tr>
+									) : history.length === 0 ? (
+										<tr>
+											<td colSpan={4} className="p-8 text-center text-slate-400">No matches found in your history.</td>
+										</tr>
+									) : (
+										history.map((match) => {
+											const amIPlayerA = match.playerAId === myUserId;
+											const opponentName = amIPlayerA ? match.playerB.username : match.playerA.username;
+											const playedAs = amIPlayerA ? "White" : "Black";
+											
+											let resultText = "DRAW";
+											let resultColor = "text-slate-400";
+											
+											if (match.result === 'PLAYER_A_WINS') {
+												resultText = amIPlayerA ? "VICTORY" : "DEFEAT";
+												resultColor = amIPlayerA ? "text-emerald-400" : "text-red-400";
+											} else if (match.result === 'PLAYER_B_WINS') {
+												resultText = !amIPlayerA ? "VICTORY" : "DEFEAT";
+												resultColor = !amIPlayerA ? "text-emerald-400" : "text-red-400";
+											}
+
+											const dateStr = new Date(match.createdAt).toLocaleDateString();
+
+											return (
+												<tr key={match.id} className="border-t border-slate-800 hover:bg-slate-800/40 transition-colors">
+													<td className="p-4 font-bold text-stone-200">
+														{opponentName}
+													</td>
+													<td className="p-4 text-slate-400">
+														{dateStr}
+													</td>
+													<td className="p-4 text-slate-400">
+														{playedAs}
+													</td>
+													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
+														{resultText}
+													</td>
+												</tr>
+											);
+										})
+									)}
+								</tbody>
+							</table>
+						</div>
 					</section>
 				</div>
 			</main>
