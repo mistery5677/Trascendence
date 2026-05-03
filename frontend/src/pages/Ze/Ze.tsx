@@ -3,38 +3,42 @@ import { GameProvider, useGame } from "../../contexts/GameContext/GameContext";
 import { Chat } from "../../components/Chat/Chat";
 
 export function Ze() {
-  return (
-    <GameProvider>
-      <ZeLayout />
-    </GameProvider>
-  );
+	return (
+		<GameProvider
+			mode="null"
+			gameId={null}>
+			<ZeLayout />
+		</GameProvider>
+	);
 }
 
 function ZeLayout() {
-  const { gameId, socket } = useGame();
+	const { gameId, socket } = useGame();
 
-  return (
-    <div className="p-8">
-      {gameId && socket ? <GameLayout /> : <StatusDisplay />}
-    </div>
-  );
+	return (
+		<div className="min-h-screen bg-stone-800 p-8 text-slate-100">
+			{gameId && socket ? <GameLayout /> : <StatusDisplay />}
+	</div>
+	);
 }
 
 function GameLayout() {
-  return (
-    <div>
-      <div className="flex min-h-screen items-center justify-end pr-2">
-        <Chat />
-      </div>
-    </div>
-  );
+	return (
+		<div>
+			<div className="flex min-h-screen items-center justify-end pr-2">
+				<Chat />
+			</div>
+		</div>
+	);
 }
 
 function StatusDisplay() {
-  const { isConnected } = useGame();
-  return (
-    <p className={isConnected ? "text-green-500" : "text-red-500"}>
-      {isConnected ? "Status: Seaching for match..." : "Status Disconnected"}
-    </p>
-  );
+	const { isConnected } = useGame();
+	return (
+		<div className="">
+			<p className={isConnected ? "text-green-500" : "text-red-500"}>
+				{isConnected ? "Status: Seaching for match..." : "Status Disconnected"}
+			</p>
+		</div>
+	);
 }
