@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import { MatchesService } from './matches.service';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('matches')
 export class MatchesController {
@@ -15,5 +16,12 @@ export class MatchesController {
       body.playerBId, 
       body.result
     );
+  }
+
+  @UseGuards(AuthGuard) // Checks for the user token
+  @Get('history')
+  async getHistory(@Req() req) {
+    const userId = req.user.userId; // The guard checks for the user ID
+    return await this.matchesService.getUserMatchHistory(userId);
   }
 }
