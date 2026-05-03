@@ -6,7 +6,7 @@ export const MatchmakingLoading = ({
   isConnected,
 }: MatchmakingLoadingProps) => {
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-stone-800 flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-[calc(100vh-5rem)] bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
       {/* Ambient Effects */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-[20%] -left-[10%] w-[36vw] h-[36vw] bg-emerald-700/20 rounded-full blur-[110px]"></div>
