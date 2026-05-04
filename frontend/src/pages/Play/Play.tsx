@@ -146,20 +146,18 @@ function Play() {
 							</div>
 						</div>
 					</div>
+					{/* Container Board && Chat */}
+					{/* Container Board && Chat (board preserved) */}
 					<div>
-						{/* Container Board && Chat */}
-						{/* <div className="grid grid-cols-3 w-max "> */}
-							{/* Board */}
-							<div></div>
-							<div className="w-full max-w-2xl px-2">
-								<div className="p-3 sm:p-6 bg-stone-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
-									<Board onTurnChange={handleTurnChange} />
-								</div>
+						{/* Board */}
+						<div className="w-full max-w-2xl px-2">
+							<div className="p-3 sm:p-6 bg-stone-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
+								<Board onTurnChange={handleTurnChange} />
 							</div>
-							<div className="flex align-middle items-center">
-								{/* <Chat /> */}
-							{/* </div> */}
 						</div>
+					</div>
+					<div className="hidden xl:block absolute right-6 top-1/2 z-10 -translate-y-1/3">
+						<Chat />
 					</div>
 				</div>
 			</div>

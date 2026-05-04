@@ -26,7 +26,11 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
 						<div className="flex items-center justify-between gap-3 text-sm text-stone-400">
 							<div className="flex items-center gap-3">
 								<div className="h-9 w-9 rounded-full bg-stone-700 flex items-center justify-center text-sm text-stone-200">
-									{m.from?.[0]?.toUpperCase()}
+									<img
+										className="rounded-full object-fit max-h-10 max-w-10"
+										src={m.avatarUrl}
+										alt="avatarUrl"
+									/>
 								</div>
 								<span className="font-semibold text-stone-100">{m.from}</span>
 							</div>
