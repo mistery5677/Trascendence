@@ -59,7 +59,7 @@ export function NavBar({ onModal }: NavBarProps) {
 		<Disclosure
 			as="nav"
 			className={classNames(
-				"relative z-50 bg-linear-to-r from-slate-950/95 via-stone-950/95 to-slate-950/95 backdrop-blur-md shadow-[0_8px_24px_-16px_rgba(0,0,0,0.8)] border-b border-emerald-300/15",
+				"relative z-50 bg-linear-to-r from-stone-900/90 via-stone-900/90 to-stone-900/90 backdrop-blur-md shadow-[0_8px_24px_-16px_rgba(0,0,0,0.8)] border-b border-emerald-300/15",
 			)}>
 			<div className="mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl">
 				<div className="relative flex h-18 items-center justify-between">
@@ -121,12 +121,12 @@ export function NavBar({ onModal }: NavBarProps) {
 								<div className="relative group/play">
 									<button
 										type="button"
-										className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-slate-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900">
+										className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-stone-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 										Play
 									</button>
 
 									<div className="pointer-events-none invisible absolute right-0 top-full z-20 w-56 pt-3 opacity-0 translate-y-1 transition-all duration-200 group-hover/play:pointer-events-auto group-hover/play:visible group-hover/play:translate-y-0 group-hover/play:opacity-100 group-focus-within/play:pointer-events-auto group-focus-within/play:visible group-focus-within/play:translate-y-0 group-focus-within/play:opacity-100">
-										<div className="rounded-2xl border border-emerald-300/20 bg-slate-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
+										<div className="rounded-2xl border border-emerald-300/20 bg-stone-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
 											<a
 												href="/play?mode=bot"
 												className="block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
@@ -183,7 +183,7 @@ export function NavBar({ onModal }: NavBarProps) {
 								</MenuButton>
 								<MenuItems
 									transition
-									className="absolute right-0 z-10 mt-3 w-56 origin-top-right rounded-2xl bg-slate-900/95 py-2 border border-emerald-300/20 shadow-[0_12px_36px_-14px_rgba(0,0,0,0.8)] transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-75 data-leave:ease-in overflow-hidden">
+									className="absolute right-0 z-10 mt-3 w-56 origin-top-right rounded-2xl bg-stone-900/95 py-2 border border-emerald-300/20 shadow-[0_12px_36px_-14px_rgba(0,0,0,0.8)] transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-75 data-leave:ease-in overflow-hidden">
 									<MenuItem>
 										<a
 											href="/friends"
@@ -231,7 +231,7 @@ export function NavBar({ onModal }: NavBarProps) {
 				</div>
 			</div>
 
-			<DisclosurePanel className="sm:hidden border-t border-emerald-300/15 bg-slate-950/95">
+			<DisclosurePanel className="sm:hidden border-t border-emerald-300/15 bg-stone-950/95">
 				<div className="space-y-2 px-4 pt-3 pb-4">
 					{navigation.map((item) => {
 						if (state.user && (item.name === "Login" || item.name === "Register")) return null;

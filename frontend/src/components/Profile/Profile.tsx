@@ -46,15 +46,15 @@ export function Profile() {
 					</div>
 				</header>
 				<section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
-					<div className="bg-white/5 p-4 rounded-xl text-center">
+					<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">
 						<p className="text-gray-400 text-sm uppercase">Victories</p>
 						<p className="text-3xl font-bold text-green-400">{user?.score?.wins || 0}</p>
 					</div>
-					<div className="bg-white/5 p-4 rounded-xl text-center">
+					<div className="bg-white/5 p-4 rounded-xl text-center border border-red-400/30">
 						<p className="text-gray-400 text-sm uppercase">Defeats</p>
 						<p className="text-3xl font-bold text-red-400">{user?.score?.losses || 0}</p>
 					</div>
-					<div className="bg-white/5 p-4 rounded-xl text-center">
+					<div className="bg-white/5 p-4 rounded-xl text-center  border border-yellow-400/30">
 						<p className="text-gray-400 text-sm uppercase">Draws</p>
 						<p className="text-3xl font-bold text-yellow-400">{user?.score?.draws || 0}</p>
 					</div>

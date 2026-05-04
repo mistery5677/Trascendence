@@ -18,10 +18,10 @@ import { userNameValidation } from "../../hooks/userNameValidation";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
-		return "rounded-xl border border-sky-300/35 bg-sky-500/15 px-4 py-3 text-left text-xl font-bold text-sky-100";
+		return "rounded-xl border border-emerald-300/30 bg-stone-700/70 px-4 py-3 text-left text-xl font-bold text-emerald-200";
 	}
 
-	return "rounded-xl px-4 py-3 text-left font-light text-xl text-stone-300 transition-colors hover:bg-stone-800/70 hover:text-stone-100";
+	return "rounded-xl px-4 py-3 text-left font-light text-stone-300 transition-colors hover:bg-stone-800/70 hover:text-stone-100";
 }
 
 export type SettingsTab = "profile" | "account" | "board";
@@ -206,7 +206,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 	return (
 		<>
-			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100">
+			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100 bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 				<div className="mx-auto w-full lg:w-[60%]">
 					<header className="mb-8">
 						<h1 className="text-4xl font-extrabold tracking-tight">⚙️ Settings</h1>
@@ -215,9 +215,9 @@ export function Settings({ tabOpt }: SettingsProps) {
 						</p>
 					</header>
 
-					<div className="overflow-hidden rounded-2xl border border-stone-700/70 bg-stone-800/70">
+					<div className="overflow-hidden rounded-2xl border border-stone-700/80 bg-stone-700/50 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]">
 						<div className="grid grid-cols-1 lg:grid-cols-[220px_1fr]">
-							<aside className="p-4">
+							<aside className="p-4 bg-stone-950/40">
 								<nav className="flex flex-col gap-2">
 									<button
 										type="button"
@@ -249,7 +249,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 								</nav>
 							</aside>
 
-							<section className="relative border-t border-stone-700/70 p-6 lg:border-t-0">
+							<section className="relative border-t border-stone-700/70 p-6 lg:border-t-0 bg-stone-950/20">
 								<div className="absolute top-5 bottom-5 left-0 hidden w-px bg-stone-700/70 lg:block" />
 								{activeTab === "profile" && (
 									<div>
