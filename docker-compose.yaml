@@ -30,7 +30,7 @@ services:
     # This volumes allows the "bind mount" to update the code when we are codding, no need to restart the container
     volumes:
       - ./backend:/usr/src/app # This way we say that the code in ./backend, will update the docker
-      - /usr/src/app/node_modules
+      - backend_modules:/usr/src/app/node_modules
     
   frontend:
     build:
@@ -48,7 +48,7 @@ services:
       - transcendence
     volumes:
       - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+      - frontend_modules:/usr/src/app/node_modules
     
 networks:
   transcendence:
@@ -57,3 +57,5 @@ networks:
 # Defines the the volume don't lost the chess data when the dockers goes down
 volumes:
   postgres_data:
+  backend_modules: 
+  frontend_modules:
