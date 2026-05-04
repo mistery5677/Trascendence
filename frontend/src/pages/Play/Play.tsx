@@ -120,56 +120,51 @@ function Play() {
               isRunning={currentTurn !== color}
             />
 
-            {/* right user */}
-            <div
-              className={`flex flex-row items-center gap-3 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
-                currentTurn !== color
-                  ? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[1.03]"
-                  : "opacity-65 scale-100"
-              }`}
-            >
-              {/* user name & rank */}
-              <div className="hidden sm:flex sm:flex-col sm:justify-center sm:items-end">
-                <div
-                  className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${currentTurn === "b" ? "text-stone-100" : "text-slate-400"}`}
-                >
-                  Opponent
-                </div>
-                <div
-                  className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${currentTurn === "b" ? "text-emerald-300" : "text-slate-500"}`}
-                >
-                  BEGINNER
-                </div>
-              </div>
-              {/* image */}
-              <div
-                className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-2xl sm:text-3xl shadow-lg transition-all duration-500 ${
-                  currentTurn !== color
-                    ? "ring-emerald-300 shadow-emerald-700/20 opacity-100"
-                    : "ring-slate-700 shadow-none border border-slate-600"
-                }`}
-              >
-                🤖
-              </div>
-            </div>
-          </div>
-          <div>
-            {/* Container Board && Chat */}
-            {/* <div className="grid grid-cols-3 w-max "> */}
-            {/* Board */}
-            <div></div>
-            <div className="w-full max-w-2xl px-2">
-              <div className="p-3 sm:p-6 bg-stone-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
-                <Board onTurnChange={handleTurnChange} />
-              </div>
-            </div>
-            <div className="flex align-middle items-center">
-              {/* <Chat /> */}
-              {/* </div> */}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+						{/* right user */}
+						<div
+							className={`flex flex-row items-center gap-3 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
+								currentTurn !== color
+									? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[1.03]"
+									: "opacity-65 scale-100"
+							}`}>
+							{/* user name & rank */}
+							<div className="hidden sm:flex sm:flex-col sm:justify-center sm:items-end">
+								<div
+									className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${currentTurn === "b" ? "text-stone-100" : "text-slate-400"}`}>
+									Opponent
+								</div>
+								<div
+									className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${currentTurn === "b" ? "text-emerald-300" : "text-slate-500"}`}>
+									BEGINNER
+								</div>
+							</div>
+							{/* image */}
+							<div
+								className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-2xl sm:text-3xl shadow-lg transition-all duration-500 ${
+									currentTurn !== color
+										? "ring-emerald-300 shadow-emerald-700/20 opacity-100"
+										: "ring-slate-700 shadow-none border border-slate-600"
+								}`}>
+								🤖
+							</div>
+						</div>
+					</div>
+					{/* Container Board && Chat */}
+					{/* Container Board && Chat (board preserved) */}
+					<div>
+						{/* Board */}
+						<GameActions/>
+						<div className="w-full max-w-2xl px-2">
+							<div className="p-3 sm:p-6 bg-stone-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
+								<Board onTurnChange={handleTurnChange} />
+							</div>
+						</div>
+					</div>
+					<div className="hidden xl:block absolute right-6 top-1/2 z-10 -translate-y-1/3">
+						<Chat />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }

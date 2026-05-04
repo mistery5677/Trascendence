@@ -161,6 +161,4 @@ export class FriendRequestService {
       where: { id: relation.id },
     });
   }
-
-
 }

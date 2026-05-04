@@ -9,7 +9,7 @@ export const WsMiddleware = (jwtService: JwtService) => {
       const token = parse(cookies)['access_token'];
 
       if (!token) {
-		console.log("User not Logged In")
+        console.log('User not Logged In');
         throw new Error('Unauthorized');
       }
       const payload = await jwtService.verifyAsync(token);

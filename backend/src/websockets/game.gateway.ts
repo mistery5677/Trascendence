@@ -14,7 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from './middleware/ws.middleware';
 import { GameService } from './game.service';
 import { v4 as uuidv4 } from 'uuid';
-import { it } from 'node:test';
+import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway()
 export class GameGateway
@@ -27,6 +27,7 @@ export class GameGateway
     private readonly matchMakingService: MatchMakingService,
     private readonly jwtService: JwtService,
     private readonly gameService: GameService,
+    private readonly userService: UsersService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -180,15 +181,18 @@ export class GameGateway
   }
 
   @SubscribeMessage('sendMessage')
-  handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+   async handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
     const { gameId, message } = parsedData;
+    const user = await this.userService.findOneById(client.data.user.userId);
 
     console.log(`Sending Message to the room: ${gameId}`);
 
+    console.log(client.data.user);
     if (gameId) {
       this.server.to(gameId).emit('receiveMessage', {
         from: client.data.user.username,
+        avatarUrl: user?.avatarUrl,
         message: message,
         timeStamp: new Date().toLocaleTimeString(),
       });
