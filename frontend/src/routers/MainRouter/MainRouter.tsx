@@ -46,6 +46,18 @@ export function MainRouter() {
 					path={RouterPaths.LEADERBOARDS}
 					element={<LeaderBoards />}
 				/>
+				{/* Path for your own history*/}
+				<Route
+					path={RouterPaths.HISTORY}
+					element={<HistoryPage />}
+				/>
+				
+				{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
+				<Route
+					path={`${RouterPaths.HISTORY}/:username`}
+					element={<HistoryPage />}
+				/>
+
 				{state.user && (
 					<Route
 						path={RouterPaths.FRIENDS}
@@ -57,11 +69,6 @@ export function MainRouter() {
 					<Route
 						path={RouterPaths.SETTINGS}
 						element={<Settings tabOpt={"profile"} />}></Route>
-				)}
-				{state.user && (
-					<Route
-						path={RouterPaths.HISTORY}
-						element={<HistoryPage />}></Route>
 				)}
 			</Routes>
 		</BrowserRouter>

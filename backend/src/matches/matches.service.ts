@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { stringify } from 'querystring';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -66,5 +67,18 @@ export class MatchesService {
         playerB: { select: { username: true } }
       }
     })
+  }
+
+  // Get the match history of the username
+  async getUserMatchHistoryByUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username: username },
+    });
+  
+    if (!user){
+      throw new NotFoundException("User doesn't exist");
+    }
+
+    return await this.getUserMatchHistory(user.id);
   }
 }

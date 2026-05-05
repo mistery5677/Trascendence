@@ -46,3 +46,28 @@ export async function getMatchHistory() {
         return [];
     }
 }
+
+// Used to find the match history of the username
+export async function getHistoryByUsername(username: string) {
+    try {
+        const token = localStorage.getItem('token'); 
+        const response = await fetch(`/api/matches/player/${username}`, {
+            method: 'GET',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        console.log("O erro saiu com: ", response.ok )
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error("Failed to load match history");
+            return [];
+        }
+    } catch (error) {
+        console.error("Network error", error);
+        return [];
+    }
+}

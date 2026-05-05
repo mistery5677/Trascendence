@@ -11,6 +11,7 @@ import {
 import { ConfirmDialog } from "../../components/index";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { getUsers } from "../../api/users"; // Adjust path if needed
+import { Link } from "react-router-dom";
 
 type Friends = "list" | "requests" | "add";
 
@@ -190,7 +191,14 @@ export function Friends() {
 											/>
 										</div>
 										<div>
-											<p className="font-bold text-lg text-stone-200">{friend.username}</p>
+											{/* Redirects to user match history */}
+											<Link 
+												to={`/history/${friend.username}`} 
+												className="hover:text-emerald-400 hover:underline transition-colors"
+												title={`View ${friend.username}'s Match History`}
+											>
+												<p className="font-bold text-lg text-stone-200">{friend.username}</p>
+											</Link>
 											<p className="text-sm text-emerald-400">ELO: {friend.elo}</p>
 										</div>
 									</div>
@@ -230,7 +238,14 @@ export function Friends() {
 											/>
 										</div>
 										<p className="font-bold text-stone-200 text-lg">
-											<span className="text-emerald-400">{req.sender.username}</span>
+											{/* Redirects to the user match history */}
+											<Link 
+												to={`/history/${req.sender.username}`} 
+												className="text-emerald-400 hover:underline transition-colors"
+												title={`View ${req.sender.username}'s Match History`}
+											>
+												<span className="text-emerald-400">{req.sender.username}</span>
+											</Link>
 											<span className="text-stone-400 font-normal">
 												{" "}
 												sent you a friend request!

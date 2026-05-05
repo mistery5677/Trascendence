@@ -1,6 +1,7 @@
 import { IconTrophy, IconMedal } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { getLeaderboard } from "../../api/users";
+import { Link } from "react-router-dom";
 
 interface PlayerData {
 	id: number;
@@ -123,23 +124,26 @@ export function LeaderBoards() {
 												</div>
 											</td>
 
-											<td className="p-4">
-												<div className="flex items-center gap-3">
-													{/* Player image */}
-													{player.avatarUrl ? (
-														<img
-															src={player.avatarUrl}
-															alt="avatar"
-															className="size-10 rounded-xl object-cover border border-stone-700"
-														/>
-													) : (
-														<div className="flex items-center justify-center size-10 rounded-xl bg-stone-800 border border-stone-700"></div>
-													)}
-													<span className="font-semibold text-stone-200 text-lg">
-														{player.username}
-													</span>
-												</div>
-											</td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-3">
+                                                    {/* Player image */}
+                                                    {player.avatarUrl ? (
+                                                        <img src={player.avatarUrl} alt="avatar" className="size-10 rounded-xl object-cover border border-stone-700" />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center size-10 rounded-xl bg-stone-800 border border-stone-700">
+                                                          
+                                                        </div>
+                                                    )}
+                                                    <span className="font-semibold text-stone-200 text-lg">
+                                                        {/* With link, you can change the page without the fliker */}
+                                                        <Link
+                                                            to={`/history/${player.username}`}
+                                                            className="text-emerald-400 hover:underline">
+                                                            {player.username}
+                                                        </Link>
+                                                    </span>
+                                                </div>
+                                            </td>
 
 											<td className="p-4 text-center">
 												<span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 font-medium">

@@ -1,31 +1,47 @@
 import { History } from "lucide-react";
 import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getMatchHistory } from "../../api/matches";
+import { useEffect, useState, type JSX } from "react";
+import { getMatchHistory, getHistoryByUsername } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
+import { useParams } from "react-router-dom";
 
 export function HistoryPage() {
-	const { state } = useAuth(); // Get the logged user
-	const myUserId = state?.user?.id;
-
 	const [history, setHistory] = useState<any[]>([]);
-	const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+
+	// The username that we want to find the match history
+	const { username } = useParams<{ username: string }>();
+
+	const { state } = useAuth(); // Get the logged user
+    const myUsername = state?.user?.username;
+	const targetUsername = username || "admin";
 
 	useEffect(() => {
 		document.title = "History | 42 Transcendence";
 
 		const fetchHistory = async () => {
+			if (!targetUsername) {
+                setLoading(false);
+                return;
+            }
 			setLoading(true); // Loading system
-			const data = await getMatchHistory();
-			setHistory(data);
-			setLoading(false);
-		};
-
-		// Check if the myUserId is already loaded
-		if (myUserId) {
-			fetchHistory();
+			try{
+				let data;
+				if (username){
+					data = await getHistoryByUsername(targetUsername);
+				} else {
+					data = await getMatchHistory();
+				}
+				setHistory(data);
+			} catch (error) {
+                console.error("Failed to load the history of the player: ", error);
+            } finally {
+                setLoading(false);
+            }
 		}
-	}, [myUserId]);
+
+		fetchHistory();
+	}, [username, myUsername, targetUsername]);
 
 	const [firstArrow, setFirstArrow] = useState<boolean>(true);
 	const [secondArrow, setSecondArrow] = useState<boolean>(true);
@@ -110,21 +126,26 @@ export function HistoryPage() {
 										</tr>
 									) : (
 										history.map((match) => {
-											const amIPlayerA = match.playerAId === myUserId;
-											const opponentName = amIPlayerA
-												? match.playerB.username
-												: match.playerA.username;
-											const playedAs = amIPlayerA ? "White" : "Black";
+											const isTargetPlayerA = match.playerA.username === targetUsername;
+											const opponentName = isTargetPlayerA ? match.playerB.username : match.playerA.username;
+											const playedAs = isTargetPlayerA ? "White" : "Black";
+											
+											const targetUserId = isTargetPlayerA ? match.playerAId : match.playerBId; // We need to check who won 
 
-											let resultText = "DRAW";
-											let resultColor = "text-stone-400";
+											let resultText = "DRAW"; // The match result to return
+											let resultColor = "text-slate-400";
 
-											if (match.result === "PLAYER_A_WINS") {
-												resultText = amIPlayerA ? "VICTORY" : "DEFEAT";
-												resultColor = amIPlayerA ? "text-emerald-400" : "text-red-400";
-											} else if (match.result === "PLAYER_B_WINS") {
-												resultText = !amIPlayerA ? "VICTORY" : "DEFEAT";
-												resultColor = !amIPlayerA ? "text-emerald-400" : "text-red-400";
+											if (match.result.startsWith('WINNER_ID_')) {
+												const winnerId = parseInt(match.result.replace('WINNER_ID_', ''));
+												
+												// If the winner ID is equal to the target, its victory as result
+												if (winnerId === targetUserId) {
+													resultText = "VICTORY";
+													resultColor = "text-emerald-400";
+												} else {
+													resultText = "DEFEAT";
+													resultColor = "text-red-400";
+												}
 											}
 
 											const dateStr = new Date(match.createdAt).toLocaleDateString();
@@ -137,7 +158,7 @@ export function HistoryPage() {
 													<td className="p-4 text-stone-400">{dateStr}</td>
 													<td className="p-4 text-stone-400">{playedAs}</td>
 													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
-														{resultText}
+														{resultText} 
 													</td>
 												</tr>
 											);
