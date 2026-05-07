@@ -27,7 +27,7 @@ export function Play() {
 	}
 
 	return (
-		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 to-slate-900 font-sans flex flex-col items-center py-12 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
+		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 to-slate-900 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 			{/* Ambient Glowing Background */}
 			<div className="absolute inset-0 pointer-events-none z-0 opacity-20">
 				<div className="absolute top-[20%] -left-[10%] w-[36vw] h-[36vw] bg-emerald-700/20 rounded-full blur-[110px]"></div>
@@ -35,35 +35,36 @@ export function Play() {
 			</div>
 			{/* GameOver */}
 			<GameOverModal />
-			<div className="relative z-10 w-full max-w-7xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_26rem] xl:grid-rows-[auto_1fr] gap-8 items-start px-4">
+			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
+				{" "}
+				{/* max-h-[calc(100vh-10rem)] */}
 				{/* PlayerHeader */}
-				<div className="xl:col-span-1">
+				<div className="xl:col-span-1 flex justify-center">
 					<PlayerHeader
 						currentTurn={currentTurn}
 						color={color}
 						state={state}
 						timerKey={timerKey}
+						className="max-w-[calc(100vh-5rem)]"
 					/>
 				</div>
-
 				{/* MatchSidebar */}
-				<div className="hidden xl:flex flex-col rounded-2xl shadow-md row-span-2 h-full">
+				<div className="hidden xl:flex flex-col rounded-2xl shadow-md row-span-2 h-full max-h-[calc(100vh - 10rem)]">
 					<MatchSidebar />
 				</div>
-
 				{/* Board */}
-				<div className="p-3 sm:p-6 bg-stone-900/75 rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md">
-					<Board onTurnChange={handleTurnChange} />
-				</div>
-
+				<section className="flex items-center justify-center w-full max-h-screen">
+					<div className="p-3 sm:p-6 bg-stone-900/75 max-w-[calc(100vh-15rem)] rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md ">
+						<Board onTurnChange={handleTurnChange} />
+					</div>
+				</section>
 				<div className="block xl:hidden w-full">
 					<MatchSidebar />
 				</div>
-
 				{/* GameActions */}
-				<div className="xl:col-span-2">
+				{/* <div className="xl:col-span-2">
 					<GameActions />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

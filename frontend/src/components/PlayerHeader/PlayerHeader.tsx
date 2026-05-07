@@ -7,14 +7,16 @@ type PlayerHeaderProps = {
 	color: "w" | "b" | null;
 	state: AuthState;
 	timerKey: number;
+	className?: string | undefined;
 };
 
-export function PlayerHeader({ currentTurn, color, state, timerKey }: PlayerHeaderProps) {
+export function PlayerHeader({ currentTurn, color, state, timerKey, className = "" }: PlayerHeaderProps) {
 	return (
-		<div className="flex flex-row text-white w-full justify-between items-center bg-stone-900/70 p-4 rounded-2xl border border-emerald-300/15 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm">
+		<div
+			className={`flex flex-row gap-2 text-white w-full justify-between items-center bg-stone-900/70 p-4 rounded-2xl border border-emerald-300/15 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
 			{/* left user */}
 			<div
-				className={`flex flex-row items-center gap-3 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
+				className={`flex flex-row items-center gap-2 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${
 					currentTurn === color
 						? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[1.03]"
 						: "opacity-65 scale-100"
@@ -28,15 +30,15 @@ export function PlayerHeader({ currentTurn, color, state, timerKey }: PlayerHead
 							: "ring-slate-700 shadow-none border border-slate-600"
 					}`}></img>
 				{/* user name & rank */}
-				<div className="flex flex-col justify-center items-start">
+				<div className="hidden overflow-hidden md:flex flex-col justify-center items-start">
 					<div
-						className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${
+						className={`hidden md:flex font-extrabold text-lg sm:text-xl transition-colors duration-500 ${
 							currentTurn === "w" ? "text-stone-100" : "text-slate-400"
 						}`}>
 						{state.user ? state.user?.username : "Player 1"}
 					</div>
 					<div
-						className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${
+						className={`hidden md:flex font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${
 							currentTurn === "w" ? "text-emerald-300" : "text-slate-500"
 						}`}>
 						GRANDMASTER
@@ -71,7 +73,7 @@ export function PlayerHeader({ currentTurn, color, state, timerKey }: PlayerHead
 						: "opacity-65 scale-100"
 				}`}>
 				{/* user name & rank */}
-				<div className="hidden sm:flex sm:flex-col sm:justify-center sm:items-end">
+				<div className="hidden overflow-hidden md:flex sm:flex-col sm:justify-center sm:items-end">
 					<div
 						className={`font-extrabold text-lg sm:text-xl transition-colors duration-500 ${
 							currentTurn === "b" ? "text-stone-100" : "text-slate-400"
@@ -79,7 +81,7 @@ export function PlayerHeader({ currentTurn, color, state, timerKey }: PlayerHead
 						Opponent
 					</div>
 					<div
-						className={`font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${
+						className={`hidden md:flex font-bold text-xs sm:text-sm tracking-wide transition-colors duration-500 ${
 							currentTurn === "b" ? "text-emerald-300" : "text-slate-500"
 						}`}>
 						BEGINNER
@@ -87,7 +89,7 @@ export function PlayerHeader({ currentTurn, color, state, timerKey }: PlayerHead
 				</div>
 				{/* image */}
 				<div
-					className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-2xl sm:text-3xl shadow-lg transition-all duration-500 ${
+					className={`w-[clamp(2rem,10vw,3rem)] h-[clamp(2rem,10vw,3rem)] sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-[clamp(1rem,5vw,1.5rem)] sm:text-3xl shadow-lg transition-all duration-500 ${
 						currentTurn !== color
 							? "ring-emerald-300 shadow-emerald-700/20 opacity-100"
 							: "ring-slate-700 shadow-none border border-slate-600"
