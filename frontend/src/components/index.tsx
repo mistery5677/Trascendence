@@ -9,3 +9,6 @@ export { Timer } from "./Timer/Timer";
 export { ToastWrapper } from "./ToastWrapper/ToastWrapper";
 export { Profile } from "./Profile/Profile";
 export { ConfirmDialog } from "./ConfirmDialog/ConfirmDialog";
+export { PlayerHeader } from "./PlayerHeader/PlayerHeader";
+export { MatchSidebar } from "./MatchSidebar/MatchSidebar";
+export { MatchSidebarButton } from "./MatchSidebarButton/MatchSidebarButton";
