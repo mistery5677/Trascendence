@@ -16,4 +16,5 @@ export type GameContextType = {
   gameOver: GameOverState;
   surrender: () => void;
   proposeDraw: () => void;
+  respondDraw: () => void;
 };

@@ -35,6 +35,12 @@ export function GameOverModal() {
           >
             Play Again
           </button>
+          <button
+            onClick={() => (window.location.href = "/play")}
+            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all"
+          >
+            Rematch
+          </button>
           <a
             href="/settings"
             className="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold rounded-xl transition-all"
