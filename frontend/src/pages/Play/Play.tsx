@@ -62,9 +62,9 @@ export function Play() {
 					<MatchSidebar />
 				</div>
 				{/* GameActions */}
-				{/* <div className="xl:col-span-2">
+				<div className="xl:col-span-2">
 					<GameActions />
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);

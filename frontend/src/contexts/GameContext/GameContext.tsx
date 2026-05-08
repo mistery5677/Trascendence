@@ -39,12 +39,6 @@ export const GameProvider = ({
 		}
 	};
 
-	const respondDraw = (response: Boolean) => {
-		if (socket && gameId) {
-			socket.emit("respondDraw", { gameId, response });
-		}
-	};
-
 	useEffect(() => {
 		const socketInstance = io("/", {
 			withCredentials: true,
@@ -100,7 +94,7 @@ export const GameProvider = ({
 		}
 
 		socket.on("drawProposed", (data) => {
-			console.log("Propose Sent to :", gameId);
+			console.log("Propose Sent to :", data.gameId);
 			const accept = window.confirm("Your opponent proposes a draw. Do you accept?");
 
 			socket.emit("respondDraw", {
@@ -114,7 +108,7 @@ export const GameProvider = ({
 		});
 
 		return () => {
-			socket.off("drawPropose");
+			socket.off("drawProposed");
 			socket.off("drawRejected");
 		};
 	}, [socket, gameId]);
@@ -131,7 +125,6 @@ export const GameProvider = ({
 				gameOver,
 				surrender,
 				proposeDraw,
-				respondDraw,
 			}}>
 			{children}
 		</GameContext.Provider>
