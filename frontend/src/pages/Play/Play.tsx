@@ -43,25 +43,24 @@ export function Play() {
 						className="max-w-[calc(100vh-5rem)]"
 					/>
 				</div>
+				{/* Board */}
+				<div className="flex items-center justify-center w-full max-h-screen  flex-col rounded-xl xl:row-start-2">
+					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
+						<Board onTurnChange={handleTurnChange} />
+					</div>
+				</div>
 				{/* MatchSidebar */}
-				<div className="hidden xl:flex flex-col rounded-xl row-span-2">
-					<div className="h-[calc(100vh-14rem)] max-h-[calc(100vh-10rem)]">
+				<div className="flex w-full rounded-xl  xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
+					<div className="flex min-h-0 min-w-full flex-col xl:h-[100vh] xl:max-h-[calc(100vh-7rem)]">
 						<MatchSidebar />
-						{/* GameActions */}
-						<div className="xl:col-span-2">
+						<div className="">
 							<GameActions />
 						</div>
 					</div>
 				</div>
-				{/* Board */}
-				<section className="flex items-center justify-center w-full max-h-screen">
-					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
-						<Board onTurnChange={handleTurnChange} />
-					</div>
-				</section>
-				<div className="block xl:hidden w-full">
+				{/* <div className="block xl:hidden w-full">
 					<MatchSidebar />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
