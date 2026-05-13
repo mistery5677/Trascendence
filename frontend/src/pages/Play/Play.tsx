@@ -7,6 +7,7 @@ import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoad
 import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
 import { DrawModal } from "../../components/GameModals/DrawModal";
+import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 
 export function Play() {
 	const { state } = useAuth();
@@ -36,7 +37,16 @@ export function Play() {
 			</div>
 			{/* GameOver */}
 			<GameOverModal />
-			<div>{drawProposal && <DrawModal onResponse={handleDrawResponse} />}</div>
+			<div>
+				{drawProposal && (
+					<ConfirmationModal
+						title="Draw Offered"
+						description="Your opponent proposes a draw. Do you accept?"
+						icon="🤝"
+						onResponse={handleDrawResponse}
+					/>
+				)}
+			</div>
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
 				{" "}
 				{/* max-h-[calc(100vh-10rem)] */}
