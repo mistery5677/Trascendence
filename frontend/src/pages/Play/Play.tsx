@@ -27,12 +27,7 @@ export function Play() {
 	}
 
 	return (
-		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 to-slate-900 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-			{/* Ambient Glowing Background */}
-			<div className="absolute inset-0 pointer-events-none z-0 opacity-20">
-				<div className="absolute top-[20%] -left-[10%] w-[36vw] h-[36vw] bg-emerald-700/20 rounded-full blur-[110px]"></div>
-				<div className="absolute bottom-[10%] right-[5%] w-[30vw] h-[30vw] bg-emerald-500/12 rounded-full blur-[95px]"></div>
-			</div>
+		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
@@ -49,22 +44,24 @@ export function Play() {
 					/>
 				</div>
 				{/* MatchSidebar */}
-				<div className="hidden xl:flex flex-col rounded-2xl shadow-md row-span-2 h-full max-h-[calc(100vh - 10rem)]">
-					<MatchSidebar />
+				<div className="hidden xl:flex flex-col rounded-xl row-span-2">
+					<div className="h-[calc(100vh-14rem)] max-h-[calc(100vh-10rem)]">
+						<MatchSidebar />
+						{/* GameActions */}
+						<div className="xl:col-span-2">
+							<GameActions />
+						</div>
+					</div>
 				</div>
 				{/* Board */}
 				<section className="flex items-center justify-center w-full max-h-screen">
-					<div className="p-3 sm:p-6 bg-stone-900/75 max-w-[calc(100vh-15rem)] rounded-2xl border border-emerald-300/15 shadow-[0_20px_45px_-24px_rgba(0,0,0,0.9)] ring-1 ring-white/5 backdrop-blur-md ">
+					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
 						<Board onTurnChange={handleTurnChange} />
 					</div>
 				</section>
 				<div className="block xl:hidden w-full">
 					<MatchSidebar />
 				</div>
-				{/* GameActions */}
-				{/* <div className="xl:col-span-2">
-					<GameActions />
-				</div> */}
 			</div>
 		</div>
 	);
