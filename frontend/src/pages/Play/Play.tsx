@@ -4,14 +4,15 @@ import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
-import { GameOverModal } from "../../components/GameOver/GameOverModal";
+import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
+import { DrawModal } from "../../components/GameModals/DrawModal";
 
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
-	const { gameId, isConnected, color } = useGame();
+	const { gameId, isConnected, color, drawProposal, handleDrawResponse } = useGame();
 	// We create a 'state' to store te game result
 
 	useEffect(() => {
@@ -35,6 +36,7 @@ export function Play() {
 			</div>
 			{/* GameOver */}
 			<GameOverModal />
+			<div>{drawProposal && <DrawModal onResponse={handleDrawResponse} />}</div>
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
 				{" "}
 				{/* max-h-[calc(100vh-10rem)] */}

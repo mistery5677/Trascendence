@@ -24,6 +24,7 @@ export const GameProvider = ({
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
 	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
+	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 
 	if (!authState.user) return;
 
@@ -37,6 +38,15 @@ export const GameProvider = ({
 		if (socket && gameId) {
 			socket.emit("proposeDraw", { gameId });
 		}
+	};
+	const handleDrawResponse = (accept: boolean) => {
+		if (socket && gameId) {
+			socket.emit("respondDraw", {
+				gameId: gameId,
+				response: accept,
+			});
+		}
+		setDrawProposal(false);
 	};
 
 	useEffect(() => {
@@ -95,12 +105,12 @@ export const GameProvider = ({
 
 		socket.on("drawProposed", (data) => {
 			console.log("Propose Sent to :", data.gameId);
-			const accept = window.confirm("Your opponent proposes a draw. Do you accept?");
-
-			socket.emit("respondDraw", {
-				gameId: gameId,
-				response: accept,
-			});
+			// const accept = window.confirm("Your opponent proposes a draw. Do you accept?");
+			setDrawProposal(true);
+			// socket.emit("respondDraw", {
+			// 	gameId: gameId,
+			// 	response: accept,
+			// });
 		});
 
 		socket.on("drawRejected", () => {
@@ -124,6 +134,8 @@ export const GameProvider = ({
 				currentTurn,
 				gameOver,
 				surrender,
+				drawProposal,
+				handleDrawResponse,
 				proposeDraw,
 			}}>
 			{children}
