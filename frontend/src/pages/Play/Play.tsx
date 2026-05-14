@@ -10,9 +10,8 @@ import { GameActions } from "../../components/Board/GameActions";
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
-	const [timerKey, setTimerKey] = useState(0); // Key to force timer reset
-	const { gameId, isConnected, color } = useGame();
-	// We create a 'state' to store te game result
+	const [timerKey, setTimerKey] = useState(0);
+	const { gameId, isConnected, color, opponent } = useGame();
 
 	useEffect(() => {
 		setTimerKey((prevKey) => prevKey + 1);
@@ -31,36 +30,29 @@ export function Play() {
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
-				{" "}
-				{/* max-h-[calc(100vh-10rem)] */}
 				{/* PlayerHeader */}
-				<div className="xl:col-span-1 flex justify-center">
+				<div className="flex justify-center xl:col-start-1 xl:row-start-1">
 					<PlayerHeader
 						currentTurn={currentTurn}
 						color={color}
 						state={state}
 						timerKey={timerKey}
+						opponent={opponent}
 						className="max-w-[calc(100vh-5rem)]"
 					/>
 				</div>
-				{/* MatchSidebar */}
-				<div className="hidden xl:flex flex-col rounded-xl row-span-2">
-					<div className="h-[calc(100vh-14rem)] max-h-[calc(100vh-10rem)]">
-						<MatchSidebar />
-						{/* GameActions */}
-						<div className="xl:col-span-2">
-							<GameActions />
-						</div>
-					</div>
-				</div>
 				{/* Board */}
-				<section className="flex items-center justify-center w-full max-h-screen">
+				<section className="flex items-center justify-center w-full max-h-screen xl:col-start-1 xl:row-start-2">
 					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
 						<Board onTurnChange={handleTurnChange} />
 					</div>
 				</section>
-				<div className="block xl:hidden w-full">
-					<MatchSidebar />
+				{/* MatchSidebar: one instance; below board on narrow viewports, right column on xl */}
+				<div className="flex w-full flex-col rounded-xl xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
+					<div className="flex min-h-0 flex-col xl:h-[calc(100vh)] xl:max-h-[calc(100vh-7rem)]">
+						<MatchSidebar />
+						<GameActions />
+					</div>
 				</div>
 			</div>
 		</div>

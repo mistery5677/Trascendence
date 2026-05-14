@@ -10,7 +10,7 @@ export const GameActions = () => {
 	const disabled = !isConnected || Boolean(gameOver);
 
 	return (
-		<div className="mt-3 grid grid-cols-1 sm:grid-cols-2">
+		<div className="mt-3 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
 			<SurrenderButton func={surrender} />
 			<OfferDrawButton func={proposeDraw} />
 		</div>

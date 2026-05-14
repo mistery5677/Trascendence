@@ -109,10 +109,11 @@ export class GameGateway
   }
 
   @SubscribeMessage('joinGame')
-  handleJoinGame(
+  async handleJoinGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
+
     const game = this.gameService.getGame(data.gameId);
     if (!game) {
       client.emit('error', { message: 'Game not Found' });
@@ -126,12 +127,20 @@ export class GameGateway
     const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
 
+    let opponent;
+    if (userColor === 'w') {
+      opponent = await this.userService.findOneById(parseInt(game.playerB));
+    } else {
+      opponent = await this.userService.findOneById(parseInt(game.playerW));
+    }
+
     client.emit('gameState', {
       gameId: data.gameId,
       fen: state.fen,
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
+      opponent: opponent.username,
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
@@ -181,7 +190,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('sendMessage')
-   async handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
     const { gameId, message } = parsedData;
     const user = await this.userService.findOneById(client.data.user.userId);
