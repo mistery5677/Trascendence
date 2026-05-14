@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Chess } from 'chess.js';
 import { MatchesService } from 'src/matches/matches.service';
+import { v4 as uuidv4 } from 'uuid';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
@@ -17,6 +18,7 @@ interface GameInstance {
   mode: 'online' | 'bot';
   playerW: string;
   playerB: string;
+  isFinished?: boolean;
 }
 
 @Injectable()
@@ -30,7 +32,6 @@ export class GameService {
     playerWId: string,
     playerBId: string = 'bot',
   ) {
-    console.log(playerWId);
     const newGame: GameInstance = {
       chess: new Chess(),
       mode: mode,
@@ -39,6 +40,23 @@ export class GameService {
     };
     this.games.set(gameId, newGame);
     return newGame;
+  }
+
+  createRematch(oldGameId: string) {
+    const oldGame = this.games.get(oldGameId);
+    if (!oldGame) {
+      console.log('Old Game Not found');
+      return null;
+    }
+
+    const newGameId = uuidv4();
+
+    const playerWId = oldGame.playerB;
+    const playerBId = oldGame.playerW;
+
+    this.createGame(newGameId, 'online', playerWId, playerBId);
+    this.deleteGame(oldGameId);
+    return { newGameId };
   }
 
   getGame(gameId: string): GameInstance | undefined {
@@ -132,7 +150,7 @@ export class GameService {
         parseInt(winnerId),
       );
     }
-    this.games.delete(gameId);
+    // this.games.delete(gameId);
 
     return { winnerColor, reason: 'RESIGNATION' };
   }
@@ -147,7 +165,15 @@ export class GameService {
         null,
       );
     }
-    this.games.delete(gameId);
+    // this.games.delete(gameId);
     return { winnerColor: null, reason: 'DRAW' };
+  }
+
+  deleteGame(gameId: string) {
+    const game = this.getGame(gameId);
+    if (!game) {
+      return null;
+    }
+    this.games.delete(gameId);
   }
 }

@@ -39,6 +39,12 @@ export const GameProvider = ({
 			socket.emit("proposeDraw", { gameId });
 		}
 	};
+	const proposeRematch = () => {
+		if (socket && gameId) {
+			socket.emit("proposeRematch", { gameId });
+		}
+	};
+
 	const handleDrawResponse = (accept: boolean) => {
 		if (socket && gameId) {
 			socket.emit("respondDraw", {
@@ -77,8 +83,6 @@ export const GameProvider = ({
 			setCurrentTurn(data.currentTurn);
 			setIsConnected(true);
 
-			console.log("currentTurn inside GameContext: ", currentTurn);
-
 			if (data.gameId && !urlGameId) navigate(`?mode=${mode}&gameId=${data.gameId}`);
 		});
 
@@ -105,12 +109,7 @@ export const GameProvider = ({
 
 		socket.on("drawProposed", (data) => {
 			console.log("Propose Sent to :", data.gameId);
-			// const accept = window.confirm("Your opponent proposes a draw. Do you accept?");
 			setDrawProposal(true);
-			// socket.emit("respondDraw", {
-			// 	gameId: gameId,
-			// 	response: accept,
-			// });
 		});
 
 		socket.on("drawRejected", () => {
@@ -137,6 +136,7 @@ export const GameProvider = ({
 				drawProposal,
 				handleDrawResponse,
 				proposeDraw,
+				proposeRematch,
 			}}>
 			{children}
 		</GameContext.Provider>

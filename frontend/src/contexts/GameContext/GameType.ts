@@ -18,5 +18,6 @@ export type GameContextType = {
 
 	surrender: () => void;
 	proposeDraw: () => void;
+	proposeRematch: () => void;
 	handleDrawResponse: (accept: boolean) => void;
 };

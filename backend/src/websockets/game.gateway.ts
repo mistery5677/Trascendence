@@ -74,13 +74,11 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
-    console.log('Surrender ');
     const result = this.gameService.surrender(
       data.gameId,
       client.data.user.userId,
     );
     if (result) {
-      console.log('Surrender emit');
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
     }
   }
@@ -98,13 +96,47 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string; response: boolean },
   ) {
-    console.log('gateWay respondDraw', data.response);
     if (data.response) {
       const result = this.gameService.forceDraw(data.gameId);
       if (result)
         this.server.to(data.gameId).emit('gameOver', { gameOver: result });
     } else {
       client.to(data.gameId).emit('drawRejected');
+    }
+  }
+
+  @SubscribeMessage('proposeRematch')
+  handleRematchPropose(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string },
+  ) {
+    client
+      .to(data.gameId)
+      .emit('rematchProposed', { fromId: client.data.user.userId });
+  }
+
+  @SubscribeMessage('respondRematch')
+  handleRespondRematch(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { gameId: string; response: boolean },
+  ) {
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) {
+      console.error('Game NOT found');
+      return;
+    }
+    if (data.response) {
+      const newGame = this.gameService.createGame(
+        data.gameId,
+        'online',
+        game.playerB,
+        game.playerW,
+      );
+      if (newGame) {
+        this.server
+          .to(data.gameId)
+          .emit('rematchStarted', { newGameId: data.gameId });
+      }
     }
   }
 
@@ -181,7 +213,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('sendMessage')
-   async handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
     const { gameId, message } = parsedData;
     const user = await this.userService.findOneById(client.data.user.userId);

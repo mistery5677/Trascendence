@@ -6,7 +6,6 @@ import { useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
 import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
-import { DrawModal } from "../../components/GameModals/DrawModal";
 import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 
 export function Play() {
