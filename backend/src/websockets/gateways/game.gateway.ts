@@ -9,64 +9,25 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { MatchMakingService } from './matchmaking/matchmaking.service';
+import { MatchMakingService } from '../services/matchmaking.service';
 import { JwtService } from '@nestjs/jwt';
-import { WsMiddleware } from './middleware/ws.middleware';
-import { GameService } from './game.service';
+import { WsMiddleware } from '../middleware/ws.middleware';
+import { GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
-import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway()
-export class GameGateway
-  implements OnGatewayConnection, OnGatewayInit, OnGatewayDisconnect
-{
+export class GameGateway implements OnGatewayInit {
   @WebSocketServer()
   server!: Server;
 
   constructor(
-    private readonly matchMakingService: MatchMakingService,
+    // private readonly matchMakingService: MatchMakingService,
     private readonly jwtService: JwtService,
     private readonly gameService: GameService,
-    private readonly userService: UsersService,
   ) {}
-
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-  }
 
   afterInit() {
     this.server.use(WsMiddleware(this.jwtService));
-  }
-
-  handleDisconnect(client: Socket) {
-    this.matchMakingService.removeFromQueue(client);
-  }
-
-  @SubscribeMessage('joinQueue')
-  handleJoinQueue(@ConnectedSocket() client: Socket) {
-    this.matchMakingService.addToQueue(client, this.server);
-  }
-
-  @SubscribeMessage('startBotGame')
-  handleStartBot(@ConnectedSocket() client: Socket) {
-    const gameId = `bot_${uuidv4()}`;
-
-    const newGame = this.gameService.createGame(
-      gameId,
-      'bot',
-      client.data.user.userId,
-    );
-
-    client.join(gameId);
-
-    client.emit('gameState', {
-      gameId: gameId,
-      color: 'w',
-      opponent: 'Bot (Random moves)',
-      fen: newGame.chess.fen(),
-      currentTurn: newGame.chess.turn(),
-      mode: 'bot',
-    });
   }
 
   @SubscribeMessage('requestSurrender')
@@ -140,35 +101,6 @@ export class GameGateway
     }
   }
 
-  @SubscribeMessage('joinGame')
-  handleJoinGame(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { gameId: string },
-  ) {
-    const game = this.gameService.getGame(data.gameId);
-    if (!game) {
-      client.emit('error', { message: 'Game not Found' });
-      return;
-    }
-
-    client.join(data.gameId);
-
-    const state = this.gameService.getGameState(data.gameId);
-    if (!state) return;
-    const userId = client.data.user.userId;
-    const userColor = userId === game.playerW ? 'w' : 'b';
-
-    client.emit('gameState', {
-      gameId: data.gameId,
-      fen: state.fen,
-      currentTurn: state.turn,
-      color: userColor,
-      mode: state.mode,
-    });
-
-    console.log(`User ${userId} rejoin to the room ${data.gameId}`);
-  }
-
   @SubscribeMessage('move')
   handleMove(
     @ConnectedSocket() client: Socket,
@@ -210,29 +142,5 @@ export class GameGateway
       return true;
     }
     return false;
-  }
-
-  @SubscribeMessage('sendMessage')
-  async handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
-  ) {
-    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-    const { gameId, message } = parsedData;
-    const user = await this.userService.findOneById(client.data.user.userId);
-
-    console.log(`Sending Message to the room: ${gameId}`);
-
-    console.log(client.data.user);
-    if (gameId) {
-      this.server.to(gameId).emit('receiveMessage', {
-        from: client.data.user.username,
-        avatarUrl: user?.avatarUrl,
-        message: message,
-        timeStamp: new Date().toLocaleTimeString(),
-      });
-    } else {
-      console.error("ERROR: gameId Wasn't sended on message");
-    }
   }
 }

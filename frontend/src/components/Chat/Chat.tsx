@@ -15,7 +15,7 @@ export function Chat({ classname = "" }: ChatProps) {
 	const [pendingNewMessages, setPendingNewMessages] = useState(false);
 
 	useEffect(() => {
-		socket?.on("receiveMessage", (msg) => {
+		socket?.on("receiveRoomMessage", (msg) => {
 			setMessages((prev) => {
 				if (!isAtBottom) {
 					setPendingNewMessages(true);
@@ -24,7 +24,7 @@ export function Chat({ classname = "" }: ChatProps) {
 			});
 		});
 		return () => {
-			socket?.off("receiveMessage");
+			socket?.off("receiveRoomMessage");
 		};
 	}, [socket, isAtBottom]);
 
@@ -60,7 +60,7 @@ export function Chat({ classname = "" }: ChatProps) {
 	}, [messages, isAtBottom]);
 
 	const sendMessage = (message: string) => {
-		socket?.emit("sendMessage", { gameId, message });
+		socket?.emit("sendRoomMessage", { gameId, message });
 	};
 
 	const scrollToBottom = () => {

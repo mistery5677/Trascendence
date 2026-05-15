@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { v4 as uuidv4 } from 'uuid';
-import { GameService } from '../game.service';
+import { GameService } from './game.service';
 
 @Injectable()
 export class MatchMakingService {
