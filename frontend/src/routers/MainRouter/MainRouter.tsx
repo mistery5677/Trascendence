@@ -15,11 +15,10 @@ function PlayRouteWithProvider() {
 	const searchParams = new URLSearchParams(location.search);
 	const mode = searchParams.get("mode") || "online";
 	const gameId = searchParams.get("gameId");
-
 	return (
 		<GameProvider
-			mode={mode}
-			gameId={gameId}>
+		mode={mode}
+		gameId={gameId}>
 			<Play />
 		</GameProvider>
 	);
@@ -72,7 +71,7 @@ export function MainRouter() {
 					path={RouterPaths.HISTORY}
 					element={<HistoryPage />}
 				/>
-				
+
 				{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
 				<Route
 					path={`${RouterPaths.HISTORY}/:username`}

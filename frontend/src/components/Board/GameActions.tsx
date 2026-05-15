@@ -1,29 +1,18 @@
 import { useGame } from "../../contexts/GameContext/GameContext";
+import { SurrenderButton } from "../SurrenderButton/SurrenderButton";
+import { OfferDrawButton } from "../OfferDrawButton/OfferDrawButton";
 
 export const GameActions = () => {
 	const { surrender, proposeDraw, isConnected, gameOver, gameId } = useGame();
 
-	if (!gameId) return;
+	if (!gameId) return null;
 
-	const handleSurrender = () => {
-		const confirm = window.confirm("Are you sure that you want to surrender? It will be your defeat");
-		if (confirm) {
-			surrender();
-		}
-	};
-
-	const handleProposeDraw = () => {
-		const confirm = window.confirm("Are you sure that you want to propose Draw?");
-		if (confirm) {
-			proposeDraw();
-		}
-	};
+	const disabled = !isConnected || Boolean(gameOver);
 
 	return (
-		<div className="flex flex-col text-white">
-			<h3 className="text-white font-bold text-lg border-b">Actions</h3>
-			<button onClick={handleSurrender}>🏳️ Surrender</button>
-			<button onClick={handleProposeDraw}>🤝 Offer Draw</button>
+		<div className="mt-3 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
+			<SurrenderButton func={surrender} />
+			<OfferDrawButton func={proposeDraw} />
 		</div>
 	);
 };

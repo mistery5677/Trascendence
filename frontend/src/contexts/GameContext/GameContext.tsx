@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState } from "./GameType";
+import type { GameContextType, GameOverState } from "./GameContextType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
 import { useNavigate } from "react-router-dom";
@@ -25,8 +25,10 @@ export const GameProvider = ({
 	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
+	const [opponent, setOpponent] = useState<string | null>(null);
+	console.log("DEBUG: GameProvider Render", { authState, urlGameId });
 
-	if (!authState.user) return;
+	if (!authState.user) return null;
 
 	const surrender = () => {
 		if (socket && gameId) {
@@ -53,6 +55,12 @@ export const GameProvider = ({
 			});
 		}
 		setDrawProposal(false);
+	};
+
+	const respondDraw = (response: boolean) => {
+		if (socket && gameId) {
+			socket.emit("respondDraw", { gameId, response });
+		}
 	};
 
 	useEffect(() => {
@@ -82,6 +90,7 @@ export const GameProvider = ({
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			setIsConnected(true);
+			setOpponent((prev) => (typeof data.opponent === "string" ? data.opponent : prev));
 
 			if (data.gameId && !urlGameId) navigate(`?mode=${mode}&gameId=${data.gameId}`);
 		});
@@ -137,6 +146,7 @@ export const GameProvider = ({
 				handleDrawResponse,
 				proposeDraw,
 				proposeRematch,
+				opponent,
 			}}>
 			{children}
 		</GameContext.Provider>

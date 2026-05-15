@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from '../middleware/ws.middleware';
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../services/game.service';
+import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway()
 export class MatchGateway {
@@ -21,6 +22,7 @@ export class MatchGateway {
     private readonly jwtService: JwtService,
     private readonly matchMakingService: MatchMakingService,
     private readonly gameService: GameService,
+    private readonly userService: UsersService,
   ) {}
 
   afterInit() {
@@ -53,7 +55,7 @@ export class MatchGateway {
     });
   }
   @SubscribeMessage('joinGame')
-  handleJoinGame(
+  async handleJoinGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
@@ -70,12 +72,20 @@ export class MatchGateway {
     const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
 
+    let opponent;
+    if (userColor === 'w') {
+      opponent = await this.userService.findOneById(parseInt(game.playerB));
+    } else {
+      opponent = await this.userService.findOneById(parseInt(game.playerW));
+    }
+
     client.emit('gameState', {
       gameId: data.gameId,
       fen: state.fen,
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
+      opponent: opponent.username,
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);

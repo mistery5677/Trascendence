@@ -26,7 +26,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
 			<div className="flex items-center gap-3 rounded-3xl bg-stone-800/90 p-2 shadow-inner">
 				<input
 					type="text"
-					className="flex-1 min-w-0 h-12 text-xl rounded-3xl bg-stone-950/80 px-4 text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+					className="flex-1 min-w-0 h-12 text-[15px] rounded-3xl bg-stone-950/80 px-4 text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-400"
 					placeholder="Type your message..."
 					value={input}
 					onChange={(e) => setInput(e.target.value)}

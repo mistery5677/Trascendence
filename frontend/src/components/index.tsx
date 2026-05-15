@@ -12,3 +12,6 @@ export { ConfirmDialog } from "./ConfirmDialog/ConfirmDialog";
 export { PlayerHeader } from "./PlayerHeader/PlayerHeader";
 export { MatchSidebar } from "./MatchSidebar/MatchSidebar";
 export { MatchSidebarButton } from "./MatchSidebarButton/MatchSidebarButton";
+export { BoardThemeButton } from "./BoardThemeButton/BoardThemeButton";
+export { SurrenderButton } from "./SurrenderButton/SurrenderButton";
+export { OfferDrawButton } from "./OfferDrawButton/OfferDrawButton";
