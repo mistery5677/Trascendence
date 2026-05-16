@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { PresenceService } from '../services/presence.service';
 import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from '../middleware/ws.middleware';
+import { MatchMakingService } from '../services/matchmaking.service';
 
 @WebSocketGateway({ cors: true })
 export class PresenceGateway
@@ -18,6 +19,7 @@ export class PresenceGateway
   constructor(
     private readonly presenceService: PresenceService,
     private readonly jwtService: JwtService,
+    private readonly matchMakingService: MatchMakingService,
   ) {}
 
   afterInit() {
@@ -35,7 +37,7 @@ export class PresenceGateway
   handleDisconnect(client: Socket) {
     const userId = client.data.user.userId;
     this.presenceService.setDisconnected(userId);
-
+    this.matchMakingService.removeFromQueue(client);
     this.server?.emit('userStatusChanged', { userId, status: 'offline' });
   }
 }

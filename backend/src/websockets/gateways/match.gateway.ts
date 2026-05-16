@@ -72,11 +72,12 @@ export class MatchGateway {
     const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
 
-    let opponent;
-    if (userColor === 'w') {
-      opponent = await this.userService.findOneById(parseInt(game.playerB));
-    } else {
-      opponent = await this.userService.findOneById(parseInt(game.playerW));
+    const opponentId = userId === game.playerW ? game.playerB : game.playerW;
+
+    let opponentName = 'Bot';
+    if (game.mode !== 'bot') {
+      const opponent = await this.userService.findOneById(parseInt(opponentId));
+      opponentName = opponent?.username || 'Unknown';
     }
 
     client.emit('gameState', {
@@ -85,7 +86,7 @@ export class MatchGateway {
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
-      opponent: opponent.username,
+      opponent: opponentName,
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
