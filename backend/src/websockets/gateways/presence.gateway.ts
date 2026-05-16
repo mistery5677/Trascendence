@@ -36,8 +36,11 @@ export class PresenceGateway
 
   handleDisconnect(client: Socket) {
     const userId = client.data.user.userId;
-    this.presenceService.setDisconnected(userId);
     this.matchMakingService.removeFromQueue(client);
+    this.presenceService.setDisconnected(userId);
     this.server?.emit('userStatusChanged', { userId, status: 'offline' });
+    console.log(
+      `User ${client.data.user.username} disconnected and cleaned up.`,
+    );
   }
 }

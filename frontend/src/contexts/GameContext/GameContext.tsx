@@ -57,12 +57,6 @@ export const GameProvider = ({
 		setDrawProposal(false);
 	};
 
-	const respondDraw = (response: boolean) => {
-		if (socket && gameId) {
-			socket.emit("respondDraw", { gameId, response });
-		}
-	};
-
 	useEffect(() => {
 		const socketInstance = io("/", {
 			withCredentials: true,

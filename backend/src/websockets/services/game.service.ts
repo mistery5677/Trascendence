@@ -10,7 +10,8 @@ interface GameOverResult {
     | 'DRAW'
     | 'STALEMATE'
     | 'THREEFOLD_REPETITION'
-    | 'RESIGNATION';
+    | 'RESIGNATION'
+    | 'DISCONNECTION_TIMEOUT';
 }
 
 interface GameInstance {

@@ -76,7 +76,7 @@ export class MatchMakingService {
 
   removeFromQueue(client: Socket) {
     const initialSize = this.queue.length;
-    this.queue = this.queue.filter((c) => c.id !== client.id);
+    this.queue = this.queue.filter((queuedSocket) => queuedSocket.id !== client.id);
 
     if (initialSize !== this.queue.length) {
       this.logger.log(
