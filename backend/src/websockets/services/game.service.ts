@@ -130,7 +130,7 @@ export class GameService {
         winnerId,
       );
     }
-
+    this.markAsFinished(gameId);
     return {
       winnerColor,
       reason,
@@ -151,8 +151,7 @@ export class GameService {
         parseInt(winnerId),
       );
     }
-    // this.games.delete(gameId);
-
+    this.markAsFinished(gameId);
     return { winnerColor, reason: 'RESIGNATION' };
   }
   forceDraw(gameId: string): GameOverResult | null {
@@ -166,7 +165,7 @@ export class GameService {
         null,
       );
     }
-    // this.games.delete(gameId);
+    this.markAsFinished(gameId);
     return { winnerColor: null, reason: 'DRAW' };
   }
 
@@ -176,5 +175,25 @@ export class GameService {
       return null;
     }
     this.games.delete(gameId);
+  }
+  markAsFinished(gameId: string) {
+    const game = this.games.get(gameId);
+    if (game) {
+      game.isFinished = true;
+    }
+  }
+  findActiveGameByUserId(userId: string): {
+    gameId: string;
+    game: GameInstance;
+  } | null {
+    for (const [gameId, game] of this.games.entries()) {
+      if (
+        !game.isFinished &&
+        (game.playerW === userId || game.playerB === userId)
+      ) {
+        return { gameId, game };
+      }
+    }
+    return null;
   }
 }

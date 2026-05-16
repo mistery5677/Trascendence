@@ -14,11 +14,8 @@ function PlayRouteWithProvider() {
 	const location = useLocation();
 	const searchParams = new URLSearchParams(location.search);
 	const mode = searchParams.get("mode") || "online";
-	const gameId = searchParams.get("gameId");
 	return (
-		<GameProvider
-		mode={mode}
-		gameId={gameId}>
+		<GameProvider mode={mode}>
 			<Play />
 		</GameProvider>
 	);
