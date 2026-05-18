@@ -30,7 +30,7 @@ export class PresenceGateway
     this.server?.use(WsMiddleware(this.jwtService));
   }
 
-  async handleConnection(client: Socket) {
+  handleConnection(client: Socket) {
     const userId = client.data.user.userId;
     client.join(`user_${userId}`);
     this.presenceService.setConnected(userId, client.id);
@@ -50,20 +50,13 @@ export class PresenceGateway
         const opponentId =
           userId === game.playerW ? game.playerB : game.playerW;
 
-        let opponentName = 'Bot';
-        if (game.mode !== 'bot') {
-          const opponentUser = await this.userService.findOneById(
-            parseInt(opponentId),
-          );
-          opponentName = opponentUser?.username || 'Unknown';
-        }
         client.emit('gameState', {
           gameId: gameId,
           fen: state.fen,
           currentTurn: state.turn,
           color: userColor,
           mode: game.mode,
-          opponent: opponentName,
+          opponentId: opponentId || 'bot',
         });
         //! Still considering have a screen that tells the other player when user reconnect
         client.to(gameId).emit('opponentReconnected', { userId });

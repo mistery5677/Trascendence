@@ -60,13 +60,13 @@ export class MatchMakingService {
     player1.emit('gameState', {
       ...commonData,
       color: 'w',
-      opponent: player2.data.user.username,
+      opponentId: player2.data.user.userId,
     });
 
     player2.emit('gameState', {
       ...commonData,
       color: 'b',
-      opponent: player1.data.user.username,
+      opponentId: player1.data.user.userId,
     });
 
     this.logger.log(
@@ -76,7 +76,9 @@ export class MatchMakingService {
 
   removeFromQueue(client: Socket) {
     const initialSize = this.queue.length;
-    this.queue = this.queue.filter((queuedSocket) => queuedSocket.id !== client.id);
+    this.queue = this.queue.filter(
+      (queuedSocket) => queuedSocket.id !== client.id,
+    );
 
     if (initialSize !== this.queue.length) {
       this.logger.log(

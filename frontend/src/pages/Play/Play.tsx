@@ -12,7 +12,7 @@ export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0);
-	const { gameId, isConnected, color, opponent, drawProposal, handleDrawResponse } = useGame();
+	const { gameId, isConnected, color, opponentId, drawProposal, handleDrawResponse } = useGame();
 
 	useEffect(() => {
 		setTimerKey((prevKey) => prevKey + 1);
@@ -49,7 +49,7 @@ export function Play() {
 						color={color}
 						state={state}
 						timerKey={timerKey}
-						opponent={opponent}
+						opponentId={opponentId}
 						className="max-w-[calc(100vh-5rem)]"
 					/>
 				</div>

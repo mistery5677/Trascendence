@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
-import { useNavigate } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -16,7 +15,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
-	const [opponent, setOpponent] = useState<string | null>(null);
+	const [opponentId, setOpponentId] = useState<string | null>(null);
 	const gameIdRef = React.useRef<string | null>(null);
 
 	if (!authState.user) return null;
@@ -78,7 +77,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			setIsConnected(true);
-			setOpponent((prev) => (typeof data.opponent === "string" ? data.opponent : prev));
+			setOpponentId(data.opponentId);
 		});
 
 		socketInstance.on("move", (data: any) => {
@@ -132,7 +131,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				handleDrawResponse,
 				proposeDraw,
 				proposeRematch,
-				opponent,
+				opponentId,
 			}}>
 			{children}
 		</GameContext.Provider>

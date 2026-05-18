@@ -74,19 +74,13 @@ export class MatchGateway {
 
     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
 
-    let opponentName = 'Bot';
-    if (game.mode !== 'bot') {
-      const opponent = await this.userService.findOneById(parseInt(opponentId));
-      opponentName = opponent?.username || 'Unknown';
-    }
-
     client.emit('gameState', {
       gameId: data.gameId,
       fen: state.fen,
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
-      opponent: opponentName,
+      opponentId: String(opponentId) || 'bot',
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);

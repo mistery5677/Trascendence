@@ -13,7 +13,7 @@ export type GameContextType = {
 	isConnected: boolean;
 	fen: string;
 	currentTurn: "w" | "b";
-	opponent: string | null;
+	opponentId: string | null;
 	gameOver: GameOverState;
 	drawProposal: boolean;
 

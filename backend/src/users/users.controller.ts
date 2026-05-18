@@ -22,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'node:path';
 import { diskStorage } from 'multer';
 import { brotliDecompress } from 'node:zlib';
+import { get } from 'node:http';
 
 @Controller('/users')
 export class UsersController {
@@ -140,5 +141,24 @@ export class UsersController {
   @Get('search')
   async searchUsers(@Query('username') username: string) {
     return await this.usersService.getUsers(username || '');
+  }
+  @Get('opponent/:id')
+  async getOpponentById(@Param('id') id: string) {
+    const user = await this.usersService.findOneById(parseInt(id));
+    if (!user) return null;
+
+    const {
+      email,
+      wins,
+      losses,
+      draws,
+      boardTheme,
+      name,
+      createdAt,
+      updatedAt,
+      ...opponent
+    } = user;
+    console.log(opponent);
+    return opponent;
   }
 }

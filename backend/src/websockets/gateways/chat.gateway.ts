@@ -43,7 +43,7 @@ export class ChatGateway implements OnGatewayInit {
 
   //(PRIVATE MESSAGES)
   @SubscribeMessage('sendPrivateMessage')
-  async handlePrivateMessage(
+  handlePrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { toUserId: string; message: string },
   ) {
