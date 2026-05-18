@@ -34,12 +34,9 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 			cancelled = true;
 		};
 	}, [opponentId]);
-	console.log(opponentProfile);
 	const opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
 
 	const opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : "";
-
-	console.log(opponentProfile);
 
 	return (
 		<div

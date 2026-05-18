@@ -27,6 +27,7 @@ export function Play() {
 	}
 
 	return (
+		
 		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 			{drawProposal && (
 				<ConfirmationModal

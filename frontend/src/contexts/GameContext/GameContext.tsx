@@ -58,7 +58,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			setIsConnected(true);
 
 			if (gameIdRef.current) {
-				console.log("Reconnection detected, skip enter on queue");
+				console.log("Reconnection game on going");
 				return;
 			}
 			if (mode === "bot") {

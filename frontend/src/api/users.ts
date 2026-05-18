@@ -111,7 +111,6 @@ export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> 
 }
 
 export async function getOpponentData(opponentId: string): Promise<PlayerData | null> {
-	console.log("getOpponentData", opponentId);
 
 	const res = await fetch(`/api/users/opponent/${opponentId}`, {
 		method: "GET",
@@ -124,7 +123,6 @@ export async function getOpponentData(opponentId: string): Promise<PlayerData | 
 
 	const opponent: PlayerData = await res.json();
 
-	console.log("Received by backend:", opponent);
 	return opponent;
 }
 
