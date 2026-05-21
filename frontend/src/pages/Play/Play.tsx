@@ -8,7 +8,7 @@ import { GameOverModal } from "../../components/GameOver/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
 import chess from "../../assets/chess-pieces.png";
 import cat from "../../assets/cat.jpg";
-import cloud from "../../assets/sky.jpg";
+import sky from "../../assets/sky.jpg";
 
 export function Play() {
 	const { state } = useAuth();
@@ -28,11 +28,29 @@ export function Play() {
 		return <MatchmakingLoading isConnected={isConnected} />;
 	}
 
+	const handleBackground = () => {
+		switch (state.user?.backgroundTheme) {
+			case 1: {
+				return chess;
+			}
+			case 2: {
+				return cat;
+			}
+			case 3: {
+				return sky;
+			}
+			default:
+				return chess;
+		}
+	};
+
+	const backgroundImage = handleBackground();
+
 	return (
 		// <div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 		<div
 			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
-			style={{ backgroundImage: "url(" + chess + ")" }}>
+			style={{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }}>
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">

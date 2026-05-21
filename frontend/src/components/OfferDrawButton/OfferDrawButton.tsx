@@ -18,17 +18,18 @@ export function OfferDrawButton({ func }: OfferDrawButtonProps) {
 					<AlertDialog.Trigger asChild>
 						<button
 							type="button"
+							title="Offer a draw to your opponent"
+							aria-label="Offer a draw to your opponent"
 							// disabled={disabled}
-							className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-stone-600 border-white bg-stone-800/80 text-sm font-medium text-stone-100 transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
-						>
+							className="flex h-10 w-10 items-center justify-center rounded-full border-2 hover:border-green-400 hover:text-green-400 border-white bg-stone-800/80 text-sm font-medium text-stone-100 transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50">
 							<IconHeartHandshake />
 						</button>
 					</AlertDialog.Trigger>
 					<AlertDialog.Portal>
 						<AlertDialog.Overlay className={overlayClass} />
 						<AlertDialog.Content className={contentClass}>
-							<AlertDialog.Title className="text-lg font-semibold">
-								Offer draw
+							<AlertDialog.Title className="text-lg font-semibold ">
+								Offer Draw
 							</AlertDialog.Title>
 							<AlertDialog.Description className="mt-2 text-sm text-stone-300">
 								Do you want to offer a draw to your opponent?
@@ -37,8 +38,7 @@ export function OfferDrawButton({ func }: OfferDrawButtonProps) {
 								<AlertDialog.Cancel asChild>
 									<button
 										type="button"
-										className="rounded-md border border-stone-600 px-3 py-1.5 text-sm text-stone-200 hover:bg-stone-800"
-									>
+										className="rounded-md border border-stone-600 px-3 py-1.5 text-sm text-stone-200 hover:bg-stone-800">
 										Cancel
 									</button>
 								</AlertDialog.Cancel>
@@ -46,9 +46,8 @@ export function OfferDrawButton({ func }: OfferDrawButtonProps) {
 									<button
 										type="button"
 										onClick={() => func()}
-										className="rounded-md bg-stone-700 px-3 py-1.5 text-sm text-stone-100 hover:bg-stone-600"
-									>
-										Offer draw
+										className="rounded-md bg-stone-700 px-3 py-1.5 text-sm text-stone-100 hover:bg-stone-600">
+										Offer Draw
 									</button>
 								</AlertDialog.Action>
 							</div>

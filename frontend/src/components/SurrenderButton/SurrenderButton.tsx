@@ -18,27 +18,24 @@ export const SurrenderButton = ({ func }: SurrenderButtonProps) => {
 						<button
 							type="button"
 							// disabled={disabled}
-							className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-stone-600 border-white bg-stone-800/80 text-sm font-medium text-stone-100 transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
-						>
+							title="Surrender"
+							aria-label="Surrender"
+							className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-stone-800/80 text-sm font-medium hover:border-green-400 hover:text-green-400 text-stone-100 transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50">
 							<IconFlag />
 						</button>
 					</AlertDialog.Trigger>
 					<AlertDialog.Portal>
 						<AlertDialog.Overlay className={overlayClass} />
 						<AlertDialog.Content className={contentClass}>
-							<AlertDialog.Title className="text-lg font-semibold">
-								Surrender
-							</AlertDialog.Title>
+							<AlertDialog.Title className="text-lg font-semibold">Surrender</AlertDialog.Title>
 							<AlertDialog.Description className="mt-2 text-sm text-stone-300">
-								Are you sure you want to surrender? This will
-								count as a loss.
+								Are you sure you want to surrender? This will count as a loss.
 							</AlertDialog.Description>
 							<div className="mt-4 flex justify-end gap-2">
 								<AlertDialog.Cancel asChild>
 									<button
 										type="button"
-										className="rounded-md border border-stone-600 px-3 py-1.5 text-sm text-stone-200 hover:bg-stone-800"
-									>
+										className="rounded-md border border-stone-600 px-3 py-1.5 text-sm text-stone-200 hover:bg-stone-800">
 										Cancel
 									</button>
 								</AlertDialog.Cancel>
@@ -46,8 +43,7 @@ export const SurrenderButton = ({ func }: SurrenderButtonProps) => {
 									<button
 										type="button"
 										onClick={() => func()}
-										className="rounded-md bg-red-900/80 px-3 py-1.5 text-sm text-red-100 hover:bg-red-800"
-									>
+										className="rounded-md bg-red-900/80 px-3 py-1.5 text-sm text-red-100 hover:bg-red-800">
 										Surrender
 									</button>
 								</AlertDialog.Action>
