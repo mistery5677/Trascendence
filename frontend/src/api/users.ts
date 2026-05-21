@@ -116,8 +116,8 @@ export async function updateBackGroundTheme(backgroundThemeVal: number): Promise
 	try {
 		const response = await fetch("/api/users/me/background-theme", {
 			method: "PATCH",
-			headers: { "Content-Type": "applications/json" },
-			body: JSON.stringify({ backgroundTHeme: backgroundThemeVal }),
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ backgroundTheme: backgroundThemeVal }),
 		});
 		data = await response.json();
 	} catch (error) {

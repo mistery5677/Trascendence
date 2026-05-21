@@ -33,11 +33,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  //   @Get(':id')
-  //   findOne(@Param('id') id: string) {
-  //     return this.usersService.findOne(parseInt(id));
-  //   }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(parseInt(id));
@@ -95,6 +90,18 @@ export class UsersController {
     return await this.usersService.updateBoardTheme(
       parseInt(userId),
       parseInt(boardTheme),
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('me/background-theme')
+  async updateBackgroundTheme(@Body() body, @Req() req) {
+    const userId = req.user.userId;
+    const { backgroundTheme } = body;
+
+    return await this.usersService.updateBackgroundTheme(
+      parseInt(userId),
+      parseInt(backgroundTheme),
     );
   }
 

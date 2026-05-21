@@ -10,6 +10,12 @@ import chess from "../../assets/chess-pieces.png";
 import cat from "../../assets/cat.jpg";
 import cloud from "../../assets/sky.jpg";
 
+const BACKGROUND_THEMES: Record<number, string> = {
+	1: chess,
+	2: cat,
+	3: cloud,
+};
+
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
@@ -28,11 +34,15 @@ export function Play() {
 		return <MatchmakingLoading isConnected={isConnected} />;
 	}
 
+	const userThemeId = state.user?.backgroundTheme || 1;
+
+	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
+
 	return (
 		// <div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 		<div
 			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
-			style={{ backgroundImage: "url(" + chess + ")" }}>
+			style={{ backgroundImage: "url(" + selectedBackground + ")" }}>
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
