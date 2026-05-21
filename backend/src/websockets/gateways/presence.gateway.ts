@@ -40,7 +40,7 @@ export class PresenceGateway
     const activeMatch = this.gameService.findActiveGameByUserId(userId);
     if (activeMatch) {
       const { gameId, game } = activeMatch;
-      console.log(`[Reconection] User ${userId} have a active game ${gameId}`);
+      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
 
       client.join(gameId);
 

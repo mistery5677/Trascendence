@@ -85,7 +85,6 @@ export class UsersController {
 
     const avatarUrl = `/assets/avatars/uploaded/${file.filename}`;
 
-    console.log(avatarUrl);
     return await this.usersService.updateAvatar(parseInt(userId), avatarUrl);
   }
 
@@ -147,7 +146,6 @@ export class UsersController {
       updatedAt,
       ...opponent
     } = user;
-    console.log(opponent);
     return opponent;
   }
 

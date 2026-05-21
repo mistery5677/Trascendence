@@ -66,8 +66,6 @@ export function Board({ onTurnChange }: BoardProps) {
 
 	const onPieceDrop = useCallback(
 		({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
-			console.log("My color:", color);
-			console.log("currentTurn:", currentTurn);
 
 			if (!gameId || !socket || currentTurn !== color) return false;
 

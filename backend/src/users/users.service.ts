@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcryptjs from 'bcryptjs';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { userInfo } from 'node:os';
 
@@ -14,7 +14,6 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   create(registerDto: RegisterDto) {
-    console.log(registerDto);
     return this.prisma.user.create({
       data: registerDto,
     });
