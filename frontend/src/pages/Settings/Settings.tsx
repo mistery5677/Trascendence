@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import {
 	updateAvatar,
+	updateBackGroundTheme,
 	updateBoardTheme,
 	updateEmail,
 	updatePassword,
@@ -79,20 +80,14 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
-	const handlePasswordChange = async (
-		e: React.SubmitEvent<HTMLFormElement>,
-	) => {
+	const handlePasswordChange = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const formData = new FormData(e.currentTarget);
 
-		const currentPassword = formData.get("currentPassword") as
-			| string
-			| null;
+		const currentPassword = formData.get("currentPassword") as string | null;
 		const newPassword = formData.get("newPassword") as string | null;
-		const confirmPassword = formData.get("confirmPassword") as
-			| string
-			| null;
+		const confirmPassword = formData.get("confirmPassword") as string | null;
 
 		if (!currentPassword && !newPassword && !confirmPassword) {
 			toastWrapper.warn("All fields is required.");
@@ -121,9 +116,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
-	const handleProfileChange = async (
-		e: React.SubmitEvent<HTMLFormElement>,
-	) => {
+	const handleProfileChange = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		const formData = new FormData(e.currentTarget);
@@ -152,9 +145,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 		if (displayName) {
 			if (!userNameValidation(displayName)) {
-				return toastWrapper.error(
-					"Username must be only alphabetical or numbers.",
-				);
+				return toastWrapper.error("Username must be only alphabetical or numbers.");
 			}
 			const isAvailable = await verifyUsername(displayName);
 			if (!isAvailable) {
@@ -179,9 +170,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 	const [userNameAvailable, setUserNameAvailable] = useState<boolean>(true);
 	const [emailAvailable, setEmailAvailable] = useState<boolean>(true);
 
-	const handleUserVerification = async (
-		e: React.FocusEvent<HTMLInputElement>,
-	) => {
+	const handleUserVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 
 		if (!value) {
@@ -197,9 +186,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
-	const handleEmailVerification = async (
-		e: React.FocusEvent<HTMLInputElement>,
-	) => {
+	const handleEmailVerification = async (e: React.FocusEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 
 		if (!value || value.length == 0) {
@@ -227,17 +214,29 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
+
+	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3) => async () => {
+	try {
+		await updateBackGroundTheme(backgroundID);
+
+		toastWrapper.success("Background theme update successfully.");
+
+		if (state.user) {
+			dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, backgroundTheme: backgroundID } });
+		}
+	} catch (error) {
+		toastWrapper.error("Error changing background.");
+	}
+};
+
 	return (
 		<>
 			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100 bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 				<div className="mx-auto w-full lg:w-[60%]">
 					<header className="mb-8">
-						<h1 className="text-4xl font-extrabold tracking-tight">
-							⚙️ Settings
-						</h1>
+						<h1 className="text-4xl font-extrabold tracking-tight">⚙️ Settings</h1>
 						<p className="mt-2 text-sm text-stone-400">
-							Manage your profile, account security, and game
-							preferences.
+							Manage your profile, account security, and game preferences.
 						</p>
 					</header>
 
@@ -248,10 +247,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 									<button
 										type="button"
 										onClick={() => setActiveTab("profile")}
-										className={tabClass(
-											activeTab === "profile",
-										)}
-									>
+										className={tabClass(activeTab === "profile")}>
 										<div className="flex flex-row gap-2">
 											<IconUser stroke={2} />
 											Profile
@@ -260,10 +256,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 									<button
 										type="button"
 										onClick={() => setActiveTab("account")}
-										className={tabClass(
-											activeTab === "account",
-										)}
-									>
+										className={tabClass(activeTab === "account")}>
 										<div className="flex flex-row gap-2">
 											<IconDeviceLaptop stroke={2} />
 											Account
@@ -272,13 +265,10 @@ export function Settings({ tabOpt }: SettingsProps) {
 									<button
 										type="button"
 										onClick={() => setActiveTab("board")}
-										className={tabClass(
-											activeTab === "board",
-										)}
-									>
+										className={tabClass(activeTab === "board")}>
 										<div className="flex flex-row gap-2">
 											<IconPalette stroke={2} />
-											Board Theme
+											Theme
 										</div>
 									</button>
 								</nav>
@@ -289,8 +279,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 								{activeTab === "profile" && (
 									<div>
 										<div className="text-stone-400 text-lg">
-											Profile info is now shown in your
-											public profile.
+											Profile info is now shown in your public profile.
 										</div>
 										<Profile />
 									</div>
@@ -298,34 +287,27 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 								{activeTab === "account" && (
 									<>
-										<h2 className="text-2xl font-bold">
-											Account
-										</h2>
+										<h2 className="text-2xl font-bold">Account</h2>
 										<div className="mt-6 rounded-2xl border border-stone-700/80 bg-stone-900/45 p-5">
 											<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex items-center gap-4">
 													<img
 														src={
-															state.user
-																?.avatarUrl
+															state.user?.avatarUrl
 																? `${state.user.avatarUrl}?t=${avatarUrlKey}`
 																: undefined
 														}
 														alt="Profile avatar"
 														className="h-20 w-20 max-w-20 max-h-20 rounded-full border-2 border-emerald-300/40 object-fit hover:scale-110 transition"
 														onError={(e) => {
-															e.currentTarget.src =
-																"/api/assets/avatars/default1.png";
+															e.currentTarget.src = "/api/assets/avatars/default1.png";
 														}}
 													/>
 													<div>
 														<h3 className="text-lg font-semibold text-stone-100">
 															Profile picture
 														</h3>
-														<p className="text-sm text-stone-400">
-															PNG or JPG up to
-															2MB.
-														</p>
+														<p className="text-sm text-stone-400">PNG or JPG up to 2MB.</p>
 													</div>
 												</div>
 												<div className="flex gap-2">
@@ -333,18 +315,13 @@ export function Settings({ tabOpt }: SettingsProps) {
 														ref={fileInputRef}
 														type="file"
 														accept="image/png,image/jpeg"
-														onChange={
-															handleFileChange
-														}
+														onChange={handleFileChange}
 														className="hidden"
 													/>
 													<button
 														type="button"
-														onClick={
-															handleUploadClick
-														}
-														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25"
-													>
+														onClick={handleUploadClick}
+														className="rounded-xl border border-emerald-300/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/25">
 														Upload
 													</button>
 												</div>
@@ -352,8 +329,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										</div>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-											onSubmit={handleProfileChange}
-										>
+											onSubmit={handleProfileChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
 													Display Name
@@ -361,33 +337,26 @@ export function Settings({ tabOpt }: SettingsProps) {
 												<input
 													type="text"
 													placeholder="Your name"
-													onBlur={
-														handleUserVerification
-													}
+													onBlur={handleUserVerification}
 													name="displayName"
 													className={`rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400`}
 												/>
 												{userNameAvailable == false ? (
 													<div>
 														<div className="text-[14px] pl-2 text-red-500">
-															* Display Name isn't
-															available.
+															* Display Name isn't available.
 														</div>
 													</div>
 												) : null}
 											</label>
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
-												<span className="text-sm font-semibold text-stone-300">
-													Email
-												</span>
+												<span className="text-sm font-semibold text-stone-300">Email</span>
 												<input
 													type="email"
 													name="email"
 													placeholder="you@email.com"
-													onBlur={
-														handleEmailVerification
-													}
+													onBlur={handleEmailVerification}
 													className="rounded-lg border border-stone-600 bg-stone-900/70 px-3 py-1.5 text-sm text-stone-100 outline-none transition focus:border-emerald-400"
 												/>
 												{emailAvailable == false ? (
@@ -400,26 +369,18 @@ export function Settings({ tabOpt }: SettingsProps) {
 											<div className="sm:col-span-2">
 												<button
 													type="submit"
-													disabled={
-														!userNameAvailable ||
-														!emailAvailable
-													}
-													className={`rounded-md border border-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 ${!userNameAvailable || !emailAvailable ? "bg-emerald-300" : "bg-button-primary hover:bg-button-primary-hover"}`}
-												>
+													disabled={!userNameAvailable || !emailAvailable}
+													className={`rounded-md border border-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900 ${!userNameAvailable || !emailAvailable ? "bg-emerald-300" : "bg-button-primary hover:bg-button-primary-hover"}`}>
 													Save changes
 												</button>
 											</div>
 										</form>
 										<form
 											className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-											onSubmit={handlePasswordChange}
-										>
+											onSubmit={handlePasswordChange}>
 											<label className="flex flex-col gap-1.5 sm:col-span-2">
 												<span className="text-sm font-semibold text-stone-300">
-													Current Password{" "}
-													<span className="text-rose-400">
-														*
-													</span>
+													Current Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="currentPassword"
@@ -431,10 +392,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													New Password{" "}
-													<span className="text-rose-400">
-														*
-													</span>
+													New Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="newPassword"
@@ -446,10 +404,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 											<label className="flex flex-col gap-1.5 sm:col-span-1">
 												<span className="text-sm font-semibold text-stone-300">
-													Confirm Password{" "}
-													<span className="text-rose-400">
-														*
-													</span>
+													Confirm Password <span className="text-rose-400">*</span>
 												</span>
 												<input
 													name="confirmPassword"
@@ -462,8 +417,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 											<div className="sm:col-span-2">
 												<button
 													type="submit"
-													className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
-												>
+													className="rounded-md border border-button-primary bg-button-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-button-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 													Update password
 												</button>
 											</div>
@@ -473,27 +427,40 @@ export function Settings({ tabOpt }: SettingsProps) {
 
 								{activeTab === "board" && (
 									<div>
-										<h2 className="text-2xl font-bold">
-											Board Theme
-										</h2>
-										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+										<h2 className="text-2xl font-bold">Board Theme</h2>
+										<div className="mt-4  mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											<BoardThemeButton
 												onClick={handleBoardTheme(1)}
-												className={`${styles["custom-button-forest"]}`}
-											>
+												className={`${styles["custom-button-forest"]}`}>
 												Forest
 											</BoardThemeButton>
 											<BoardThemeButton
 												onClick={handleBoardTheme(2)}
-												className={`${styles["custom-button-classic"]}`}
-											>
+												className={`${styles["custom-button-classic"]}`}>
 												Classic
 											</BoardThemeButton>
 											<BoardThemeButton
 												onClick={handleBoardTheme(3)}
-												className={`${styles["custom-button-midnight"]}`}
-											>
+												className={`${styles["custom-button-midnight"]}`}>
 												Midnight
+											</BoardThemeButton>
+										</div>
+										<h2 className="text-2xl font-bold">Background Theme</h2>
+										<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+											<BoardThemeButton
+												onClick={handleBackgroundTheme(1)}
+												className={`${styles["custom-button-forest"]}`}>
+												Chess
+											</BoardThemeButton>
+											<BoardThemeButton
+												onClick={handleBackgroundTheme(2)}
+												className={`${styles["custom-button-classic"]}`}>
+												Cats
+											</BoardThemeButton>
+											<BoardThemeButton
+												onClick={handleBackgroundTheme(3)}
+												className={`${styles["custom-button-midnight"]}`}>
+												Sky
 											</BoardThemeButton>
 										</div>
 									</div>

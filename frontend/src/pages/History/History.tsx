@@ -81,7 +81,7 @@ export function HistoryPage() {
 					</header>
 					{/* GRID */}
 					<section className="w-full mt-6">
-						<div className="w-full overflow-hidden rounded-2xl border border-stone-800 bg-stone-900/50 shadow-lg">
+						<div className="w-full overflow-scroll rounded-2xl border border-stone-800 bg-stone-900/50 shadow-lg">
 							<table className="w-full text-center border-collapse">
 								{/* DATA HEADER */}
 								{/* Thead defines a set of rows */}

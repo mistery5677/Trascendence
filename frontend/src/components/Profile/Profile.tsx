@@ -1,5 +1,11 @@
 import { useAuth } from "../../contexts/UserContext";
 
+const BACKGROUND_THEMES: Record<number, string> = {
+	1: "Chess",
+	2: "Cat",
+	3: "Sky",
+};
+
 export function Profile() {
 	const { state } = useAuth();
 
@@ -18,32 +24,38 @@ export function Profile() {
 		}
 	};
 
+	const userThemeId = state.user?.backgroundTheme || 1;
+	const selectedBackground = BACKGROUND_THEMES[userThemeId] || "chess";
+
 	return (
 		<main className="w-full px-4 py-10 text-stone-100">
 			<div /* className="mx-auto w-full lg:w-[60%]" */>
-				<header className="mb-8 flex items-center gap-6">
-					<img
-						src={user?.avatarUrl ? `${user.avatarUrl}` : "/api/assets/avatars/default1.png"}
-						alt="Profile avatar"
-						className="h-24 w-24 rounded-full border-2 border-emerald-300/40 object-cover"
-						onError={(e) => {
-							e.currentTarget.src = "/api/assets/avatars/default1.png";
-						}}
-					/>
-					<h1 className="text-4xl font-extrabold tracking-tight text-emerald-100">
-						{user?.username || user?.username || "User"}
-					</h1>
+				<header className="mb-8 flex flex-col sm:flex-row  justify-center items-center gap-6">
+						<img
+							src={user?.avatarUrl ? `${user.avatarUrl}` : "/api/assets/avatars/default1.png"}
+							alt="Profile avatar"
+							className="h-24 w-24 rounded-full border-2 border-emerald-300/40 object-cover"
+							onError={(e) => {
+								e.currentTarget.src = "/api/assets/avatars/default1.png";
+							}}
+						/>
+						<h1 className="text-4xl font-extrabold tracking-tight text-emerald-100">
+							{user?.username || user?.username || "User"}
+						</h1>
 
-					{/* Email and Board Theme Info */}
-					<div className="flex flex-col gap-1 ml-6">
-						<span className="text-stone-300 text-sm">
-							Email: <span className="font-semibold text-white">{user?.email || "-"}</span>
-						</span>
-						<span className="text-stone-300 text-sm">
-							Board Theme:{" "}
-							<span className="font-semibold text-white">{boardThemeName(user?.boardTheme)}</span>
-						</span>
-					</div>
+						{/* Email and Board Theme Info */}
+						<div className="flex flex-col gap-1 ml-6">
+							<span className="text-stone-300 text-sm">
+								Email: <span className="font-semibold text-white">{user?.email || "-"}</span>
+							</span>
+							<span className="text-stone-300 text-sm">
+								Board Theme:{" "}
+								<span className="font-semibold text-white">{boardThemeName(user?.boardTheme)}</span>
+							</span>
+							<span className="text-stone-300 text-sm">
+								Background Theme: <span className="font-semibold text-white">{selectedBackground}</span>
+							</span>
+						</div>
 				</header>
 				<section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
 					<div className="bg-white/5 p-4 rounded-xl text-center border border-board-focus/30">

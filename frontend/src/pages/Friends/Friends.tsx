@@ -34,7 +34,7 @@ export function Friends() {
 
 	// Loading protection
 	if (!state || !state.user) {
-		return <div className="text-white text-center mt-20">A carregar perfil...</div>;
+		return <div className="text-white text-center mt-20">Loading profile...</div>;
 	}
 
 	// Handle the friend request button
@@ -181,7 +181,7 @@ export function Friends() {
 							friends.map((friend, index) => (
 								<div
 									key={index}
-									className="flex items-center justify-between p-4 bg-stone-800/70 rounded-2xl border border-stone-700 hover:border-emerald-400/70 transition-all">
+									className="flex gap-5 items-center justify-between p-4 bg-stone-800/70 rounded-2xl border border-stone-700 hover:border-emerald-400/70 transition-all">
 									<div className="flex items-center gap-4">
 										<div className="w-12 h-12 rounded-full bg-stone-700 flex items-center justify-center text-xl">
 											<img
@@ -192,25 +192,24 @@ export function Friends() {
 										</div>
 										<div>
 											{/* Redirects to user match history */}
-											<Link 
-												to={`/history/${friend.username}`} 
+											<Link
+												to={`/history/${friend.username}`}
 												className="hover:text-emerald-400 hover:underline transition-colors"
-												title={`View ${friend.username}'s Match History`}
-											>
+												title={`View ${friend.username}'s Match History`}>
 												<p className="font-bold text-lg text-stone-200">{friend.username}</p>
 											</Link>
-											<p className="text-sm text-emerald-400">ELO: {friend.elo}</p>
+											<p className="text-sm whitespace-nowrap  text-emerald-400">ELO: {friend.elo}</p>
 										</div>
 									</div>
-									<div className="flex gap-2">
-										<button className="px-4 py-2 text-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-full font-bold transition-all">
+									<div className="flex gap-3">
+										<button className="px-4 py-1 text-[14px] sm:text-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-full font-bold transition-all">
 											Play ⚔️
 										</button>
 										<button
 											onClick={() => handleRemoveFriend(friend.id, friend.username)}
 											className="px-3 py-2 bg-stone-700 hover:bg-red-500/20 hover:text-red-400 text-stone-300 rounded-lg transition-all"
 											title="Remove Friend">
-											<span className="text-xl text-white">Unfriend</span>
+											<span className="sm:text-xl text-[14px] text-white">Unfriend</span>
 										</button>
 									</div>
 								</div>
@@ -239,11 +238,10 @@ export function Friends() {
 										</div>
 										<p className="font-bold text-stone-200 text-lg">
 											{/* Redirects to the user match history */}
-											<Link 
-												to={`/history/${req.sender.username}`} 
+											<Link
+												to={`/history/${req.sender.username}`}
 												className="text-emerald-400 hover:underline transition-colors"
-												title={`View ${req.sender.username}'s Match History`}
-											>
+												title={`View ${req.sender.username}'s Match History`}>
 												<span className="text-emerald-400">{req.sender.username}</span>
 											</Link>
 											<span className="text-stone-400 font-normal">
