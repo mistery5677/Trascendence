@@ -1,10 +1,7 @@
 import type { PlayerData } from "./PlayerDataType";
 
 // Change the password
-export async function updatePassword(
-	currentPassword: string,
-	newPassword: string,
-) {
+export async function updatePassword(currentPassword: string, newPassword: string) {
 	const res = await fetch("/api/users/me/password", {
 		method: "PATCH",
 		credentials: "include",
@@ -31,9 +28,7 @@ export async function updateAvatar(picture: File) {
 
 // Check if the username is available when we try to create a new account
 export async function verifyUsername(username: string): Promise<boolean> {
-	const response = await fetch(
-		`/api/users/check-username?username=${username}`,
-	);
+	const response = await fetch(`/api/users/check-username?username=${username}`);
 	if (!response.ok) {
 		throw new Error("Failed to check username");
 	}
@@ -54,9 +49,7 @@ export async function verifyEmail(email: string): Promise<boolean> {
 }
 
 // Function to sign up connecting to api
-export async function signupUser(
-	userData: Record<string, any>,
-): Promise<boolean> {
+export async function signupUser(userData: Record<string, any>): Promise<boolean> {
 	const response = await fetch("/api/auth/signup", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -99,9 +92,7 @@ export async function updateEmail(email: string): Promise<boolean> {
 	return data;
 }
 
-export async function updateBoardTheme(
-	boardThemeVal: number,
-): Promise<boolean> {
+export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> {
 	let data;
 
 	try {
@@ -119,25 +110,36 @@ export async function updateBoardTheme(
 	return data;
 }
 
-export async function getOpponentData(
-	username: string,
-): Promise<PlayerData | null> {
-	const res = await fetch(
-		`/api/users/search?username=${encodeURIComponent(username)}`,
-		{
-			method: "GET",
-			headers: { "Content-Type": "application/json" },
-		},
-	);
+export async function updateBackGroundTheme(backgroundThemeVal: number): Promise<boolean> {
+	let data;
+
+	try {
+		const response = await fetch("/api/users/me/background-theme", {
+			method: "PATCH",
+			headers: { "Content-Type": "applications/json" },
+			body: JSON.stringify({ backgroundTHeme: backgroundThemeVal }),
+		});
+		data = await response.json();
+	} catch (error) {
+		console.log(error);
+		throw new Error("Failed to update background theme.");
+	}
+
+	return data;
+}
+
+export async function getOpponentData(username: string): Promise<PlayerData | null> {
+	const res = await fetch(`/api/users/search?username=${encodeURIComponent(username)}`, {
+		method: "GET",
+		headers: { "Content-Type": "application/json" },
+	});
 
 	if (!res.ok) {
 		throw new Error("Failed to fetch OpponentUser.");
 	}
 
 	const list: PlayerData[] = await res.json();
-	const exact = list.find(
-		(u) => u.username.toLowerCase() === username.toLowerCase(),
-	);
+	const exact = list.find((u) => u.username.toLowerCase() === username.toLowerCase());
 	return exact ?? (list.length === 1 ? list[0] : null);
 }
 
@@ -166,9 +168,7 @@ export async function getLeaderboard(): Promise<PlayerData[]> {
 
 // Get users by username substring (for suggestions)
 export async function getUsers(username: string) {
-	const res = await fetch(
-		`/api/users/search?username=${encodeURIComponent(username)}`,
-	);
+	const res = await fetch(`/api/users/search?username=${encodeURIComponent(username)}`);
 	if (!res.ok) throw new Error("Failed to fetch users");
 	return await res.json();
 }

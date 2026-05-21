@@ -24,9 +24,9 @@ export function MatchSidebar() {
 	return (
 		<div className="flex flex-col bg-stone-900 text-stone-200 rounded-xl shadow-md border border-stone-700 overflow-hidden h-full min-h-[520px]">
 			<header className="w-full p-4 sm:p-5 bg-stone-800 border-b border-stone-700">
-				{/* <p className="mb-3 text-xs font-semibold tracking-[0.18em] uppercase text-stone-400">
+				<p className="mb-3 text-xs font-semibold tracking-[0.18em] uppercase text-stone-400">
 					Match controls
-				</p> */}
+				</p>
 				<div className="flex items-center gap-2">
 					<MatchSidebarButton
 						onClick={() => toggleMenu("chat")}

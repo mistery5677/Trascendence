@@ -6,6 +6,10 @@ import { useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
 import { GameOverModal } from "../../components/GameOver/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
+import chess from "../../assets/chess-pieces.png";
+import planet from "../../assets/red-planet.png";
+import cat from "../../assets/cat.jpg";
+import cloud from "../../assets/sky.jpg";
 
 export function Play() {
 	const { state } = useAuth();
@@ -26,7 +30,10 @@ export function Play() {
 	}
 
 	return (
-		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
+		// <div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
+		<div
+			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+			style={{ backgroundImage: "url(" + chess + ")" }}>
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
@@ -51,7 +58,9 @@ export function Play() {
 				<div className="flex w-full flex-col rounded-xl xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
 					<div className="flex min-h-0 flex-col xl:h-[calc(100vh)] xl:max-h-[calc(100vh-7rem)]">
 						<MatchSidebar />
-						<GameActions />
+						<div className="flex max-w align-middle justify-center">
+							<GameActions />
+						</div>
 					</div>
 				</div>
 			</div>
