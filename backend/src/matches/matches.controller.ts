@@ -14,7 +14,6 @@ export class MatchesController {
 
   @Get('player/:username') // The username that we want to check the match history
   async getHistoryByUsername(@Param('username') username: string) {
-    console.log('Estamos na parte do backend');
     return await this.matchesService.getUserMatchHistoryByUsername(username);
   }
 }
