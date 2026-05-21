@@ -7,7 +7,6 @@ import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoad
 import { GameOverModal } from "../../components/GameOver/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
 import chess from "../../assets/chess-pieces.png";
-import planet from "../../assets/red-planet.png";
 import cat from "../../assets/cat.jpg";
 import cloud from "../../assets/sky.jpg";
 
