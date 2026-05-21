@@ -30,8 +30,9 @@ model user {
     updatedAt DateTime @updatedAt
 
     boardTheme Int @default(1)
+    backgroundTheme Int @default(1)
 
-    // Porfile statistics
+    // Profile statistics
     wins   Int @default(0)
     losses Int @default(0)
     draws  Int @default(0)

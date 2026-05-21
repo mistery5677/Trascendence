@@ -14,6 +14,7 @@ export type User = {
 	createdAt: string;
 	updateAt: string;
 	boardTheme: 1 | 2 | 3;
+	backgroundTheme: 1 | 2 | 3;
 	score: Score | null;
 };
 

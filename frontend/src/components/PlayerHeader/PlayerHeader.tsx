@@ -51,7 +51,7 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 				{/* image */}
 				<img
 					src={state.user?.avatarUrl}
-					className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
+					className={`w-[8vh] h-[8vh] sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
 						color != null && currentTurn === color
 							? "ring-emerald-300 shadow-emerald-700/20"
 							: "ring-slate-700 shadow-none border border-slate-600"
@@ -86,7 +86,7 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 						className="absolute inset-0 rotate-45 rounded-md border border-emerald-400/35 bg-linear-to-br from-stone-800/90 to-stone-950/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]"
 						aria-hidden
 					/>
-					<span className="relative z-10 font-black italic tabular-nums text-lg leading-none text-transparent sm:text-2xl bg-linear-to-br from-emerald-200 via-emerald-400 to-teal-500 bg-clip-text drop-shadow-[0_2px_8px_rgba(16,185,129,0.4)]">
+					<span className="relative z-10 font-black italic tabular-num text-lg leading-none text-transparent sm:text-2xl bg-linear-to-br from-emerald-200 via-emerald-400 to-teal-500 bg-clip-text drop-shadow-[0_2px_8px_rgba(16,185,129,0.4)]">
 						VS
 					</span>
 				</div>
@@ -123,20 +123,11 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 				{/* image */}
 				<img
 					src={opponentAvatarUrl}
-					className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
+					className={`w-[8vh] h-[8vh] sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
 						color != null && currentTurn === color
 							? "ring-emerald-300 shadow-emerald-700/20"
 							: "ring-slate-700 shadow-none border border-slate-600"
 					}`}></img>
-				{/* <div
-					className={`w-[clamp(2rem,10vw,3rem)] h-[clamp(2rem,10vw,3rem)] sm:w-16 sm:h-16 rounded-full bg-slate-800 flex items-center justify-center ring-4 text-[clamp(1rem,5vw,1.5rem)] sm:text-3xl shadow-lg transition-all duration-500 ${
-						color != null && currentTurn !== color
-							? "ring-emerald-300 shadow-emerald-700/20 opacity-100"
-							: "ring-slate-700 shadow-none border border-slate-600"
-					}`}
-				>
-					🤖
-				</div> */}
 			</div>
 		</div>
 	);

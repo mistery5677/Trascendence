@@ -80,6 +80,21 @@ export class UsersService {
       data: { boardTheme: boardTheme },
     });
   }
+  async updateBackgroundTheme(userId: number, backgroundTheme: number) {
+    const user = await this.findOneById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // !For now
+    if (backgroundTheme < 1 || backgroundTheme > 3)
+      throw new ForbiddenException("Theme with that index doesn't exist");
+
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { backgroundTheme: backgroundTheme },
+    });
+  }
 
   async updateUsername(userId: number, newUsername: string) {
     const user = await this.findOneById(userId);
@@ -147,6 +162,7 @@ export class UsersService {
         createdAt: true,
         name: true,
         boardTheme: true,
+        backgroundTheme: true,
         draws: true,
         updatedAt: true,
       },

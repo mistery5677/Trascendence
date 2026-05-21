@@ -112,12 +112,9 @@ export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> 
 
 export async function getOpponentData(opponentId: string): Promise<PlayerData | null> {
 
-	const res = await fetch(`/api/users/opponent/${opponentId}`, {
-		method: "GET",
-		headers: { "Content-Type": "application/json" },
-	});
-
-	if (!res.ok) {
+	const res = await fetch(`/api/users/opponent/${opponentId}`, {		method: "GET",
+		headers: { "Content-Type": "application/json" },})
+			if (!res.ok) {
 		throw new Error("Failed to fetch OpponentUser.");
 	}
 
@@ -125,6 +122,27 @@ export async function getOpponentData(opponentId: string): Promise<PlayerData | 
 
 	return opponent;
 }
+
+export async function updateBackGroundTheme(backgroundThemeVal: number): Promise<boolean> {
+	let data;
+
+	try {
+		const response = await fetch("/api/users/me/background-theme", {
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ backgroundTheme: backgroundThemeVal }),
+		});
+		data = await response.json();
+	} catch (error) {
+		console.log(error);
+		throw new Error("Failed to update background theme.");
+	}
+
+	return data;
+}
+
+
+
 
 // Calls the backend to get the best 10 players
 export async function getLeaderboard(): Promise<PlayerData[]> {

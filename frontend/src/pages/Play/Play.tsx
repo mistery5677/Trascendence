@@ -7,6 +7,15 @@ import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoad
 import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
 import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
+import chess from "../../assets/chess-pieces.png";
+import cat from "../../assets/cat.jpg";
+import cloud from "../../assets/sky.jpg";
+
+const BACKGROUND_THEMES: Record<number, string> = {
+	1: chess,
+	2: cat,
+	3: cloud,
+};
 
 export function Play() {
 	const { state } = useAuth();
@@ -26,10 +35,16 @@ export function Play() {
 		return <MatchmakingLoading isConnected={isConnected} />;
 	}
 
+	const userThemeId = state.user?.backgroundTheme || 1;
+
+	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
+
 	return (
-		
-		<div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-			{drawProposal && (
+		// <div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
+		<div
+			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+			style={{ backgroundImage: "url(" + selectedBackground + ")" }}>
+				{drawProposal && (
 				<ConfirmationModal
 					title="Draw?"
 					description="The opponent wants to play again. Do you accept the challenge?"
@@ -64,7 +79,9 @@ export function Play() {
 				<div className="flex w-full flex-col rounded-xl xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
 					<div className="flex min-h-0 flex-col xl:h-[calc(100vh)] xl:max-h-[calc(100vh-7rem)]">
 						<MatchSidebar />
-						<GameActions />
+						<div className="flex max-w align-middle justify-center">
+							<GameActions />
+						</div>
 					</div>
 				</div>
 			</div>

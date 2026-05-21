@@ -113,6 +113,18 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
+  @Patch('me/background-theme')
+  async updateBackgroundTheme(@Body() body, @Req() req) {
+    const userId = req.user.userId;
+    const { backgroundTheme } = body;
+
+    return await this.usersService.updateBackgroundTheme(
+      parseInt(userId),
+      parseInt(backgroundTheme),
+    );
+  }
+
+  @UseGuards(AuthGuard)
   @Patch('me/email')
   async updateEmail(@Body() body, @Req() req) {
     const userId = req.user.userId;
