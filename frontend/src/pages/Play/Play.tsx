@@ -4,17 +4,24 @@ import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { MatchmakingLoading } from "../../components/MatchMaking/MatchMakingLoading";
-import { GameOverModal } from "../../components/GameOver/GameOverModal";
+import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
+import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 import chess from "../../assets/chess-pieces.png";
 import cat from "../../assets/cat.jpg";
 import sky from "../../assets/sky.jpg";
+
+const BACKGROUND_THEMES: Record<number, string> = {
+	1: chess,
+	2: cat,
+	3: sky,
+};
 
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0);
-	const { gameId, isConnected, color, opponent } = useGame();
+	const { gameId, isConnected, color, opponentId, drawProposal, handleDrawResponse } = useGame();
 
 	useEffect(() => {
 		setTimerKey((prevKey) => prevKey + 1);
@@ -28,29 +35,25 @@ export function Play() {
 		return <MatchmakingLoading isConnected={isConnected} />;
 	}
 
-	const handleBackground = () => {
-		switch (state.user?.backgroundTheme) {
-			case 1: {
-				return chess;
-			}
-			case 2: {
-				return cat;
-			}
-			case 3: {
-				return sky;
-			}
-			default:
-				return chess;
-		}
-	};
+	const userThemeId = state.user?.backgroundTheme || 1;
 
-	const backgroundImage = handleBackground();
+	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
 
 	return (
-		// <div className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
 		<div
 			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
-			style={{ backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined }}>
+			style={{ backgroundImage: "url(" + selectedBackground + ")" }}>
+			{drawProposal && (
+				<ConfirmationModal
+					title="Draw?"
+					description="The opponent wants to play again. Do you accept the challenge?"
+					icon="🔄"
+					confirmLabel="Accept"
+					cancelLabel="Decline"
+					onResponse={handleDrawResponse}
+					variant="info"
+				/>
+			)}
 			{/* GameOver */}
 			<GameOverModal />
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
@@ -61,7 +64,7 @@ export function Play() {
 						color={color}
 						state={state}
 						timerKey={timerKey}
-						opponent={opponent}
+						opponentId={opponentId}
 						className="max-w-[calc(100vh-5rem)]"
 					/>
 				</div>

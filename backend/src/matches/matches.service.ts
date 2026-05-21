@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { stringify } from 'querystring';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MatchesService {
@@ -56,17 +56,17 @@ export class MatchesService {
     return await this.prisma.matchHistory.findMany({
       where: {
         OR: [
-          { playerAId : userId }, // User of the white pieces
-          { playerBId : userId}, // User of the black pieces
+          { playerAId: userId }, // User of the white pieces
+          { playerBId: userId }, // User of the black pieces
         ],
       },
       orderBy: { createdAt: 'desc' }, // Order the match from the oldest one
       include: {
         // Get the username of the users
         playerA: { select: { username: true } },
-        playerB: { select: { username: true } }
-      }
-    })
+        playerB: { select: { username: true } },
+      },
+    });
   }
 
   // Get the match history of the username
@@ -74,8 +74,8 @@ export class MatchesService {
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
-  
-    if (!user){
+
+    if (!user) {
       throw new NotFoundException("User doesn't exist");
     }
 

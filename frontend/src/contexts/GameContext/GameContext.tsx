@@ -2,31 +2,23 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
-import { useNavigate } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-export const GameProvider = ({
-	children,
-	mode,
-	gameId: urlGameId,
-}: {
-	children: React.ReactNode;
-	mode: string;
-	gameId: string | null;
-}) => {
+export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const { state: authState } = useAuth();
-	const navigate = useNavigate();
-	const [gameId, setGameId] = useState<string | null>(urlGameId);
+	const [gameId, setGameId] = useState<string | null>(null);
 	const [color, setColor] = useState<"w" | "b" | null>("w");
 	const [fen, setFen] = useState("start");
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
 	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
-	const [opponent, setOpponent] = useState<string | null>(null);
+	const [drawProposal, setDrawProposal] = useState<boolean>(false);
+	const [opponentId, setOpponentId] = useState<string | null>(null);
+	const gameIdRef = React.useRef<string | null>(null);
 
-	if (!authState.user) return;
+	if (!authState.user) return null;
 
 	const surrender = () => {
 		if (socket && gameId) {
@@ -39,11 +31,20 @@ export const GameProvider = ({
 			socket.emit("proposeDraw", { gameId });
 		}
 	};
-
-	const respondDraw = (response: boolean) => {
+	const proposeRematch = () => {
 		if (socket && gameId) {
-			socket.emit("respondDraw", { gameId, response });
+			socket.emit("proposeRematch", { gameId });
 		}
+	};
+
+	const handleDrawResponse = (accept: boolean) => {
+		if (socket && gameId) {
+			socket.emit("respondDraw", {
+				gameId: gameId,
+				response: accept,
+			});
+		}
+		setDrawProposal(false);
 	};
 
 	useEffect(() => {
@@ -54,11 +55,13 @@ export const GameProvider = ({
 
 		socketInstance.on("connect", () => {
 			console.log("Connected to server");
+			setIsConnected(true);
 
-			if (urlGameId) {
-				console.log("Reconnecting to game:", urlGameId);
-				socketInstance.emit("joinGame", { gameId: urlGameId });
-			} else if (mode === "bot") {
+			if (gameIdRef.current) {
+				console.log("Reconnection game on going");
+				return;
+			}
+			if (mode === "bot") {
 				console.log("Starting game against Bot");
 				socketInstance.emit("startBotGame");
 			} else {
@@ -68,19 +71,13 @@ export const GameProvider = ({
 		});
 
 		socketInstance.on("gameState", (data: any) => {
-			setGameId(data.gameId || urlGameId);
+			setGameId(data.gameId);
+			gameIdRef.current = data.gameId;
 			setColor(data.color);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			setIsConnected(true);
-			setOpponent((prev) =>
-				typeof data.opponent === "string" ? data.opponent : prev,
-			);
-
-			// console.log("currentTurn inside GameContext: ", currentTurn);
-
-			if (data.gameId && !urlGameId)
-				navigate(`?mode=${mode}&gameId=${data.gameId}`);
+			setOpponentId(data.opponentId);
 		});
 
 		socketInstance.on("move", (data: any) => {
@@ -98,22 +95,15 @@ export const GameProvider = ({
 		return () => {
 			socketInstance.disconnect();
 		};
-	}, []);
+	}, [gameId, mode]);
 	useEffect(() => {
 		if (!socket || !gameId) {
 			return;
 		}
 
 		socket.on("drawProposed", (data) => {
-			console.log("Propose Sent to :", gameId);
-			const accept = window.confirm(
-				"Your opponent proposes a draw. Do you accept?",
-			);
-
-			socket.emit("respondDraw", {
-				gameId: gameId,
-				response: accept,
-			});
+			console.log("Propose Sent to :", data.gameId);
+			setDrawProposal(true);
 		});
 
 		socket.on("drawRejected", () => {
@@ -121,7 +111,7 @@ export const GameProvider = ({
 		});
 
 		return () => {
-			socket.off("drawPropose");
+			socket.off("drawProposed");
 			socket.off("drawRejected");
 		};
 	}, [socket, gameId]);
@@ -135,12 +125,14 @@ export const GameProvider = ({
 				isConnected,
 				fen,
 				currentTurn,
-				opponent,
 				gameOver,
 				surrender,
+				drawProposal,
+				handleDrawResponse,
 				proposeDraw,
-			}}
-		>
+				proposeRematch,
+				opponentId,
+			}}>
 			{children}
 		</GameContext.Provider>
 	);

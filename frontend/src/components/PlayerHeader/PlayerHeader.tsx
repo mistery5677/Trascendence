@@ -11,19 +11,18 @@ type PlayerHeaderProps = {
 	state: AuthState;
 	timerKey: number;
 	className?: string | undefined;
-	opponent?: string | null;
+	opponentId?: string | null;
 };
 
-export function PlayerHeader({ currentTurn, color, state, timerKey, opponent, className = "" }: PlayerHeaderProps) {
+export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, className = "" }: PlayerHeaderProps) {
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
-
 	useEffect(() => {
-		if (!opponent) {
+		if (!opponentId) {
 			return;
 		}
 
 		let cancelled = false;
-		getOpponentData(opponent)
+		getOpponentData(opponentId)
 			.then((data) => {
 				if (!cancelled) setOpponentProfile(data);
 			})
@@ -34,16 +33,14 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponent, cl
 		return () => {
 			cancelled = true;
 		};
-	}, [opponent]);
-
-	const opponentDisplayName = opponentProfile?.username ?? opponent ?? "Opponent";
+	}, [opponentId]);
+	const opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
 
 	const opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : null;
 
-
 	return (
 		<div
-			className={`flex flex-row gap-2 text-white w-full justify-between items-center bg-stone-900/70 p-2 sm:p-4 rounded-2xl border border-emerald-300/15 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
+			className={`flex flex-row gap-2 text-white w-full justify-between items-center bg-stone-900/70 p-4 rounded-2xl border border-emerald-300/15 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
 			{/* left user */}
 			<div
 				className={`flex flex-row items-center gap-2 sm:gap-4 p-2 sm:px-4 sm:py-2 rounded-xl transition-all duration-500 ${

@@ -1,11 +1,23 @@
 import { Module } from '@nestjs/common';
-import { GameGateway } from './game.gateway';
-import { MatchMakingService } from './matchmaking/matchmaking.service';
-import { GameService } from './game.service';
+import { GameGateway } from './gateways/game.gateway';
+import { MatchMakingService } from './services/matchmaking.service';
+import { GameService } from './services/game.service';
 import { MatchesModule } from 'src/matches/matches.module';
 import { UsersModule } from 'src/users/users.module';
+import { ChatGateway } from './gateways/chat.gateway';
+import { PresenceGateway } from './gateways/presence.gateway';
+import { PresenceService } from './services/presence.service';
+import { MatchGateway } from './gateways/match.gateway';
 @Module({
   imports: [MatchesModule, UsersModule],
-  providers: [GameService, GameGateway, MatchMakingService],
+  providers: [
+    GameService,
+    GameGateway,
+    ChatGateway,
+    PresenceGateway,
+    PresenceService,
+    MatchGateway,
+    MatchMakingService,
+  ],
 })
 export class WebsocketsModule {}

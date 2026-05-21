@@ -21,7 +21,6 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'node:path';
 import { diskStorage } from 'multer';
-import { brotliDecompress } from 'node:zlib';
 
 @Controller('/users')
 export class UsersController {
@@ -33,14 +32,30 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  //   @Get(':id')
-  //   findOne(@Param('id') id: string) {
-  //     return this.usersService.findOne(parseInt(id));
-  //   }
+  @Get('check-username')
+  async checkUsername(@Query('username') username: string) {
+    const user = await this.usersService.findOneByUsername(username);
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(parseInt(id));
+    return { isAvailable: !user };
+  }
+
+  @Get('check-email')
+  async checkEmail(@Query('email') email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    return { isAvailable: !user };
+  }
+
+  // Call the getLeaderboard function
+  @Get('leaderboard')
+  @Header('Cache-Control', 'no-store') // Prevent browser from saving old leaderboards
+  async getLeaderboard() {
+    return this.usersService.getLeaderboard();
+  }
+
+  @Get('search')
+  async searchUsers(@Query('username') username: string) {
+    return await this.usersService.getUsers(username || '');
   }
 
   @UseGuards(AuthGuard)
@@ -70,7 +85,6 @@ export class UsersController {
 
     const avatarUrl = `/assets/avatars/uploaded/${file.filename}`;
 
-    console.log(avatarUrl);
     return await this.usersService.updateAvatar(parseInt(userId), avatarUrl);
   }
 
@@ -99,6 +113,18 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
+  @Patch('me/background-theme')
+  async updateBackgroundTheme(@Body() body, @Req() req) {
+    const userId = req.user.userId;
+    const { backgroundTheme } = body;
+
+    return await this.usersService.updateBackgroundTheme(
+      parseInt(userId),
+      parseInt(backgroundTheme),
+    );
+  }
+
+  @UseGuards(AuthGuard)
   @Patch('me/email')
   async updateEmail(@Body() body, @Req() req) {
     const userId = req.user.userId;
@@ -116,29 +142,27 @@ export class UsersController {
     return await this.usersService.updateUsername(parseInt(userId), username);
   }
 
-  @Get('check-username')
-  async checkUsername(@Query('username') username: string) {
-    const user = await this.usersService.findOneByUsername(username);
+  @Get('opponent/:id')
+  async getOpponentById(@Param('id') id: string) {
+    const user = await this.usersService.findOneById(parseInt(id));
+    if (!user) return null;
 
-    return { isAvailable: !user };
+    const {
+      email,
+      wins,
+      losses,
+      draws,
+      boardTheme,
+      name,
+      createdAt,
+      updatedAt,
+      ...opponent
+    } = user;
+    return opponent;
   }
 
-  @Get('check-email')
-  async checkEmail(@Query('email') email: string) {
-    const user = await this.usersService.findOneByEmail(email);
-
-    return { isAvailable: !user };
-  }
-
-  // Call the getLeaderboard function
-  @Get('leaderboard')
-  @Header('Cache-Control', 'no-store') // Prevent browser from saving old leaderboards
-  async getLeaderboard() {
-    return this.usersService.getLeaderboard();
-  }
-
-  @Get('search')
-  async searchUsers(@Query('username') username: string) {
-    return await this.usersService.getUsers(username || '');
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(parseInt(id));
   }
 }

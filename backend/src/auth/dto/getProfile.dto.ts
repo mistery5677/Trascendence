@@ -14,5 +14,6 @@ export class getProfileDto {
   createdAt!: Date;
   updatedAt!: Date;
   boardTheme!: number;
+  backgroundTheme!: number;
   score!: Score;
 }

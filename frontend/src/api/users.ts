@@ -110,14 +110,27 @@ export async function updateBoardTheme(boardThemeVal: number): Promise<boolean> 
 	return data;
 }
 
+export async function getOpponentData(opponentId: string): Promise<PlayerData | null> {
+
+	const res = await fetch(`/api/users/opponent/${opponentId}`, {		method: "GET",
+		headers: { "Content-Type": "application/json" },})
+			if (!res.ok) {
+		throw new Error("Failed to fetch OpponentUser.");
+	}
+
+	const opponent: PlayerData = await res.json();
+
+	return opponent;
+}
+
 export async function updateBackGroundTheme(backgroundThemeVal: number): Promise<boolean> {
 	let data;
 
 	try {
 		const response = await fetch("/api/users/me/background-theme", {
 			method: "PATCH",
-			headers: { "Content-Type": "applications/json" },
-			body: JSON.stringify({ backgroundTHeme: backgroundThemeVal }),
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ backgroundTheme: backgroundThemeVal }),
 		});
 		data = await response.json();
 	} catch (error) {
@@ -128,20 +141,8 @@ export async function updateBackGroundTheme(backgroundThemeVal: number): Promise
 	return data;
 }
 
-export async function getOpponentData(username: string): Promise<PlayerData | null> {
-	const res = await fetch(`/api/users/search?username=${encodeURIComponent(username)}`, {
-		method: "GET",
-		headers: { "Content-Type": "application/json" },
-	});
 
-	if (!res.ok) {
-		throw new Error("Failed to fetch OpponentUser.");
-	}
 
-	const list: PlayerData[] = await res.json();
-	const exact = list.find((u) => u.username.toLowerCase() === username.toLowerCase());
-	return exact ?? (list.length === 1 ? list[0] : null);
-}
 
 // Calls the backend to get the best 10 players
 export async function getLeaderboard(): Promise<PlayerData[]> {
