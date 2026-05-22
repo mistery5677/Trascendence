@@ -214,25 +214,28 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
-
 	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3) => async () => {
-	try {
-		await updateBackGroundTheme(backgroundID);
+		try {
+			await updateBackGroundTheme(backgroundID);
 
-		toastWrapper.success("Background theme update successfully.");
+			toastWrapper.success("Background theme update successfully.");
 
-		if (state.user) {
-			dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, backgroundTheme: backgroundID } });
+			if (state.user) {
+				dispatch({ type: "AUTH_SUCCESS", payload: { ...state.user, backgroundTheme: backgroundID } });
+			}
+		} catch (error) {
+			toastWrapper.error("Error changing background.");
 		}
-	} catch (error) {
-		toastWrapper.error("Error changing background.");
-	}
-};
+	};
 
 	return (
 		<>
-			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100 bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-				<div className="mx-auto w-full lg:w-[60%]">
+			<main className="relative min-h-screen overflow-hidden bg-stone-900 py-16">
+				<div className="pointer-events-none absolute -top-28 -left-20 h-80 w-80 rounded-full bg-stone-400/20 blur-3xl" />
+				<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
+				<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
+
+				<div className="relative max-w-4xl sm:mx-auto mx-2 p-8 text-stone-100 rounded-3xl border border-stone-200/20 bg-stone-200/10 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
 					<header className="mb-8">
 						<h1 className="text-4xl font-extrabold tracking-tight">⚙️ Settings</h1>
 						<p className="mt-2 text-sm text-stone-400">

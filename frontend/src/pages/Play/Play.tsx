@@ -56,7 +56,7 @@ export function Play() {
 			)}
 			{/* GameOver */}
 			<GameOverModal />
-			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
+			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_26rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
 				{/* PlayerHeader */}
 				<div className="flex justify-center xl:col-start-1 xl:row-start-1">
 					<PlayerHeader
@@ -70,7 +70,7 @@ export function Play() {
 				</div>
 				{/* Board */}
 				<section className="flex items-center justify-center w-full max-h-screen xl:col-start-1 xl:row-start-2">
-					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
+					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-21rem)] rounded-xl border border-stone-700 shadow-md">
 						<Board onTurnChange={handleTurnChange} />
 					</div>
 				</section>

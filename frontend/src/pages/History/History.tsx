@@ -7,13 +7,13 @@ import { useParams } from "react-router-dom";
 
 export function HistoryPage() {
 	const [history, setHistory] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(true);
 
 	// The username that we want to find the match history
 	const { username } = useParams<{ username: string }>();
 
 	const { state } = useAuth(); // Get the logged user
-    const myUsername = state?.user?.username;
+	const myUsername = state?.user?.username;
 	const targetUsername = username || "admin";
 
 	useEffect(() => {
@@ -21,24 +21,24 @@ export function HistoryPage() {
 
 		const fetchHistory = async () => {
 			if (!targetUsername) {
-                setLoading(false);
-                return;
-            }
+				setLoading(false);
+				return;
+			}
 			setLoading(true); // Loading system
-			try{
+			try {
 				let data;
-				if (username){
+				if (username) {
 					data = await getHistoryByUsername(targetUsername);
 				} else {
 					data = await getMatchHistory();
 				}
 				setHistory(data);
 			} catch (error) {
-                console.error("Failed to load the history of the player: ", error);
-            } finally {
-                setLoading(false);
-            }
-		}
+				console.error("Failed to load the history of the player: ", error);
+			} finally {
+				setLoading(false);
+			}
+		};
 
 		fetchHistory();
 	}, [username, myUsername, targetUsername]);
@@ -70,8 +70,12 @@ export function HistoryPage() {
 
 	return (
 		<>
-			<main className="min-h-[calc(100vh-5rem)] w-full px-4 py-10 text-stone-100 bg-stone-800 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-				<div className="mx-auto w-full lg:w-[60%] bg-stone-900/90 border border-stone-700 rounded-3xl p-8 shadow-lg shadow-stone-950/30">
+			<main className="relative min-h-[calc(100vh-5rem)] w-full overflow-hidden px-4 py-10 text-stone-100 bg-stone-900">
+				<div className="pointer-events-none absolute -top-28 -left-20 h-80 w-80 rounded-full bg-stone-400/20 blur-3xl" />
+				<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
+				<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
+
+				<div className="relative mx-auto w-full lg:w-[60%] rounded-3xl border border-stone-200/20 bg-stone-200/10 p-8 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
 					{/* Header */}
 					<header className="mb-8">
 						<h1 className="text-4xl font-extrabold tracking-tight flex gap-2 items-center text-emerald-200">
@@ -127,17 +131,19 @@ export function HistoryPage() {
 									) : (
 										history.map((match) => {
 											const isTargetPlayerA = match.playerA.username === targetUsername;
-											const opponentName = isTargetPlayerA ? match.playerB.username : match.playerA.username;
+											const opponentName = isTargetPlayerA
+												? match.playerB.username
+												: match.playerA.username;
 											const playedAs = isTargetPlayerA ? "White" : "Black";
-											
-											const targetUserId = isTargetPlayerA ? match.playerAId : match.playerBId; // We need to check who won 
+
+											const targetUserId = isTargetPlayerA ? match.playerAId : match.playerBId; // We need to check who won
 
 											let resultText = "DRAW"; // The match result to return
 											let resultColor = "text-slate-400";
 
-											if (match.result.startsWith('WINNER_ID_')) {
-												const winnerId = parseInt(match.result.replace('WINNER_ID_', ''));
-												
+											if (match.result.startsWith("WINNER_ID_")) {
+												const winnerId = parseInt(match.result.replace("WINNER_ID_", ""));
+
 												// If the winner ID is equal to the target, its victory as result
 												if (winnerId === targetUserId) {
 													resultText = "VICTORY";
@@ -158,7 +164,7 @@ export function HistoryPage() {
 													<td className="p-4 text-stone-400">{dateStr}</td>
 													<td className="p-4 text-stone-400">{playedAs}</td>
 													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
-														{resultText} 
+														{resultText}
 													</td>
 												</tr>
 											);

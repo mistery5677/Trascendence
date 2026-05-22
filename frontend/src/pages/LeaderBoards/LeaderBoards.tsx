@@ -68,8 +68,12 @@ export function LeaderBoards() {
 	}
 
 	return (
-		<div className="min-h-screen bg-stone-800 pt-24 pb-12 px-4 sm:px-6 lg:px-8 text-stone-100 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-			<div className="max-w-4xl mx-auto">
+		<div className="relative min-h-screen overflow-hidden bg-stone-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 text-stone-100">
+			<div className="pointer-events-none absolute -top-28 -left-20 h-80 w-80 rounded-full bg-stone-400/20 blur-3xl" />
+			<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
+			<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
+
+			<div className="relative max-w-4xl mx-auto">
 				{/* Header */}
 				<div className="text-center mb-12 animate-fade-in">
 					<div className="inline-flex items-center justify-center p-3 bg-stone-900/80 rounded-2xl border border-emerald-300/20 shadow-[0_0_30px_-10px_rgba(52,211,153,0.3)] mb-4">
@@ -124,26 +128,28 @@ export function LeaderBoards() {
 												</div>
 											</td>
 
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-3">
-                                                    {/* Player image */}
-                                                    {player.avatarUrl ? (
-                                                        <img src={player.avatarUrl} alt="avatar" className="size-10 rounded-xl object-cover border border-stone-700" />
-                                                    ) : (
-                                                        <div className="flex items-center justify-center size-10 rounded-xl bg-stone-800 border border-stone-700">
-                                                          
-                                                        </div>
-                                                    )}
-                                                    <span className="font-semibold text-stone-200 text-lg">
-                                                        {/* With link, you can change the page without the fliker */}
-                                                        <Link
-                                                            to={`/history/${player.username}`}
-                                                            className="text-emerald-400 hover:underline">
-                                                            {player.username}
-                                                        </Link>
-                                                    </span>
-                                                </div>
-                                            </td>
+											<td className="p-4">
+												<div className="flex items-center gap-3">
+													{/* Player image */}
+													{player.avatarUrl ? (
+														<img
+															src={player.avatarUrl}
+															alt="avatar"
+															className="size-10 rounded-xl object-cover border border-stone-700"
+														/>
+													) : (
+														<div className="flex items-center justify-center size-10 rounded-xl bg-stone-800 border border-stone-700"></div>
+													)}
+													<span className="font-semibold text-stone-200 text-lg">
+														{/* With link, you can change the page without the fliker */}
+														<Link
+															to={`/history/${player.username}`}
+															className="text-emerald-400 hover:underline">
+															{player.username}
+														</Link>
+													</span>
+												</div>
+											</td>
 
 											<td className="p-4 text-center">
 												<span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 font-medium">

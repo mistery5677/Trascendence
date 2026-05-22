@@ -141,8 +141,12 @@ export function Friends() {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	return (
-		<div className="min-h-screen bg-stone-800 bg-linear-to-r from-stone-800 to-stone-900 py-16 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')]">
-			<div className="max-w-4xl mx-auto p-8 bg-stone-700/50 text-stone-100 rounded-3xl shadow-2xl border border-stone-700 backdrop-blur-md">
+		<div className="relative min-h-screen overflow-hidden bg-stone-900 py-16">
+			<div className="pointer-events-none absolute -top-28 -left-20 h-80 w-80 rounded-full bg-stone-400/20 blur-3xl" />
+			<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
+			<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
+
+			<div className="relative max-w-4xl sm:mx-auto mx-2 p-8 text-stone-100 rounded-3xl border border-stone-200/20 bg-stone-200/10 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
 				<div className="flex items-center justify-between mb-8">
 					<h1 className="text-4xl font-black text-emerald-300">Friends Hub</h1>
 				</div>
@@ -198,7 +202,9 @@ export function Friends() {
 												title={`View ${friend.username}'s Match History`}>
 												<p className="font-bold text-lg text-stone-200">{friend.username}</p>
 											</Link>
-											<p className="text-sm whitespace-nowrap  text-emerald-400">ELO: {friend.elo}</p>
+											<p className="text-sm whitespace-nowrap  text-emerald-400">
+												ELO: {friend.elo}
+											</p>
 										</div>
 									</div>
 									<div className="flex gap-3">

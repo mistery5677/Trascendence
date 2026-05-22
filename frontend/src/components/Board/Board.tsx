@@ -1,11 +1,10 @@
-import { Chessboard, fenStringToPositionObject } from "react-chessboard";
+import { Chessboard } from "react-chessboard";
 import { useRef, useEffect, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
-import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
-import { ChartNoAxesColumnIcon } from "lucide-react";
+import type { loadMoveEffect } from "../../utils/loadMoveEffect";
 
 export type PieceColor = "w" | "b";
 
@@ -45,6 +44,7 @@ const themes = {
 };
 
 export function Board({ onTurnChange }: BoardProps) {
+	const playMoveEffect = useRef<ReturnType<typeof loadMoveEffect>>(null);
 	const { state } = useAuth();
 	const themeArray = [themes.forest, themes.classic, themes.midnight];
 
@@ -66,7 +66,6 @@ export function Board({ onTurnChange }: BoardProps) {
 
 	const onPieceDrop = useCallback(
 		({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
-
 			if (!gameId || !socket || currentTurn !== color) return false;
 
 			if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
@@ -80,6 +79,11 @@ export function Board({ onTurnChange }: BoardProps) {
 				to: targetSquare,
 				promotion: "q",
 			};
+
+			// if (playMoveEffect.current) {
+			// 	console.log("hereeeeeee");
+			// 	playMoveEffect.current();
+			// }
 
 			try {
 				const move = chessGame.move(moveData);
