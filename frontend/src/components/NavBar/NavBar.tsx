@@ -9,7 +9,6 @@ import {
 	MenuItem,
 	MenuItems,
 } from "@headlessui/react";
-import { sendFriendRequest } from "../../api/friendRequest";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/UserContext";
 import { useEffect, useState } from "react";
@@ -201,7 +200,7 @@ export function NavBar({ onModal }: NavBarProps) {
 									</MenuItem>
 									<MenuItem>
 										<a
-											href="/history"
+											href={`/history/${state.user.username}`}
 											className="block px-4 py-2.5 text-sm font-medium text-stone-300 hover:bg-emerald-400/12 hover:text-stone-100 transition-colors">
 											History
 										</a>
