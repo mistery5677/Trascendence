@@ -12,9 +12,15 @@ export class PresenceService {
     this.userStatus.set(userId, 'online');
   }
 
-  setDisconnected(userId: string) {
-    this.activeSockets.delete(userId);
-    this.userStatus.delete(userId);
+  setDisconnected(userId: string, socketId: string): boolean {
+    const currentActiveSocketId = this.activeSockets.get(userId);
+
+    if (currentActiveSocketId === socketId) {
+      this.activeSockets.delete(userId);
+      this.userStatus.delete(userId);
+      return true;
+    }
+    return false; 
   }
 
   updateStatus(userId: string, status: UserStatus) {

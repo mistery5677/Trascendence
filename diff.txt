@@ -1,0 +1,610 @@
+diff --git a/backend/src/websockets/gateways/game.gateway.ts b/backend/src/websockets/gateways/game.gateway.ts
+index f170240..db0ff8a 100644
+--- a/backend/src/websockets/gateways/game.gateway.ts
++++ b/backend/src/websockets/gateways/game.gateway.ts
+@@ -13,7 +13,6 @@ import { MatchMakingService } from '../services/matchmaking.service';
+ import { JwtService } from '@nestjs/jwt';
+ import { WsMiddleware } from '../middleware/ws.middleware';
+ import { GameService } from '../services/game.service';
+-import { v4 as uuidv4 } from 'uuid';
+ 
+ @WebSocketGateway()
+ export class GameGateway implements OnGatewayInit {
+diff --git a/backend/src/websockets/gateways/match.gateway.ts b/backend/src/websockets/gateways/match.gateway.ts
+index 61e0311..2608e9c 100644
+--- a/backend/src/websockets/gateways/match.gateway.ts
++++ b/backend/src/websockets/gateways/match.gateway.ts
+@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
+ import { GameService } from '../services/game.service';
+ import { UsersService } from 'src/users/users.service';
+ 
+-@WebSocketGateway()
++@WebSocketGateway({ cors: true })
+ export class MatchGateway {
+   @WebSocketServer()
+   server!: Server;
+@@ -54,6 +54,48 @@ export class MatchGateway {
+       mode: 'bot',
+     });
+   }
++
++  @SubscribeMessage('checkActiveGame')
++  handleCheckActiveGame(@ConnectedSocket() client: Socket) {
++    const userId = client.data.user.userId;
++
++    if (!userId) {
++      client.emit('error', { message: 'User unauthorized or not found' });
++      return;
++    }
++
++    const activeMatch = this.gameService.findActiveGameByUserId(userId);
++    if (activeMatch) {
++      const { gameId, game } = activeMatch;
++      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
++
++      client.join(gameId);
++
++      const state = this.gameService.getGameState(gameId);
++      if (state) {
++        const userColor = userId === game.playerW ? 'w' : 'b';
++        const opponentId =
++          userId === game.playerW ? game.playerB : game.playerW;
++
++        client.emit('gameState', {
++          gameId: gameId,
++          fen: state.fen,
++          currentTurn: state.turn,
++          color: userColor,
++          mode: game.mode,
++          opponentId: opponentId || 'bot',
++        });
++        //! Still considering have a screen that tells the other player when user reconnect
++        client.to(gameId).emit('opponentReconnected', { userId });
++      } else {
++        client.emit('activeGameNotFound');
++      }
++    } else {
++      console.log(`[Game] No active game for user ${userId}.`);
++      client.emit(`noActiveGame`);
++    }
++  }
++
+   @SubscribeMessage('joinGame')
+   async handleJoinGame(
+     @ConnectedSocket() client: Socket,
+diff --git a/backend/src/websockets/gateways/presence.gateway.ts b/backend/src/websockets/gateways/presence.gateway.ts
+index b64233d..cf27c42 100644
+--- a/backend/src/websockets/gateways/presence.gateway.ts
++++ b/backend/src/websockets/gateways/presence.gateway.ts
+@@ -31,46 +31,48 @@ export class PresenceGateway
+   }
+ 
+   handleConnection(client: Socket) {
+-    const userId = client.data.user.userId;
+-    client.join(`user_${userId}`);
+-    this.presenceService.setConnected(userId, client.id);
++    const user = client.data?.user;
++    if (!user || !user.userId) {
++      console.error(
++        `[Presence] Connection rejected: User data missing in socket.data`,
++      );
++      client.disconnect(true);
++      return;
++    }
+ 
+-    this.server?.emit('userStatusChanged', { userId, status: 'online' });
++    const userId = user.userId;
+ 
+-    const activeMatch = this.gameService.findActiveGameByUserId(userId);
+-    if (activeMatch) {
+-      const { gameId, game } = activeMatch;
+-      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
++    client.join(`user_${userId}`);
+ 
+-      client.join(gameId);
++    this.presenceService.setConnected(userId, client.id);
+ 
+-      const state = this.gameService.getGameState(gameId);
+-      if (state) {
+-        const userColor = userId === game.playerW ? 'w' : 'b';
+-        const opponentId =
+-          userId === game.playerW ? game.playerB : game.playerW;
++    this.server?.emit('userStatusChanged', { userId, status: 'online' });
+ 
+-        client.emit('gameState', {
+-          gameId: gameId,
+-          fen: state.fen,
+-          currentTurn: state.turn,
+-          color: userColor,
+-          mode: game.mode,
+-          opponentId: opponentId || 'bot',
+-        });
+-        //! Still considering have a screen that tells the other player when user reconnect
+-        client.to(gameId).emit('opponentReconnected', { userId });
+-      }
+-    }
++    console.log(
++      `[Presence] User:${userId} successfully connected, ${client.id}`,
++    );
+   }
+ 
+   handleDisconnect(client: Socket) {
+-    const userId = client.data.user.userId;
++    const user = client.data?.user;
++    if (!user || !user.userId) return;
++
++    const userId = user.userId;
++
+     this.matchMakingService.removeFromQueue(client);
+-    this.presenceService.setDisconnected(userId);
+-    this.server?.emit('userStatusChanged', { userId, status: 'offline' });
+-    console.log(
+-      `User ${client.data.user.username} disconnected and cleaned up.`,
++
++    const isRealDisconnect = this.presenceService.setDisconnected(
++      userId,
++      client.id,
+     );
++
++    if (isRealDisconnect) {
++      this.server?.emit('userStatusChanged', { userId, status: 'offline' });
++      console.log(`[Presence] User ${user.username} fully disconnected.`);
++    } else {
++      console.log(
++        `[Presence] Ignored old socket cleanup for user ${user.username}`,
++      );
++    }
+   }
+ }
+diff --git a/backend/src/websockets/services/matchmaking.service.ts b/backend/src/websockets/services/matchmaking.service.ts
+index 7bffe30..9437980 100644
+--- a/backend/src/websockets/services/matchmaking.service.ts
++++ b/backend/src/websockets/services/matchmaking.service.ts
+@@ -10,25 +10,78 @@ export class MatchMakingService {
+ 
+   constructor(private readonly gameService: GameService) {}
+ 
+-  addToQueue(client: Socket, server: Server) {
+-    if (
+-      this.queue.find((c) => c.data.user.userId === client.data.user.userId)
+-    ) {
+-      this.logger.warn(
+-        `Player ${client.data.user.username} is already on queue`,
++    addToQueue(client: Socket, server: Server) {
++      const userId = client.data.user.userId;
++
++      this.queue = this.queue.filter(
++        (queuedSocket) => queuedSocket.data.user.userId !== userId,
+       );
+-      return;
+-    }
+-    this.queue.push(client);
++      if (
++        this.queue.find((c) => c.data.user.userId === client.data.user.userId)
++      ) {
++        this.logger.warn(
++          `Player ${client.data.user.username} is already on queue`,
++        );
++        return;
++      }
++      this.queue.push(client);
+ 
+-    this.logger.log(
+-      `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
+-    );
++      this.logger.log(
++        `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
++      );
+ 
+-    if (this.queue.length >= 2) {
+-      this.createMatch(server);
++      if (this.queue.length >= 2) {
++        this.createMatch(server);
++      }
+     }
+-  }
++
++//   addToQueue(client: Socket, server: Server) {
++//     try {
++//       // 1. Control de seguridad: Validar que el usuario exista en el socket
++//       const user = client.data?.user;
++//       if (!user || !user.userId) {
++//         this.logger.error(
++//           `[Queue Error] Rejection: Socket ${client.id} doesn't have user data attached.`,
++//         );
++//         return;
++//       }
++
++//       const userId = user.userId;
++//       this.logger.log(
++//         `[Queue Attempt] Player ${user.username} (ID: ${userId}) is trying to join.`,
++//       );
++
++//       // 2. Limpieza preventiva estricta:
++//       // Filtramos la cola para sacar CUALQUIER conexión vieja o duplicada de este usuario.
++//       const initialSize = this.queue.length;
++//       this.queue = this.queue.filter(
++//         (queuedSocket) => queuedSocket.data?.user?.userId !== userId,
++//       );
++
++//       if (this.queue.length !== initialSize) {
++//         this.logger.log(
++//           `[Queue Cleanup] Removed ${initialSize - this.queue.length} old/duplicate socket(s) for user ${user.username}`,
++//         );
++//       }
++
++//       // 3. Añadir el socket nuevo y válido a la cola
++//       this.queue.push(client);
++
++//       this.logger.log(
++//         `[Queue Success] Player ${user.username} successfully joined. Current queue size: ${this.queue.length}`,
++//       );
++
++//       // 4. Disparar emparejamiento si hay suficientes jugadores
++//       if (this.queue.length >= 2) {
++//         this.logger.log(
++//           `[Matchmaking] Sufficient players found (${this.queue.length}). Creating match...`,
++//         );
++//         this.createMatch(server);
++//       }
++//     } catch (error) {
++//       this.logger.error(`[Queue Critical Error] Exception in addToQueue:`);
++//     }
++//   }
+ 
+   private createMatch(server: Server) {
+     const player1 = this.queue.shift();
+diff --git a/backend/src/websockets/services/presence.service.ts b/backend/src/websockets/services/presence.service.ts
+index 95158f3..6b36ef8 100644
+--- a/backend/src/websockets/services/presence.service.ts
++++ b/backend/src/websockets/services/presence.service.ts
+@@ -12,9 +12,15 @@ export class PresenceService {
+     this.userStatus.set(userId, 'online');
+   }
+ 
+-  setDisconnected(userId: string) {
+-    this.activeSockets.delete(userId);
+-    this.userStatus.delete(userId);
++  setDisconnected(userId: string, socketId: string): boolean {
++    const currentActiveSocketId = this.activeSockets.get(userId);
++
++    if (currentActiveSocketId === socketId) {
++      this.activeSockets.delete(userId);
++      this.userStatus.delete(userId);
++      return true;
++    }
++    return false; 
+   }
+ 
+   updateStatus(userId: string, status: UserStatus) {
+diff --git a/frontend/src/contexts/GameContext/GameContext.tsx b/frontend/src/contexts/GameContext/GameContext.tsx
+index 4c98f92..7b5c114 100644
+--- a/frontend/src/contexts/GameContext/GameContext.tsx
++++ b/frontend/src/contexts/GameContext/GameContext.tsx
+@@ -2,23 +2,27 @@ import React, { createContext, useContext, useEffect, useState } from "react";
+ import type { GameContextType, GameOverState } from "./GameContextType";
+ import { io, Socket } from "socket.io-client";
+ import { useAuth } from "../UserContext";
++import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
++import { data } from "react-router-dom";
+ 
+ const GameContext = createContext<GameContextType | undefined>(undefined);
+ 
+ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
+-	const [socket, setSocket] = useState<Socket | null>(null);
++	const { socket } = useGlobalSocket();
+ 	const { state: authState } = useAuth();
++
+ 	const [gameId, setGameId] = useState<string | null>(null);
+ 	const [color, setColor] = useState<"w" | "b" | null>("w");
+ 	const [fen, setFen] = useState("start");
+ 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
+-	const [isConnected, setIsConnected] = useState(false);
+ 	const [gameOver, setGameOver] = useState<GameOverState>(null);
+ 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
++	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
+ 	const [opponentId, setOpponentId] = useState<string | null>(null);
+-	const gameIdRef = React.useRef<string | null>(null);
+ 
+-	if (!authState.user) return null;
++	const gameIdRef = React.useRef<string | null>(null);
++	const modeRef = React.useRef(mode);
++	const hasUser = !!authState.user;
+ 
+ 	const surrender = () => {
+ 		if (socket && gameId) {
+@@ -46,75 +50,104 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
+ 		}
+ 		setDrawProposal(false);
+ 	};
++	const handleRematchResponse = (accept: boolean) => {
++		if (socket && gameId) {
++			socket.emit("respondRematch", {
++				gameId: gameId,
++				response: accept,
++			});
++			setRematchProposal(false);
++		}
++	};
+ 
+ 	useEffect(() => {
+-		const socketInstance = io("/", {
+-			withCredentials: true,
+-			path: "/socket.io",
+-		});
+-
+-		socketInstance.on("connect", () => {
+-			console.log("Connected to server");
+-			setIsConnected(true);
+-
+-			if (gameIdRef.current) {
+-				console.log("Reconnection game on going");
+-				return;
+-			}
+-			if (mode === "bot") {
+-				console.log("Starting game against Bot");
+-				socketInstance.emit("startBotGame");
+-			} else {
+-				console.log("Joining Queue");
+-				socketInstance.emit("joinQueue");
+-			}
+-		});
++		if (!socket || !hasUser) return;
++
++		console.log("[Game] Checking for active games");
++		socket.emit("checkActiveGame");
+ 
+-		socketInstance.on("gameState", (data: any) => {
++		const onGameState = (data: any) => {
+ 			setGameId(data.gameId);
+ 			gameIdRef.current = data.gameId;
+ 			setColor(data.color);
+ 			setFen(data.fen);
+ 			setCurrentTurn(data.currentTurn);
+-			setIsConnected(true);
+ 			setOpponentId(data.opponentId);
+-		});
++		};
+ 
+-		socketInstance.on("move", (data: any) => {
+-			console.log("Move");
++		const onNoActiveGame = () => {
++			if (modeRef.current === "bot") {
++				console.log("[Game] Starting game with bot");
++				socket.emit("startBotGame");
++			} else {
++				console.log("[Game] Joining the Queue");
++				socket.emit("joinQueue");
++			}
++		};
++
++		const onMove = (data: any) => {
+ 			setFen(data.fen);
+ 			setCurrentTurn(data.currentTurn);
+-		});
++		};
+ 
+-		socketInstance.on("gameOver", (data: any) => {
+-			console.log("Game Finished:", data);
++		const onGameOver = (data: any) => {
+ 			setGameOver(data.gameOver);
+-		});
++		};
++
++		const onActiveGameNotFound = () => {
++			alert("Your match finish on unexpected way");
++			setGameId(null);
++			gameIdRef.current = null;
++		};
++
++		const onError = (data: any) => {
++			if (data.message === "Game not Found") {
++				alert("The match doesn't exist anymore");
++			}
++		};
++
++		socket.on("gameState", onGameState);
++		socket.on("noActiveGame", onNoActiveGame);
++		socket.on("move", onMove);
++		socket.on("gameOver", onGameOver);
++		socket.on("activeGameNotFound", onActiveGameNotFound);
++		socket.on("error", onError);
+ 
+-		setSocket(socketInstance);
+ 		return () => {
+-			socketInstance.disconnect();
++			console.log("[Game] Exiting of game board. Removing all listeners");
++			socket.off("noActiveGame", onNoActiveGame);
++			socket.off("gameState", onGameState);
++			socket.off("move", onMove);
++			socket.off("gameOver", onGameOver);
++			socket.off("activeGameNotFound", onActiveGameNotFound);
++			socket.off("error", onError);
+ 		};
+-	}, [gameId, mode]);
++	}, [socket]);
++
+ 	useEffect(() => {
+ 		if (!socket || !gameId) {
+ 			return;
+ 		}
+ 
+-		socket.on("drawProposed", (data) => {
+-			console.log("Propose Sent to :", data.gameId);
+-			setDrawProposal(true);
+-		});
++		const onDrawProposed = () => setDrawProposal(true);
++		const onRematchProposed = () => setRematchProposal(true);
++		const onDrawRejected = () => alert("The draw proposal was rejected.");
++		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
++
++		socket.on("drawProposed", onDrawProposed);
++		socket.on("rematchProposed", onRematchProposed);
+ 
+-		socket.on("drawRejected", () => {
+-			alert("The draw proposal was rejected.");
+-		});
++		socket.on("drawRejected", onDrawRejected);
++		socket.on("rematchRejected", onRematchRejected);
+ 
+ 		return () => {
+-			socket.off("drawProposed");
+-			socket.off("drawRejected");
++			socket.off("drawProposed", onDrawProposed);
++			socket.off("rematchProposed", onRematchProposed);
++			socket.off("drawRejected", onDrawRejected);
++			socket.off("rematchRejected", onRematchRejected);
+ 		};
+ 	}, [socket, gameId]);
++	if (!authState.user) return null;
+ 
+ 	return (
+ 		<GameContext.Provider
+@@ -122,13 +155,15 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
+ 				socket,
+ 				gameId,
+ 				color,
+-				isConnected,
++				isConnected: !!socket?.connected,
+ 				fen,
+ 				currentTurn,
+ 				gameOver,
+ 				surrender,
+ 				drawProposal,
++				rematchProposal,
+ 				handleDrawResponse,
++				handleRematchResponse,
+ 				proposeDraw,
+ 				proposeRematch,
+ 				opponentId,
+diff --git a/frontend/src/contexts/GameContext/GameContextType.ts b/frontend/src/contexts/GameContext/GameContextType.ts
+index f9abe07..e88c0eb 100644
+--- a/frontend/src/contexts/GameContext/GameContextType.ts
++++ b/frontend/src/contexts/GameContext/GameContextType.ts
+@@ -16,9 +16,11 @@ export type GameContextType = {
+ 	opponentId: string | null;
+ 	gameOver: GameOverState;
+ 	drawProposal: boolean;
++	rematchProposal: boolean;
+ 
+ 	surrender: () => void;
+ 	proposeDraw: () => void;
+ 	proposeRematch: () => void;
+ 	handleDrawResponse: (accept: boolean) => void;
++	handleRematchResponse: (accept: boolean) => void;
+ };
+diff --git a/frontend/src/routers/MainRouter/MainRouter.tsx b/frontend/src/routers/MainRouter/MainRouter.tsx
+index e82c73c..a633a88 100644
+--- a/frontend/src/routers/MainRouter/MainRouter.tsx
++++ b/frontend/src/routers/MainRouter/MainRouter.tsx
+@@ -7,6 +7,7 @@ import { MultiRoute, NavBar } from "../../components";
+ import { useAuth } from "../../contexts/UserContext";
+ import { GameProvider } from "../../contexts/GameContext/GameContext";
+ import { Play } from "../../pages/Play/Play";
++import { GlobalSocketProvider } from "../../contexts/GlobalSocketContext/GlobalSocketContext";
+ 
+ type ActivateModal = "signup" | "login" | null;
+ 
+@@ -36,58 +37,60 @@ export function MainRouter() {
+ 
+ 	return (
+ 		<BrowserRouter>
+-			<NavBar onModal={setActiveModal} />
+-			{activeModal === "signup" && <Signup onModal={setActiveModal} />}
++			<GlobalSocketProvider>
++				<NavBar onModal={setActiveModal} />
++				{activeModal === "signup" && <Signup onModal={setActiveModal} />}
+ 
+-			{activeModal === "login" && <Login onModal={setActiveModal} />}
+-			<Routes>
+-				{MultiRoute(RouterPaths.HOME, <Home />)}
++				{activeModal === "login" && <Login onModal={setActiveModal} />}
++				<Routes>
++					{MultiRoute(RouterPaths.HOME, <Home />)}
+ 
+-				<Route
+-					path={RouterPaths.ERROR}
+-					element={<Error />}
+-				/>
+-				<Route
+-					path={RouterPaths.ZE}
+-					element={<Ze />}
+-				/>
+-
+-				{state.user && (
+ 					<Route
+-						path={RouterPaths.PLAY}
+-						element={<PlayRouteWithProvider />}
++						path={RouterPaths.ERROR}
++						element={<Error />}
++					/>
++					<Route
++						path={RouterPaths.ZE}
++						element={<Ze />}
+ 					/>
+-				)}
+-
+-				<Route
+-					path={RouterPaths.LEADERBOARDS}
+-					element={<LeaderBoards />}
+-				/>
+-				{/* Path for your own history*/}
+-				<Route
+-					path={RouterPaths.HISTORY}
+-					element={<HistoryPage />}
+-				/>
+ 
+-				{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
+-				<Route
+-					path={`${RouterPaths.HISTORY}/:username`}
+-					element={<HistoryPage />}
+-				/>
++					{state.user && (
++						<Route
++							path={RouterPaths.PLAY}
++							element={<PlayRouteWithProvider />}
++						/>
++					)}
+ 
+-				{state.user && (
+ 					<Route
+-						path={RouterPaths.FRIENDS}
+-						element={<Friends />}
++						path={RouterPaths.LEADERBOARDS}
++						element={<LeaderBoards />}
++					/>
++					{/* Path for your own history*/}
++					<Route
++						path={RouterPaths.HISTORY}
++						element={<HistoryPage />}
+ 					/>
+-				)}
+ 
+-				{state.user && (
++					{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
+ 					<Route
+-						path={RouterPaths.SETTINGS}
+-						element={<Settings tabOpt={"profile"} />}></Route>
+-				)}
+-			</Routes>
++						path={`${RouterPaths.HISTORY}/:username`}
++						element={<HistoryPage />}
++					/>
++
++					{state.user && (
++						<Route
++							path={RouterPaths.FRIENDS}
++							element={<Friends />}
++						/>
++					)}
++
++					{state.user && (
++						<Route
++							path={RouterPaths.SETTINGS}
++							element={<Settings tabOpt={"profile"} />}></Route>
++					)}
++				</Routes>
++			</GlobalSocketProvider>
+ 		</BrowserRouter>
+ 	);
+ }

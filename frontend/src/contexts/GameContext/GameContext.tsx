@@ -2,23 +2,27 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
+import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
+import { data } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
-	const [socket, setSocket] = useState<Socket | null>(null);
+	const { socket } = useGlobalSocket();
 	const { state: authState } = useAuth();
+
 	const [gameId, setGameId] = useState<string | null>(null);
 	const [color, setColor] = useState<"w" | "b" | null>("w");
 	const [fen, setFen] = useState("start");
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
-	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
+	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
-	const gameIdRef = React.useRef<string | null>(null);
 
-	if (!authState.user) return null;
+	const gameIdRef = React.useRef<string | null>(null);
+	const modeRef = React.useRef(mode);
+	const hasUser = !!authState.user;
 
 	const surrender = () => {
 		if (socket && gameId) {
@@ -46,75 +50,104 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		}
 		setDrawProposal(false);
 	};
+	const handleRematchResponse = (accept: boolean) => {
+		if (socket && gameId) {
+			socket.emit("respondRematch", {
+				gameId: gameId,
+				response: accept,
+			});
+			setRematchProposal(false);
+		}
+	};
 
 	useEffect(() => {
-		const socketInstance = io("/", {
-			withCredentials: true,
-			path: "/socket.io",
-		});
+		if (!socket || !hasUser) return;
 
-		socketInstance.on("connect", () => {
-			console.log("Connected to server");
-			setIsConnected(true);
+		console.log("[Game] Checking for active games");
+		socket.emit("checkActiveGame");
 
-			if (gameIdRef.current) {
-				console.log("Reconnection game on going");
-				return;
-			}
-			if (mode === "bot") {
-				console.log("Starting game against Bot");
-				socketInstance.emit("startBotGame");
-			} else {
-				console.log("Joining Queue");
-				socketInstance.emit("joinQueue");
-			}
-		});
-
-		socketInstance.on("gameState", (data: any) => {
+		const onGameState = (data: any) => {
 			setGameId(data.gameId);
 			gameIdRef.current = data.gameId;
 			setColor(data.color);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-			setIsConnected(true);
 			setOpponentId(data.opponentId);
-		});
+		};
 
-		socketInstance.on("move", (data: any) => {
-			console.log("Move");
+		const onNoActiveGame = () => {
+			if (modeRef.current === "bot") {
+				console.log("[Game] Starting game with bot");
+				socket.emit("startBotGame");
+			} else {
+				console.log("[Game] Joining the Queue");
+				socket.emit("joinQueue");
+			}
+		};
+
+		const onMove = (data: any) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-		});
-
-		socketInstance.on("gameOver", (data: any) => {
-			console.log("Game Finished:", data);
-			setGameOver(data.gameOver);
-		});
-
-		setSocket(socketInstance);
-		return () => {
-			socketInstance.disconnect();
 		};
-	}, [gameId, mode]);
+
+		const onGameOver = (data: any) => {
+			setGameOver(data.gameOver);
+		};
+
+		const onActiveGameNotFound = () => {
+			alert("Your match finish on unexpected way");
+			setGameId(null);
+			gameIdRef.current = null;
+		};
+
+		const onError = (data: any) => {
+			if (data.message === "Game not Found") {
+				alert("The match doesn't exist anymore");
+			}
+		};
+
+		socket.on("gameState", onGameState);
+		socket.on("noActiveGame", onNoActiveGame);
+		socket.on("move", onMove);
+		socket.on("gameOver", onGameOver);
+		socket.on("activeGameNotFound", onActiveGameNotFound);
+		socket.on("error", onError);
+
+		return () => {
+			console.log("[Game] Exiting of game board. Removing all listeners");
+			socket.off("noActiveGame", onNoActiveGame);
+			socket.off("gameState", onGameState);
+			socket.off("move", onMove);
+			socket.off("gameOver", onGameOver);
+			socket.off("activeGameNotFound", onActiveGameNotFound);
+			socket.off("error", onError);
+		};
+	}, [socket]);
+
 	useEffect(() => {
 		if (!socket || !gameId) {
 			return;
 		}
 
-		socket.on("drawProposed", (data) => {
-			console.log("Propose Sent to :", data.gameId);
-			setDrawProposal(true);
-		});
+		const onDrawProposed = () => setDrawProposal(true);
+		const onRematchProposed = () => setRematchProposal(true);
+		const onDrawRejected = () => alert("The draw proposal was rejected.");
+		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
 
-		socket.on("drawRejected", () => {
-			alert("The draw proposal was rejected.");
-		});
+		socket.on("drawProposed", onDrawProposed);
+		socket.on("rematchProposed", onRematchProposed);
+
+		socket.on("drawRejected", onDrawRejected);
+		socket.on("rematchRejected", onRematchRejected);
 
 		return () => {
-			socket.off("drawProposed");
-			socket.off("drawRejected");
+			socket.off("drawProposed", onDrawProposed);
+			socket.off("rematchProposed", onRematchProposed);
+			socket.off("drawRejected", onDrawRejected);
+			socket.off("rematchRejected", onRematchRejected);
 		};
 	}, [socket, gameId]);
+	if (!authState.user) return null;
 
 	return (
 		<GameContext.Provider
@@ -122,13 +155,15 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				socket,
 				gameId,
 				color,
-				isConnected,
+				isConnected: !!socket?.connected,
 				fen,
 				currentTurn,
 				gameOver,
 				surrender,
 				drawProposal,
+				rematchProposal,
 				handleDrawResponse,
+				handleRematchResponse,
 				proposeDraw,
 				proposeRematch,
 				opponentId,

@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../services/game.service';
 import { UsersService } from 'src/users/users.service';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class MatchGateway {
   @WebSocketServer()
   server!: Server;
@@ -54,6 +54,48 @@ export class MatchGateway {
       mode: 'bot',
     });
   }
+
+  @SubscribeMessage('checkActiveGame')
+  handleCheckActiveGame(@ConnectedSocket() client: Socket) {
+    const userId = client.data.user.userId;
+
+    if (!userId) {
+      client.emit('error', { message: 'User unauthorized or not found' });
+      return;
+    }
+
+    const activeMatch = this.gameService.findActiveGameByUserId(userId);
+    if (activeMatch) {
+      const { gameId, game } = activeMatch;
+      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
+
+      client.join(gameId);
+
+      const state = this.gameService.getGameState(gameId);
+      if (state) {
+        const userColor = userId === game.playerW ? 'w' : 'b';
+        const opponentId =
+          userId === game.playerW ? game.playerB : game.playerW;
+
+        client.emit('gameState', {
+          gameId: gameId,
+          fen: state.fen,
+          currentTurn: state.turn,
+          color: userColor,
+          mode: game.mode,
+          opponentId: opponentId || 'bot',
+        });
+        //! Still considering have a screen that tells the other player when user reconnect
+        client.to(gameId).emit('opponentReconnected', { userId });
+      } else {
+        client.emit('activeGameNotFound');
+      }
+    } else {
+      console.log(`[Game] No active game for user ${userId}.`);
+      client.emit(`noActiveGame`);
+    }
+  }
+
   @SubscribeMessage('joinGame')
   async handleJoinGame(
     @ConnectedSocket() client: Socket,

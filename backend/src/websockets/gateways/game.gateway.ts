@@ -13,7 +13,6 @@ import { MatchMakingService } from '../services/matchmaking.service';
 import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from '../middleware/ws.middleware';
 import { GameService } from '../services/game.service';
-import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayInit {

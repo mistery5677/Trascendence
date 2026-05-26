@@ -31,46 +31,48 @@ export class PresenceGateway
   }
 
   handleConnection(client: Socket) {
-    const userId = client.data.user.userId;
+    const user = client.data?.user;
+    if (!user || !user.userId) {
+      console.error(
+        `[Presence] Connection rejected: User data missing in socket.data`,
+      );
+      client.disconnect(true);
+      return;
+    }
+
+    const userId = user.userId;
+
     client.join(`user_${userId}`);
+
     this.presenceService.setConnected(userId, client.id);
 
     this.server?.emit('userStatusChanged', { userId, status: 'online' });
 
-    const activeMatch = this.gameService.findActiveGameByUserId(userId);
-    if (activeMatch) {
-      const { gameId, game } = activeMatch;
-      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
-
-      client.join(gameId);
-
-      const state = this.gameService.getGameState(gameId);
-      if (state) {
-        const userColor = userId === game.playerW ? 'w' : 'b';
-        const opponentId =
-          userId === game.playerW ? game.playerB : game.playerW;
-
-        client.emit('gameState', {
-          gameId: gameId,
-          fen: state.fen,
-          currentTurn: state.turn,
-          color: userColor,
-          mode: game.mode,
-          opponentId: opponentId || 'bot',
-        });
-        //! Still considering have a screen that tells the other player when user reconnect
-        client.to(gameId).emit('opponentReconnected', { userId });
-      }
-    }
+    console.log(
+      `[Presence] User:${userId} successfully connected, ${client.id}`,
+    );
   }
 
   handleDisconnect(client: Socket) {
-    const userId = client.data.user.userId;
+    const user = client.data?.user;
+    if (!user || !user.userId) return;
+
+    const userId = user.userId;
+
     this.matchMakingService.removeFromQueue(client);
-    this.presenceService.setDisconnected(userId);
-    this.server?.emit('userStatusChanged', { userId, status: 'offline' });
-    console.log(
-      `User ${client.data.user.username} disconnected and cleaned up.`,
+
+    const isRealDisconnect = this.presenceService.setDisconnected(
+      userId,
+      client.id,
     );
+
+    if (isRealDisconnect) {
+      this.server?.emit('userStatusChanged', { userId, status: 'offline' });
+      console.log(`[Presence] User ${user.username} fully disconnected.`);
+    } else {
+      console.log(
+        `[Presence] Ignored old socket cleanup for user ${user.username}`,
+      );
+    }
   }
 }

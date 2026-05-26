@@ -7,6 +7,7 @@ import { MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
 import { GameProvider } from "../../contexts/GameContext/GameContext";
 import { Play } from "../../pages/Play/Play";
+import { GlobalSocketProvider } from "../../contexts/GlobalSocketContext/GlobalSocketContext";
 
 type ActivateModal = "signup" | "login" | null;
 
@@ -36,58 +37,60 @@ export function MainRouter() {
 
 	return (
 		<BrowserRouter>
-			<NavBar onModal={setActiveModal} />
-			{activeModal === "signup" && <Signup onModal={setActiveModal} />}
+			<GlobalSocketProvider>
+				<NavBar onModal={setActiveModal} />
+				{activeModal === "signup" && <Signup onModal={setActiveModal} />}
 
-			{activeModal === "login" && <Login onModal={setActiveModal} />}
-			<Routes>
-				{MultiRoute(RouterPaths.HOME, <Home />)}
+				{activeModal === "login" && <Login onModal={setActiveModal} />}
+				<Routes>
+					{MultiRoute(RouterPaths.HOME, <Home />)}
 
-				<Route
-					path={RouterPaths.ERROR}
-					element={<Error />}
-				/>
-				<Route
-					path={RouterPaths.ZE}
-					element={<Ze />}
-				/>
-
-				{state.user && (
 					<Route
-						path={RouterPaths.PLAY}
-						element={<PlayRouteWithProvider />}
+						path={RouterPaths.ERROR}
+						element={<Error />}
 					/>
-				)}
-
-				<Route
-					path={RouterPaths.LEADERBOARDS}
-					element={<LeaderBoards />}
-				/>
-				{/* Path for your own history*/}
-				<Route
-					path={RouterPaths.HISTORY}
-					element={<HistoryPage />}
-				/>
-
-				{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
-				<Route
-					path={`${RouterPaths.HISTORY}/:username`}
-					element={<HistoryPage />}
-				/>
-
-				{state.user && (
 					<Route
-						path={RouterPaths.FRIENDS}
-						element={<Friends />}
+						path={RouterPaths.ZE}
+						element={<Ze />}
 					/>
-				)}
 
-				{state.user && (
+					{state.user && (
+						<Route
+							path={RouterPaths.PLAY}
+							element={<PlayRouteWithProvider />}
+						/>
+					)}
+
 					<Route
-						path={RouterPaths.SETTINGS}
-						element={<Settings tabOpt={"profile"} />}></Route>
-				)}
-			</Routes>
+						path={RouterPaths.LEADERBOARDS}
+						element={<LeaderBoards />}
+					/>
+					{/* Path for your own history*/}
+					<Route
+						path={RouterPaths.HISTORY}
+						element={<HistoryPage />}
+					/>
+
+					{/* Dynamic route for other players, for example with Leaderboards or friend requests */}
+					<Route
+						path={`${RouterPaths.HISTORY}/:username`}
+						element={<HistoryPage />}
+					/>
+
+					{state.user && (
+						<Route
+							path={RouterPaths.FRIENDS}
+							element={<Friends />}
+						/>
+					)}
+
+					{state.user && (
+						<Route
+							path={RouterPaths.SETTINGS}
+							element={<Settings tabOpt={"profile"} />}></Route>
+					)}
+				</Routes>
+			</GlobalSocketProvider>
 		</BrowserRouter>
 	);
 }

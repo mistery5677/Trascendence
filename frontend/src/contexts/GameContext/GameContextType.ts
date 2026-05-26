@@ -16,9 +16,11 @@ export type GameContextType = {
 	opponentId: string | null;
 	gameOver: GameOverState;
 	drawProposal: boolean;
+	rematchProposal: boolean;
 
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;
 	handleDrawResponse: (accept: boolean) => void;
+	handleRematchResponse: (accept: boolean) => void;
 };
