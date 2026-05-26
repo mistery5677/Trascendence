@@ -6,7 +6,8 @@ import styles from "./style.module.css";
 
 export function GameSettings() {
 	const { state, dispatch } = useAuth();
-	const currentTheme = state.user?.boardTheme;
+	const currentTheme = state.user?.backgroundTheme;
+	const boardTheme = state.user?.boardTheme;
 
 	const handleBoardTheme = (themeId: 1 | 2 | 3) => async () => {
 		try {
@@ -20,8 +21,10 @@ export function GameSettings() {
 		}
 	};
 
-	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3) => async () => {
+	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3 | 4 | 5) => async () => {
 		try {
+
+			console.log("ID: ++++++ ", backgroundID);
 			await updateBackGroundTheme(backgroundID);
 
 			toastWrapper.success("Background theme update successfully.");
@@ -46,21 +49,21 @@ export function GameSettings() {
 					<BoardThemeButton
 						onClick={handleBoardTheme(1)}
 						className={`${styles["custom-button-forest"]} justify-center text-center ${
-							currentTheme === 1 ? "border-emerald-400 bg-emerald-500/10" : ""
+							boardTheme === 1 ? "border-emerald-400 bg-emerald-500/10" : ""
 						}`}>
 						Forest
 					</BoardThemeButton>
 					<BoardThemeButton
 						onClick={handleBoardTheme(2)}
 						className={`${styles["custom-button-classic"]} justify-center text-center ${
-							currentTheme === 2 ? "border-amber-500/80 bg-amber-500/10" : ""
+							boardTheme === 2 ? "border-amber-500/80 bg-amber-500/10" : ""
 						}`}>
 						Classic
 					</BoardThemeButton>
 					<BoardThemeButton
 						onClick={handleBoardTheme(3)}
 						className={`${styles["custom-button-midnight"]} justify-center text-center ${
-							currentTheme === 3 ? "border-sky-500/70 bg-sky-500/10" : ""
+							boardTheme === 3 ? "border-sky-500/70 bg-sky-500/10" : ""
 						}`}>
 						Midnight
 					</BoardThemeButton>
@@ -71,7 +74,7 @@ export function GameSettings() {
 				<div className="mb-3 border-b border-stone-700/70 pb-2 text-center">
 					<h2 className="text-sm font-semibold tracking-wide text-stone-100">Background Theme</h2>
 				</div>
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+				<div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
 					<BoardThemeButton
 						onClick={handleBackgroundTheme(1)}
 						className={`${styles["custom-button-forest"]} justify-center text-center ${
@@ -92,6 +95,20 @@ export function GameSettings() {
 							currentTheme === 3 ? "border-sky-500/70 bg-sky-500/10" : ""
 						}`}>
 						Sky
+					</BoardThemeButton>
+					<BoardThemeButton
+						onClick={handleBackgroundTheme(4)}
+						className={`${styles["custom-button-classic"]} justify-center text-center ${
+							currentTheme === 4 ? "border-emerald-400 bg-emerald-500/10" : ""
+						}`}>
+						Penguin
+					</BoardThemeButton>
+					<BoardThemeButton
+						onClick={handleBackgroundTheme(5)}
+						className={`${styles["custom-button-forest"]} justify-center text-center ${
+							currentTheme === 5 ? "border-amber-500/80 bg-amber-500/10" : ""
+						}`}>
+						Standard
 					</BoardThemeButton>
 				</div>
 			</section>

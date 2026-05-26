@@ -4,7 +4,7 @@ import { Chess } from "chess.js";
 import { useState } from "react";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
-import type { loadMoveEffect } from "../../utils/loadMoveEffect";
+import { loadMoveEffect } from "../../utils/loadMoveEffect";
 
 export type PieceColor = "w" | "b";
 
@@ -45,6 +45,7 @@ const themes = {
 
 export function Board({ onTurnChange }: BoardProps) {
 	const playMoveEffect = useRef<ReturnType<typeof loadMoveEffect>>(null);
+
 	const { state } = useAuth();
 	const themeArray = [themes.forest, themes.classic, themes.midnight];
 
@@ -54,6 +55,10 @@ export function Board({ onTurnChange }: BoardProps) {
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
 	const { socket, gameId, color, fen, currentTurn } = useGame();
+
+	useEffect(() => {
+		playMoveEffect.current = loadMoveEffect();
+	}, []);
 
 	useEffect(() => {
 		if (!socket || !gameId) return;
@@ -80,15 +85,13 @@ export function Board({ onTurnChange }: BoardProps) {
 				promotion: "q",
 			};
 
-			// if (playMoveEffect.current) {
-			// 	console.log("hereeeeeee");
-			// 	playMoveEffect.current();
-			// }
-
 			try {
 				const move = chessGame.move(moveData);
 				if (!move) return false;
 
+				if (playMoveEffect.current) {
+					playMoveEffect.current();
+				}
 				socket.emit("move", { gameId, move: moveData });
 
 				setChessPosition(chessGame.fen());
@@ -104,7 +107,7 @@ export function Board({ onTurnChange }: BoardProps) {
 		position: chessPosition,
 		onPieceDrop,
 		id: "play-vs-random",
-		boardOrientation: color === "b" ? "black" : "white",
+		boardOrientation: color === "b" ? ("black" as const) : ("white" as const),
 		lightSquareStyle: {
 			backgroundColor: "var(--color-board-light)",
 		},

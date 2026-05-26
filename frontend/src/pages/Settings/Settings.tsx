@@ -214,7 +214,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 		}
 	};
 
-	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3) => async () => {
+	const handleBackgroundTheme = (backgroundID: 1 | 2 | 3 | 4 | 5) => async () => {
 		try {
 			await updateBackGroundTheme(backgroundID);
 
@@ -464,6 +464,16 @@ export function Settings({ tabOpt }: SettingsProps) {
 												onClick={handleBackgroundTheme(3)}
 												className={`${styles["custom-button-midnight"]}`}>
 												Sky
+											</BoardThemeButton>
+											<BoardThemeButton
+												onClick={handleBackgroundTheme(4)}
+												className={`${styles["custom-button-forest"]}`}>
+												Penguin
+											</BoardThemeButton>
+											<BoardThemeButton
+												onClick={handleBackgroundTheme(5)}
+												className={`${styles["custom-button-classic"]}`}>
+												Standard
 											</BoardThemeButton>
 										</div>
 									</div>

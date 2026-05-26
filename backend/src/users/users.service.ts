@@ -87,7 +87,7 @@ export class UsersService {
     }
 
     // !For now
-    if (backgroundTheme < 1 || backgroundTheme > 3)
+    if (backgroundTheme < 1 || backgroundTheme > 5)
       throw new ForbiddenException("Theme with that index doesn't exist");
 
     return await this.prisma.user.update({

@@ -8,6 +8,7 @@ import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "../../components/Board/GameActions";
 import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 import chess from "../../assets/chess-pieces.png";
+import penguin from "../../assets/penguin.jpg";
 import cat from "../../assets/cat.jpg";
 import sky from "../../assets/sky.jpg";
 
@@ -15,6 +16,8 @@ const BACKGROUND_THEMES: Record<number, string> = {
 	1: chess,
 	2: cat,
 	3: sky,
+	4: penguin,
+	5: "standard",
 };
 
 export function Play() {
@@ -41,7 +44,7 @@ export function Play() {
 
 	return (
 		<div
-			className="min-h-[calc(100vh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+			className="min-h-[calc(100dvh-5rem)] bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
 			style={{ backgroundImage: "url(" + selectedBackground + ")" }}>
 			{drawProposal && (
 				<ConfirmationModal
@@ -56,29 +59,32 @@ export function Play() {
 			)}
 			{/* GameOver */}
 			<GameOverModal />
-			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_26rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
-				{/* PlayerHeader */}
-				<div className="flex justify-center xl:col-start-1 xl:row-start-1">
-					<PlayerHeader
-						currentTurn={currentTurn}
-						color={color}
-						state={state}
-						timerKey={timerKey}
-						opponentId={opponentId}
-						className="max-w-[calc(100vh-5rem)]"
-					/>
-				</div>
-				{/* Board */}
-				<section className="flex items-center justify-center w-full max-h-screen xl:col-start-1 xl:row-start-2">
-					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-21rem)] rounded-xl border border-stone-700 shadow-md">
-						<Board onTurnChange={handleTurnChange} />
+			<div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 xl:max-w-380 xl:flex-row xl:items-stretch xl:justify-center xl:gap-2">
+				{/* Left column: centered stack, header on top and board pushed to bottom */}
+				<div className="flex w-full justify-center xl:w-auto xl:flex-none">
+					<div className="flex w-full flex-col gap-2 xl:h-[calc(100dvh-7rem)] xl:min-h-0 xl:max-w-[calc(100dvh-20vw)] 2xl:max-w-[calc(100dvh-10vw)]">
+						<PlayerHeader
+							currentTurn={currentTurn}
+							color={color}
+							state={state}
+							timerKey={timerKey}
+							opponentId={opponentId}
+							className="w-full"
+						/>
+						<section className="flex w-full items-center justify-center">
+							<div
+								className={`w-full rounded-xl bg-stone-900 p-5 shadow-md sm:p-5 max-[900px]:p-3 border-4 ${currentTurn == "b" ? "border-green-400" : "border-stone-900"}`}>
+								<Board onTurnChange={handleTurnChange} />
+							</div>
+						</section>
 					</div>
-				</section>
-				{/* MatchSidebar: one instance; below board on narrow viewports, right column on xl */}
-				<div className="flex w-full flex-col rounded-xl xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
-					<div className="flex min-h-0 flex-col xl:h-[calc(100vh)] xl:max-h-[calc(100vh-7rem)]">
+				</div>
+
+				{/* Right column: sidebar */}
+				<div className="w-full  xl:w-100 2xl:w-126 xl:shrink-0">
+					<div className="flex min-h-0 flex-col xl:h-[calc(100dvh-7rem)] xl:max-h-[calc(100dvh-7rem)]">
 						<MatchSidebar />
-						<div className="flex max-w align-middle justify-center">
+						<div className="flex items-center justify-center">
 							<GameActions />
 						</div>
 					</div>

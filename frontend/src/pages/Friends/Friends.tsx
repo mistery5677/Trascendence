@@ -17,7 +17,6 @@ type Friends = "list" | "requests" | "add";
 
 export function Friends() {
 	const { state } = useAuth();
-	const myUserId = state?.user?.id;
 
 	const [activeTab, setActiveTab] = useState<Friends>("list");
 	// States to safe from backend
@@ -146,13 +145,13 @@ export function Friends() {
 			<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
 			<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
 
-			<div className="relative max-w-4xl sm:mx-auto mx-2 p-8 text-stone-100 rounded-3xl border border-stone-200/20 bg-stone-200/10 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
+			<div className="relative max-w-4xl sm:mx-auto mx-2 p-8 text-stone-100 rounded-3xl border border-white/15 bg-stone-900/50 shadow-[0_24px_70px_rgba(15,23,42,0.6)] backdrop-blur-2xl">
 				<div className="flex items-center justify-between mb-8">
 					<h1 className="text-4xl font-black text-emerald-300">Friends Hub</h1>
 				</div>
 
 				{/* NAVIGATION TABS */}
-				<div className="flex gap-6 mb-8 border-b border-stone-700 pb-3 text-xl">
+				<div className="flex gap-6 mb-8 border-b border-white/10 pb-3 text-xl">
 					<button
 						onClick={() => setActiveTab("list")}
 						className={`pb-2 transition-all duration-300 ${activeTab === "list" ? "text-emerald-300 border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
@@ -185,9 +184,9 @@ export function Friends() {
 							friends.map((friend, index) => (
 								<div
 									key={index}
-									className="flex gap-5 items-center justify-between p-4 bg-stone-800/70 rounded-2xl border border-stone-700 hover:border-emerald-400/70 transition-all">
-									<div className="flex items-center gap-4">
-										<div className="w-12 h-12 rounded-full bg-stone-700 flex items-center justify-center text-xl">
+									className="flex gap-5 items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl transition-all duration-200 hover:border-emerald-400/45 hover:bg-stone-900/70">
+									<div className="flex items-center gap-2 sm:gap-4">
+										<div className="h-12 w-12 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center text-xl">
 											<img
 												className="rounded-full"
 												src={friend.avatarUrl}
@@ -208,14 +207,14 @@ export function Friends() {
 										</div>
 									</div>
 									<div className="flex gap-3">
-										<button className="px-4 py-1 text-[14px] sm:text-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-full font-bold transition-all">
+										<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-emerald-400 to-emerald-500 px-5 py-2 text-sm sm:text-base font-semibold tracking-wide text-stone-950 shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-300 hover:to-emerald-400 active:translate-y-0">
 											Play ⚔️
 										</button>
 										<button
 											onClick={() => handleRemoveFriend(friend.id, friend.username)}
-											className="px-3 py-2 bg-stone-700 hover:bg-red-500/20 hover:text-red-400 text-stone-300 rounded-lg transition-all"
+											className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
 											title="Remove Friend">
-											<span className="sm:text-xl text-[14px] text-white">Unfriend</span>
+											<span>Unfriend</span>
 										</button>
 									</div>
 								</div>
@@ -233,9 +232,9 @@ export function Friends() {
 							requests.map((req, index) => (
 								<div
 									key={index}
-									className="flex items-center justify-between p-4 bg-stone-800/70 rounded-2xl border border-stone-700">
+									className="flex items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl">
 									<div className="flex items-center gap-4">
-										<div className="w-10 h-10 rounded-full bg-stone-700 flex items-center justify-center">
+										<div className="h-10 w-10 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center">
 											<img
 												className="rounded-full"
 												src={req.sender.avatarUrl}
@@ -281,7 +280,7 @@ export function Friends() {
 							<label className="text-sm font-bold text-stone-400 uppercase tracking-widest">
 								Search by Username
 							</label>
-							<div className="flex gap-2 items-center bg-stone-800/90 border border-stone-700 rounded-2xl px-2 py-1 focus-within:border-emerald-400 transition-all shadow-inner relative">
+							<div className="relative flex items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/55 px-2 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl transition-all focus-within:border-emerald-400/60">
 								<span className="pl-2 pr-1 text-emerald-300 text-xl">@</span>
 								<input
 									ref={inputRef}
@@ -295,7 +294,7 @@ export function Friends() {
 								/>
 								<button
 									onClick={() => handleAddFriend(searchUsername)}
-									className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-stone-950 font-bold rounded-lg text-base shadow-md transition-all disabled:opacity-50"
+									className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-stone-950 font-bold rounded-lg text-base shadow-md transition-all disabled:opacity-50"
 									disabled={!searchUsername.trim()}
 									title="Send Friend Request">
 									<svg
