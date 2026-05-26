@@ -1,7 +1,7 @@
 import { useGame } from "../../contexts/GameContext/GameContext";
 
 export function GameOverModal() {
-	const { gameOver, color } = useGame();
+	const { gameOver, color, proposeRematch } = useGame();
 
 	if (!gameOver) return null;
 
@@ -35,7 +35,7 @@ export function GameOverModal() {
 						Play Again
 					</button>
 					<button
-						onClick={() => (window.location.href = "/play")}
+						onClick={proposeRematch}
 						className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all">
 						Rematch
 					</button>

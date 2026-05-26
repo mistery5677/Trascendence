@@ -1,10 +1,10 @@
-import { Children, createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
 
 type GlobalSocketContextType = {
 	socket: Socket | null;
-	isOnline: boolean;
+	isOnline: boolean; //! Not so useful for now
 };
 
 const GlobalSocketContext = createContext<GlobalSocketContextType | undefined>(undefined);

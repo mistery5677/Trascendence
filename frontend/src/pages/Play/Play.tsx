@@ -21,7 +21,16 @@ export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 	const [timerKey, setTimerKey] = useState(0);
-	const { gameId, isConnected, color, opponentId, drawProposal, handleDrawResponse } = useGame();
+	const {
+		gameId,
+		isConnected,
+		color,
+		opponentId,
+		drawProposal,
+		rematchProposal,
+		handleDrawResponse,
+		handleRematchResponse,
+	} = useGame();
 
 	useEffect(() => {
 		setTimerKey((prevKey) => prevKey + 1);
@@ -46,11 +55,22 @@ export function Play() {
 			{drawProposal && (
 				<ConfirmationModal
 					title="Draw?"
-					description="The opponent wants to play again. Do you accept the challenge?"
+					description="Your opponent offer you draws. Do you accept?"
 					icon="🔄"
 					confirmLabel="Accept"
 					cancelLabel="Decline"
 					onResponse={handleDrawResponse}
+					variant="info"
+				/>
+			)}
+			{rematchProposal && (
+				<ConfirmationModal
+					title="Rematch?"
+					description="The opponent wants to play again. Do you accept the challenge?"
+					icon="🔄"
+					confirmLabel="Accept"
+					cancelLabel="Decline"
+					onResponse={handleRematchResponse}
 					variant="info"
 				/>
 			)}

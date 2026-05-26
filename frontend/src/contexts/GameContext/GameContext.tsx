@@ -133,18 +133,30 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		const onRematchProposed = () => setRematchProposal(true);
 		const onDrawRejected = () => alert("The draw proposal was rejected.");
 		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
+		const onRematchStarted = (data: { newGameId: string }) => {
+			setGameOver(null);
+			setDrawProposal(false);
+			setRematchProposal(false);
+			setFen("start");
+			setCurrentTurn("w");
+			setGameId(data.newGameId);
+			gameIdRef.current = data.newGameId;
 
-		socket.on("drawProposed", onDrawProposed);
+			socket.emit("checkActiveGame");
+		};
+
 		socket.on("rematchProposed", onRematchProposed);
-
+		socket.on("drawProposed", onDrawProposed);
 		socket.on("drawRejected", onDrawRejected);
 		socket.on("rematchRejected", onRematchRejected);
+		socket.on("rematchStarted", onRematchStarted);
 
 		return () => {
 			socket.off("drawProposed", onDrawProposed);
 			socket.off("rematchProposed", onRematchProposed);
 			socket.off("drawRejected", onDrawRejected);
 			socket.off("rematchRejected", onRematchRejected);
+			socket.off("rematchStarted", onRematchStarted);
 		};
 	}, [socket, gameId]);
 	if (!authState.user) return null;

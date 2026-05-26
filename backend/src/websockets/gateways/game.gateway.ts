@@ -13,6 +13,7 @@ import { MatchMakingService } from '../services/matchmaking.service';
 import { JwtService } from '@nestjs/jwt';
 import { WsMiddleware } from '../middleware/ws.middleware';
 import { GameService } from '../services/game.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayInit {
@@ -86,8 +87,10 @@ export class GameGateway implements OnGatewayInit {
       return;
     }
     if (data.response) {
+      const newGameId = uuidv4();
+
       const newGame = this.gameService.createGame(
-        data.gameId,
+        newGameId,
         'online',
         game.playerB,
         game.playerW,
@@ -95,8 +98,12 @@ export class GameGateway implements OnGatewayInit {
       if (newGame) {
         this.server
           .to(data.gameId)
-          .emit('rematchStarted', { newGameId: data.gameId });
+          .emit('rematchStarted', { newGameId: newGameId });
+      } else {
+        client.emit('error', { message: 'Could not generate rematch room' });
       }
+    } else {
+      client.to(data.gameId).emit('rematchRejected');
     }
   }
 
