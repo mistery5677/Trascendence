@@ -137,8 +137,6 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			setGameOver(null);
 			setDrawProposal(false);
 			setRematchProposal(false);
-			setFen("start");
-			setCurrentTurn("w");
 			setGameId(data.newGameId);
 			gameIdRef.current = data.newGameId;
 

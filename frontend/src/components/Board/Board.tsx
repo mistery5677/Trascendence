@@ -1,11 +1,9 @@
-import { Chessboard, fenStringToPositionObject } from "react-chessboard";
+import { Chessboard } from "react-chessboard";
 import { useRef, useEffect, useCallback } from "react";
 import { Chess } from "chess.js";
 import { useState } from "react";
-import { handleGameOver } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
-import { ChartNoAxesColumnIcon } from "lucide-react";
 
 export type PieceColor = "w" | "b";
 
@@ -51,9 +49,11 @@ export function Board({ onTurnChange }: BoardProps) {
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
-	const [chessPosition, setChessPosition] = useState(chessGame.fen());
-
 	const { socket, gameId, color, fen, currentTurn } = useGame();
+	const [chessPosition, setChessPosition] = useState(() => {
+		if (fen) return fen;
+		return chessGame.fen();
+	});
 
 	useEffect(() => {
 		if (!socket || !gameId) return;
@@ -66,7 +66,6 @@ export function Board({ onTurnChange }: BoardProps) {
 
 	const onPieceDrop = useCallback(
 		({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
-
 			if (!gameId || !socket || currentTurn !== color) return false;
 
 			if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
@@ -96,11 +95,26 @@ export function Board({ onTurnChange }: BoardProps) {
 		[socket, gameId, color, currentTurn, chessGame],
 	);
 
+	//!! Try this function to only can move pieces os your color and on your turn only
+	const canDragPiece = useCallback(
+		(args: any) => {
+			if (currentTurn !== color) return false;
+
+			const pieceString = args?.piece?.pieceType;
+
+			if (typeof pieceString !== "string") return false;
+
+			return pieceString.startsWith(color || "");
+		},
+		[color, currentTurn],
+	);
+
 	const chessboardOptions = {
 		position: chessPosition,
+		canDragPiece,
 		onPieceDrop,
 		id: "play-vs-random",
-		boardOrientation: color === "b" ? "black" : "white",
+		boardOrientation: (color === "b" ? "black" : "white") as const,
 		lightSquareStyle: {
 			backgroundColor: "var(--color-board-light)",
 		},
