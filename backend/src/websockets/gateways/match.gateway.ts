@@ -19,15 +19,11 @@ export class MatchGateway {
   server!: Server;
 
   constructor(
-    private readonly jwtService: JwtService,
     private readonly matchMakingService: MatchMakingService,
     private readonly gameService: GameService,
     private readonly userService: UsersService,
   ) {}
 
-  afterInit() {
-    this.server.use(WsMiddleware(this.jwtService));
-  }
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket) {
     this.matchMakingService.addToQueue(client, this.server);
@@ -107,11 +103,12 @@ export class MatchGateway {
       return;
     }
 
+    const userId = client.data.user.userId;
+
     client.join(data.gameId);
 
     const state = this.gameService.getGameState(data.gameId);
     if (!state) return;
-    const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
 
     const opponentId = userId === game.playerW ? game.playerB : game.playerW;

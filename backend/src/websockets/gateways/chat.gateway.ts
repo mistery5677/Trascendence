@@ -12,17 +12,10 @@ import { UsersService } from 'src/users/users.service';
 import { WsMiddleware } from '../middleware/ws.middleware';
 
 @WebSocketGateway({ cors: true })
-export class ChatGateway implements OnGatewayInit {
+export class ChatGateway {
   @WebSocketServer() server?: Server;
 
-  constructor(
-    private readonly userService: UsersService,
-    private readonly jwtService: JwtService,
-  ) {}
-
-  afterInit() {
-    this.server?.use(WsMiddleware(this.jwtService));
-  }
+  constructor(private readonly userService: UsersService) {}
 
   // (ROOM CHAT)
   @SubscribeMessage('sendRoomMessage')

@@ -1,0 +1,426 @@
+diff --git a/backend/src/websockets/gateways/chat.gateway.ts b/backend/src/websockets/gateways/chat.gateway.ts
+index 1286773..a3ea073 100644
+--- a/backend/src/websockets/gateways/chat.gateway.ts
++++ b/backend/src/websockets/gateways/chat.gateway.ts
+@@ -12,17 +12,10 @@ import { UsersService } from 'src/users/users.service';
+ import { WsMiddleware } from '../middleware/ws.middleware';
+ 
+ @WebSocketGateway({ cors: true })
+-export class ChatGateway implements OnGatewayInit {
++export class ChatGateway {
+   @WebSocketServer() server?: Server;
+ 
+-  constructor(
+-    private readonly userService: UsersService,
+-    private readonly jwtService: JwtService,
+-  ) {}
+-
+-  afterInit() {
+-    this.server?.use(WsMiddleware(this.jwtService));
+-  }
++  constructor(private readonly userService: UsersService) {}
+ 
+   // (ROOM CHAT)
+   @SubscribeMessage('sendRoomMessage')
+diff --git a/backend/src/websockets/gateways/game.gateway.ts b/backend/src/websockets/gateways/game.gateway.ts
+index efbc602..38b72ba 100644
+--- a/backend/src/websockets/gateways/game.gateway.ts
++++ b/backend/src/websockets/gateways/game.gateway.ts
+@@ -1,40 +1,35 @@
+ import {
+   ConnectedSocket,
+   MessageBody,
+-  OnGatewayConnection,
+-  OnGatewayDisconnect,
+   SubscribeMessage,
+-  OnGatewayInit,
+   WebSocketGateway,
+   WebSocketServer,
+ } from '@nestjs/websockets';
+ import { Server, Socket } from 'socket.io';
+-import { MatchMakingService } from '../services/matchmaking.service';
+-import { JwtService } from '@nestjs/jwt';
+-import { WsMiddleware } from '../middleware/ws.middleware';
+ import { GameService } from '../services/game.service';
+ import { v4 as uuidv4 } from 'uuid';
+ 
+-@WebSocketGateway()
+-export class GameGateway implements OnGatewayInit {
++@WebSocketGateway({ cors: true })
++export class GameGateway {
+   @WebSocketServer()
+   server!: Server;
+ 
+-  constructor(
+-    // private readonly matchMakingService: MatchMakingService,
+-    private readonly jwtService: JwtService,
+-    private readonly gameService: GameService,
+-  ) {}
+-
+-  afterInit() {
+-    this.server.use(WsMiddleware(this.jwtService));
+-  }
++  constructor(private readonly gameService: GameService) {}
+ 
+   @SubscribeMessage('requestSurrender')
+   handleSurrender(
+     @ConnectedSocket() client: Socket,
+     @MessageBody() data: { gameId: string },
+   ) {
++    const game = this.gameService.getGame(data.gameId);
++    if (!game) return;
++
++    const userId = client.data.user.userId;
++    if (game.playerW !== userId && game.playerB !== userId) {
++      client.emit('error', { message: "Don't belong to this game." });
++      return;
++    }
++
+     const result = this.gameService.surrender(
+       data.gameId,
+       client.data.user.userId,
+@@ -49,6 +44,15 @@ export class GameGateway implements OnGatewayInit {
+     @ConnectedSocket() client: Socket,
+     @MessageBody() data: { gameId: string },
+   ) {
++    const game = this.gameService.getGame(data.gameId);
++    if (!game) return;
++
++    const userId = client.data.user.userId;
++    if (game.playerW !== userId && game.playerB !== userId) {
++      client.emit('error', { message: "Don't belong to this game." });
++      return;
++    }
++
+     client.to(data.gameId).emit('drawProposed', { from: client.id });
+   }
+ 
+@@ -57,6 +61,15 @@ export class GameGateway implements OnGatewayInit {
+     @ConnectedSocket() client: Socket,
+     @MessageBody() data: { gameId: string; response: boolean },
+   ) {
++    const game = this.gameService.getGame(data.gameId);
++    if (!game) return;
++
++    const userId = client.data.user.userId;
++    if (game.playerW !== userId && game.playerB !== userId) {
++      client.emit('error', { message: "Don't belong to this game." });
++      return;
++    }
++
+     if (data.response) {
+       const result = this.gameService.forceDraw(data.gameId);
+       if (result)
+@@ -71,6 +84,15 @@ export class GameGateway implements OnGatewayInit {
+     @ConnectedSocket() client: Socket,
+     @MessageBody() data: { gameId: string },
+   ) {
++    const game = this.gameService.getGame(data.gameId);
++    if (!game) return;
++
++    const userId = client.data.user.userId;
++    if (game.playerW !== userId && game.playerB !== userId) {
++      client.emit('error', { message: "Don't belong to this game." });
++      return;
++    }
++
+     client
+       .to(data.gameId)
+       .emit('rematchProposed', { fromId: client.data.user.userId });
+@@ -82,10 +104,14 @@ export class GameGateway implements OnGatewayInit {
+     @MessageBody() data: { gameId: string; response: boolean },
+   ) {
+     const game = this.gameService.getGame(data.gameId);
+-    if (!game) {
+-      console.error('Game NOT found');
++    if (!game) return;
++
++    const userId = client.data.user.userId;
++    if (game.playerW !== userId && game.playerB !== userId) {
++      client.emit('error', { message: "Don't belong to this game." });
+       return;
+     }
++
+     if (data.response) {
+       const newGameId = uuidv4();
+ 
+@@ -115,6 +141,17 @@ export class GameGateway implements OnGatewayInit {
+     const game = this.gameService.getGame(data.gameId);
+     if (!game) return;
+ 
++    const userId = client.data.user.userId;
++    const currentTurn = game.chess.turn();
++    const expectedPlayerId = currentTurn === 'w' ? game.playerW : game.playerB;
++
++    if (userId !== expectedPlayerId) {
++      client.emit('error', {
++        message: "Don't belong to this game or its not your turn",
++      });
++      return;
++    }
++
+     const validMove = this.gameService.makeMove(data.gameId, data.move);
+     if (!validMove) {
+       client.emit('error', { message: 'Invalid Movement' });
+diff --git a/backend/src/websockets/gateways/match.gateway.ts b/backend/src/websockets/gateways/match.gateway.ts
+index 2608e9c..e87204b 100644
+--- a/backend/src/websockets/gateways/match.gateway.ts
++++ b/backend/src/websockets/gateways/match.gateway.ts
+@@ -19,15 +19,11 @@ export class MatchGateway {
+   server!: Server;
+ 
+   constructor(
+-    private readonly jwtService: JwtService,
+     private readonly matchMakingService: MatchMakingService,
+     private readonly gameService: GameService,
+     private readonly userService: UsersService,
+   ) {}
+ 
+-  afterInit() {
+-    this.server.use(WsMiddleware(this.jwtService));
+-  }
+   @SubscribeMessage('joinQueue')
+   handleJoinQueue(@ConnectedSocket() client: Socket) {
+     this.matchMakingService.addToQueue(client, this.server);
+@@ -107,11 +103,12 @@ export class MatchGateway {
+       return;
+     }
+ 
++    const userId = client.data.user.userId;
++
+     client.join(data.gameId);
+ 
+     const state = this.gameService.getGameState(data.gameId);
+     if (!state) return;
+-    const userId = client.data.user.userId;
+     const userColor = userId === game.playerW ? 'w' : 'b';
+ 
+     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
+diff --git a/backend/src/websockets/gateways/presence.gateway.ts b/backend/src/websockets/gateways/presence.gateway.ts
+index cf27c42..792ab29 100644
+--- a/backend/src/websockets/gateways/presence.gateway.ts
++++ b/backend/src/websockets/gateways/presence.gateway.ts
+@@ -41,10 +41,24 @@ export class PresenceGateway
+     }
+ 
+     const userId = user.userId;
++	
++	this.presenceService.setConnected(userId, client.id);
++
++    if (this.server) {
++      const allSockets = this.server.sockets.sockets;
++      for (const [socketId, prevSocket] of allSockets.entries()) {
++        if (
++          socketId !== client.id &&
++          prevSocket.data?.user?.userId === userId
++        ) {
++          console.log(`[Presence] Kill zombie socket for user ${userId}`);
++          prevSocket.disconnect(true);
++        }
++      }
++    }
+ 
+     client.join(`user_${userId}`);
+ 
+-    this.presenceService.setConnected(userId, client.id);
+ 
+     this.server?.emit('userStatusChanged', { userId, status: 'online' });
+ 
+diff --git a/backend/src/websockets/services/game.service.ts b/backend/src/websockets/services/game.service.ts
+index ab41e72..fd726b7 100644
+--- a/backend/src/websockets/services/game.service.ts
++++ b/backend/src/websockets/services/game.service.ts
+@@ -43,22 +43,22 @@ export class GameService {
+     return newGame;
+   }
+ 
+-  createRematch(oldGameId: string) {
+-    const oldGame = this.games.get(oldGameId);
+-    if (!oldGame) {
+-      console.log('Old Game Not found');
+-      return null;
+-    }
++//   createRematch(oldGameId: string) {
++//     const oldGame = this.games.get(oldGameId);
++//     if (!oldGame) {
++//       console.log('Old Game Not found');
++//       return null;
++//     }
+ 
+-    const newGameId = uuidv4();
++//     const newGameId = uuidv4();
+ 
+-    const playerWId = oldGame.playerB;
+-    const playerBId = oldGame.playerW;
++//     const playerWId = oldGame.playerB;
++//     const playerBId = oldGame.playerW;
+ 
+-    this.createGame(newGameId, 'online', playerWId, playerBId);
+-    this.deleteGame(oldGameId);
+-    return { newGameId };
+-  }
++//     this.createGame(newGameId, 'online', playerWId, playerBId);
++//     this.deleteGame(oldGameId);
++//     return { newGameId };
++//   }
+ 
+   getGame(gameId: string): GameInstance | undefined {
+     return this.games.get(gameId);
+@@ -125,8 +125,8 @@ export class GameService {
+ 
+     if (game.mode === 'online') {
+       this.matchesService.saveMatchResult(
+-        parseInt(game.playerB),
+         parseInt(game.playerW),
++        parseInt(game.playerB),
+         winnerId,
+       );
+     }
+@@ -146,8 +146,8 @@ export class GameService {
+ 
+     if (game.mode === 'online') {
+       this.matchesService.saveMatchResult(
+-        parseInt(game.playerB),
+         parseInt(game.playerW),
++        parseInt(game.playerB),
+         parseInt(winnerId),
+       );
+     }
+@@ -160,8 +160,8 @@ export class GameService {
+ 
+     if (game.mode === 'online') {
+       this.matchesService.saveMatchResult(
+-        parseInt(game.playerB),
+         parseInt(game.playerW),
++        parseInt(game.playerB),
+         null,
+       );
+     }
+diff --git a/backend/src/websockets/services/matchmaking.service.ts b/backend/src/websockets/services/matchmaking.service.ts
+index 9437980..78f6e12 100644
+--- a/backend/src/websockets/services/matchmaking.service.ts
++++ b/backend/src/websockets/services/matchmaking.service.ts
+@@ -10,78 +10,30 @@ export class MatchMakingService {
+ 
+   constructor(private readonly gameService: GameService) {}
+ 
+-    addToQueue(client: Socket, server: Server) {
+-      const userId = client.data.user.userId;
++  addToQueue(client: Socket, server: Server) {
++    const userId = client.data.user.userId;
+ 
+-      this.queue = this.queue.filter(
+-        (queuedSocket) => queuedSocket.data.user.userId !== userId,
+-      );
+-      if (
+-        this.queue.find((c) => c.data.user.userId === client.data.user.userId)
+-      ) {
+-        this.logger.warn(
+-          `Player ${client.data.user.username} is already on queue`,
+-        );
+-        return;
+-      }
+-      this.queue.push(client);
+-
+-      this.logger.log(
+-        `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
++    this.queue = this.queue.filter(
++      (queuedSocket) => queuedSocket.data.user.userId !== userId,
++    );
++    if (
++      this.queue.find((c) => c.data.user.userId === client.data.user.userId)
++    ) {
++      this.logger.warn(
++        `Player ${client.data.user.username} is already on queue`,
+       );
+-
+-      if (this.queue.length >= 2) {
+-        this.createMatch(server);
+-      }
++      return;
+     }
++    this.queue.push(client);
+ 
+-//   addToQueue(client: Socket, server: Server) {
+-//     try {
+-//       // 1. Control de seguridad: Validar que el usuario exista en el socket
+-//       const user = client.data?.user;
+-//       if (!user || !user.userId) {
+-//         this.logger.error(
+-//           `[Queue Error] Rejection: Socket ${client.id} doesn't have user data attached.`,
+-//         );
+-//         return;
+-//       }
+-
+-//       const userId = user.userId;
+-//       this.logger.log(
+-//         `[Queue Attempt] Player ${user.username} (ID: ${userId}) is trying to join.`,
+-//       );
+-
+-//       // 2. Limpieza preventiva estricta:
+-//       // Filtramos la cola para sacar CUALQUIER conexión vieja o duplicada de este usuario.
+-//       const initialSize = this.queue.length;
+-//       this.queue = this.queue.filter(
+-//         (queuedSocket) => queuedSocket.data?.user?.userId !== userId,
+-//       );
+-
+-//       if (this.queue.length !== initialSize) {
+-//         this.logger.log(
+-//           `[Queue Cleanup] Removed ${initialSize - this.queue.length} old/duplicate socket(s) for user ${user.username}`,
+-//         );
+-//       }
+-
+-//       // 3. Añadir el socket nuevo y válido a la cola
+-//       this.queue.push(client);
+-
+-//       this.logger.log(
+-//         `[Queue Success] Player ${user.username} successfully joined. Current queue size: ${this.queue.length}`,
+-//       );
+-
+-//       // 4. Disparar emparejamiento si hay suficientes jugadores
+-//       if (this.queue.length >= 2) {
+-//         this.logger.log(
+-//           `[Matchmaking] Sufficient players found (${this.queue.length}). Creating match...`,
+-//         );
+-//         this.createMatch(server);
+-//       }
+-//     } catch (error) {
+-//       this.logger.error(`[Queue Critical Error] Exception in addToQueue:`);
+-//     }
+-//   }
++    this.logger.log(
++      `Player ${client.data.user.username} joined the queue. Current queue size: ${this.queue.length}`,
++    );
++
++    if (this.queue.length >= 2) {
++      this.createMatch(server);
++    }
++  }
+ 
+   private createMatch(server: Server) {
+     const player1 = this.queue.shift();
+@@ -128,15 +80,20 @@ export class MatchMakingService {
+   }
+ 
+   removeFromQueue(client: Socket) {
++    const userId = client.data?.user?.userId;
++    const username = client.data?.user?.username;
++    if (!userId) return;
++
+     const initialSize = this.queue.length;
+     this.queue = this.queue.filter(
+-      (queuedSocket) => queuedSocket.id !== client.id,
++      (queuedSocket) => queuedSocket.data?.user?.userId !== userId,
+     );
+ 
+     if (initialSize !== this.queue.length) {
+-      this.logger.log(
+-        `Player ${client.data.user?.username || client.id} removed from queue.`,
+-      );
++      this.logger.log(`User ${username} removed from matchmaking Queue.`);
+     }
+   }
++
++
++  
+ }

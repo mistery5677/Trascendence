@@ -41,10 +41,24 @@ export class PresenceGateway
     }
 
     const userId = user.userId;
+	
+	this.presenceService.setConnected(userId, client.id);
+
+    if (this.server) {
+      const allSockets = this.server.sockets.sockets;
+      for (const [socketId, prevSocket] of allSockets.entries()) {
+        if (
+          socketId !== client.id &&
+          prevSocket.data?.user?.userId === userId
+        ) {
+          console.log(`[Presence] Kill zombie socket for user ${userId}`);
+          prevSocket.disconnect(true);
+        }
+      }
+    }
 
     client.join(`user_${userId}`);
 
-    this.presenceService.setConnected(userId, client.id);
 
     this.server?.emit('userStatusChanged', { userId, status: 'online' });
 
