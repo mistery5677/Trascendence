@@ -121,13 +121,16 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 					</div>
 				</div>
 				{/* image */}
-				<img
-					src={opponentAvatarUrl}
-					className={`w-[8vh] h-[8vh] sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
-						color != null && currentTurn === color
-							? "ring-emerald-300 shadow-emerald-700/20"
-							: "ring-slate-700 shadow-none border border-slate-600"
-					}`}></img>
+				//! For protect if opponent Url doesn't exist
+				{opponentAvatarUrl && (
+					<img
+						src={opponentAvatarUrl}
+						className={`w-[8vh] h-[8vh] sm:w-16 sm:h-16 rounded-full ring-4 object-fill shadow-lg transition-all duration-500 ${
+							color != null && currentTurn === color
+								? "ring-emerald-300 shadow-emerald-700/20"
+								: "ring-slate-700 shadow-none border border-slate-600"
+						}`}></img>
+				)}
 			</div>
 		</div>
 	);
