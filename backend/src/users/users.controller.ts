@@ -147,6 +147,9 @@ export class UsersController {
     const user = await this.usersService.findOneById(parseInt(id));
     if (!user) return null;
 
+    if (isNaN(user.id))
+        throw new BadRequestException("Invalid opponent ID");
+
     const {
       email,
       wins,

@@ -125,6 +125,29 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
+  @SubscribeMessage('timeOut')
+  async handleTimeOut(
+    @MessageBody() data: { gameId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { gameId } = data;
+    
+    // Get the game information
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) return;
+
+    // Check who got timed out
+    const loser = client.id === game.playerW ? 'w' : 'b';
+    const winner = loser === 'w' ? 'b' : 'w';
+    const result = this.gameService.handleTimeOut(data.gameId, String(client.data.user.userId));
+    // await this.matchesService.saveMatchResult(game.whiteUserId, game.blackUserId, resultReason);
+
+    // Set that the game is over
+    if (result) {
+      this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+    }
+  }
+
   private processGameState(gameId: string, move: any): boolean {
     const game = this.gameService.getGame(gameId);
 
@@ -132,6 +155,8 @@ export class GameGateway implements OnGatewayInit {
       move: move,
       fen: game?.chess.fen(),
       currentTurn: game?.chess.turn(),
+      whiteTimeLeft: move.whiteTimeLeft,
+      blackTimeLeft: move.blackTimeLeft
     });
 
     const gameOver = this.gameService.checkGameOver(gameId);

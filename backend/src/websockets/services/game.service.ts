@@ -11,7 +11,8 @@ interface GameOverResult {
     | 'STALEMATE'
     | 'THREEFOLD_REPETITION'
     | 'RESIGNATION'
-    | 'DISCONNECTION_TIMEOUT';
+    | 'DISCONNECTION_TIMEOUT'
+    | 'TIMEOUT';
 }
 
 interface GameInstance {
@@ -20,11 +21,17 @@ interface GameInstance {
   playerW: string;
   playerB: string;
   isFinished?: boolean;
+
+  // Timer variables
+  whiteTimeLeft: number;
+  blackTimeLeft: number;
+  lastMoveTimestamp: number; // Time of the last move
 }
 
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
+  private readonly MATCH_TIMER = 10;
   constructor(private readonly matchesService: MatchesService) {}
 
   createGame(
@@ -38,6 +45,11 @@ export class GameService {
       mode: mode,
       playerW: playerWId,
       playerB: playerBId,
+
+      // Start the timer
+      whiteTimeLeft: this.MATCH_TIMER,
+      blackTimeLeft: this.MATCH_TIMER,
+      lastMoveTimestamp: Date.now(),
     };
     this.games.set(gameId, newGame);
     return newGame;
@@ -69,8 +81,33 @@ export class GameService {
     if (!game) return null;
 
     try {
+      // Before moving we have to calculate the wasted time to make the move
+      const currentTurn = game.chess.turn();
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - game.lastMoveTimestamp) / 1000);
+
+      // Discount the time
+      if (currentTurn === 'w') {
+        game.whiteTimeLeft = Math.max(0, game.whiteTimeLeft - elapsedSeconds);
+      } else {
+        game.blackTimeLeft = Math.max(0, game.blackTimeLeft - elapsedSeconds);
+      }
+
+      // Make the move
       const result = game.chess.move(move);
-      return result;
+
+      // If the play is valid, restart the clock
+      if (result) {
+        game.lastMoveTimestamp = now;
+      }
+
+      return {
+        result,
+        fen: game.chess.fen(),
+        currentTurn: game.chess.turn(),
+        whiteTimeLeft: game.whiteTimeLeft,
+        blackTimeLeft: game.blackTimeLeft
+      };
     } catch (e) {
       return null;
     }
@@ -80,10 +117,17 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game || game.chess.isGameOver()) return null;
 
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - game.lastMoveTimestamp) / 1000);
+
     const possibleMoves = game.chess.moves();
-    const randomMove =
-      possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+    game.blackTimeLeft = Math.max(0, game.blackTimeLeft - elapsedSeconds);
     game.chess.move(randomMove);
+
+    game.lastMoveTimestamp = Date.now();
+
     return randomMove;
   }
 
@@ -91,11 +135,28 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game) return null;
 
+    // Calculate the real time after a page refresh
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - game.lastMoveTimestamp) / 1000);
+    
+    let currentWTime = game.whiteTimeLeft;
+    let currentBTime = game.blackTimeLeft;
+
+    if (game.chess.turn() === 'w') {
+      currentWTime = Math.max(0, currentWTime - elapsedSeconds);
+    } else {
+      currentBTime = Math.max(0, currentBTime - elapsedSeconds);
+    }
+
     return {
       fen: game.chess.fen(),
       turn: game.chess.turn(),
       history: game.chess.history(),
       mode: game.mode,
+
+      // Send the timer info
+      whiteTimeLeft: currentWTime,
+      blackTimeLeft: currentBTime,
     };
   }
 
@@ -154,6 +215,8 @@ export class GameService {
     this.markAsFinished(gameId);
     return { winnerColor, reason: 'RESIGNATION' };
   }
+
+  
   forceDraw(gameId: string): GameOverResult | null {
     const game = this.getGame(gameId);
     if (!game) return null;
@@ -167,6 +230,28 @@ export class GameService {
     }
     this.markAsFinished(gameId);
     return { winnerColor: null, reason: 'DRAW' };
+  }
+
+  handleTimeOut(gameId: string, loserPlayerId: string): GameOverResult | null {
+    const game = this.getGame(gameId);
+    if (!game || game.isFinished) return null;
+
+    const isWhiteLoser = String(loserPlayerId) === String(game.playerW);
+
+    // The winner is not the one that got timed out
+    const winnerColor: 'w' | 'b' = isWhiteLoser ? 'b' : 'w';
+    const winnerId = winnerColor === 'w' ? game.playerW : game.playerB;
+
+    // Save the match history
+    if (game.mode === 'online') {
+      this.matchesService.saveMatchResult(
+        parseInt(game.playerB),
+        parseInt(game.playerW),
+        parseInt(winnerId),
+      );
+    }
+    this.markAsFinished(gameId);
+    return { winnerColor, reason: 'TIMEOUT' };
   }
 
   deleteGame(gameId: string) {

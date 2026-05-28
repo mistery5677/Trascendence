@@ -17,6 +17,11 @@ export type GameContextType = {
 	gameOver: GameOverState;
 	drawProposal: boolean;
 
+	// Timer variables
+	myTimeLeft: number;
+	opponentTimeLeft: number;
+	handleTimeOut: () => void;
+
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;

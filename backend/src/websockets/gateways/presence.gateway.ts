@@ -57,6 +57,9 @@ export class PresenceGateway
           color: userColor,
           mode: game.mode,
           opponentId: opponentId || 'bot',
+
+          whiteTimeLeft: state.whiteTimeLeft,
+          blackTimeLeft: state.blackTimeLeft,
         });
         //! Still considering have a screen that tells the other player when user reconnect
         client.to(gameId).emit('opponentReconnected', { userId });

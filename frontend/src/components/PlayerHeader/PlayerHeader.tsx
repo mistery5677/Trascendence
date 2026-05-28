@@ -9,17 +9,22 @@ type PlayerHeaderProps = {
 	currentTurn: PieceColor;
 	color: "w" | "b" | null;
 	state: AuthState;
-	timerKey: number;
 	className?: string | undefined;
 	opponentId?: string | null;
+
+	myTimeLeft: number;
+	opponentTimeLeft: number;
+	onTimeOut: (loserColor: "w" | "b") => void; // Warns who lost the game
 };
 
-export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, className = "" }: PlayerHeaderProps) {
+export function PlayerHeader({ currentTurn, color, state, opponentId, className = "",
+								myTimeLeft, opponentTimeLeft, onTimeOut
+ }: PlayerHeaderProps) {
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
 	useEffect(() => {
-		if (!opponentId) {
-			return;
-		}
+		if (!opponentId || String(opponentId).startsWith("bot_")) {
+            return;
+        }
 
 		let cancelled = false;
 		getOpponentData(opponentId)
@@ -35,8 +40,10 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 		};
 	}, [opponentId]);
 	const opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
-
 	const opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : null;
+
+	const isMyTurn = color != null && currentTurn === color;
+	const isOpponentTurn = color != null && currentTurn !== color; 
 
 	return (
 		<div
@@ -73,10 +80,12 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 				</div>
 			</div>
 			<Timer
-				key={timerKey}
-				startTimerInSeconds={30}
-				isRunning={color != null && currentTurn === color}
-			/>
+                timeLeftInSeconds={myTimeLeft}
+                isRunning={isMyTurn}
+                onTimeUp={() => {
+                    if (color) onTimeOut(color); // Avisa que TU perdeste por tempo
+                }}
+            />
 
 			{/* VS — diamond plate + gradient type */}
 			<div className="flex flex-col items-center px-1 sm:px-2 shrink-0">
@@ -93,10 +102,14 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 			</div>
 
 			<Timer
-				key={timerKey + 1}
-				startTimerInSeconds={30}
-				isRunning={color != null && currentTurn !== color}
-			/>
+                timeLeftInSeconds={opponentTimeLeft}
+                isRunning={isOpponentTurn}
+                onTimeUp={() => {
+                    // Avisa que o adversário perdeu por tempo
+                    const opponentColor = color === 'w' ? 'b' : 'w';
+                    onTimeOut(opponentColor); 
+                }}
+            />
 
 			{/* right user */}
 			<div
