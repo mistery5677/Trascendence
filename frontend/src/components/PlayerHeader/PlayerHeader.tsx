@@ -121,7 +121,6 @@ export function PlayerHeader({ currentTurn, color, state, timerKey, opponentId, 
 					</div>
 				</div>
 				{/* image */}
-				//! For protect if opponent Url doesn't exist
 				{opponentAvatarUrl && (
 					<img
 						src={opponentAvatarUrl}
