@@ -8,7 +8,7 @@ type TimerProps = {
 
 const getTimerSize = () => {
 	const base = Math.min(window.innerWidth, window.innerHeight);
-	return Math.max(20, Math.min(base * 0.10, 58));
+	return Math.max(18, Math.min(base * 0.07, 46));
 };
 
 const getTimerFontSize = (timerSize: number) => Math.max(8, Math.floor(timerSize * 0.38));
