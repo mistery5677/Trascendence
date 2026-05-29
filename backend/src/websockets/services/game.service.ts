@@ -20,11 +20,13 @@ interface GameInstance {
   playerW: string;
   playerB: string;
   isFinished?: boolean;
+  disconnectTimeout?: NodeJS.Timeout;
 }
 
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
+  private readonly ABANDON_TIME = 60000;
   constructor(private readonly matchesService: MatchesService) {}
 
   createGame(
@@ -42,23 +44,6 @@ export class GameService {
     this.games.set(gameId, newGame);
     return newGame;
   }
-
-  //   createRematch(oldGameId: string) {
-  //     const oldGame = this.games.get(oldGameId);
-  //     if (!oldGame) {
-  //       console.log('Old Game Not found');
-  //       return null;
-  //     }
-
-  //     const newGameId = uuidv4();
-
-  //     const playerWId = oldGame.playerB;
-  //     const playerBId = oldGame.playerW;
-
-  //     this.createGame(newGameId, 'online', playerWId, playerBId);
-  //     this.deleteGame(oldGameId);
-  //     return { newGameId };
-  //   }
 
   getGame(gameId: string): GameInstance | undefined {
     return this.games.get(gameId);
@@ -195,5 +180,57 @@ export class GameService {
       }
     }
     return null;
+  }
+
+  startAbandonTimeout(gameId: string, loserUserId: string, server: any) {
+    console.log('AQui???\n');
+    const game = this.getGame(gameId);
+    if (!game || game.isFinished || game.mode === 'bot') return;
+
+    if (game.disconnectTimeout) clearTimeout(game.disconnectTimeout);
+
+    console.log(
+      `[Game] Starting the final countDown for ${loserUserId} in Game ${gameId}`,
+    );
+
+    game.disconnectTimeout = setTimeout(() => {
+      if (game.isFinished) return;
+
+      const isWhiteLoser = game.playerW === loserUserId;
+      const winnerColor: 'w' | 'b' = isWhiteLoser ? 'b' : 'w';
+      const winnerId = isWhiteLoser ? game.playerB : game.playerW;
+
+      this.matchesService.saveMatchResult(
+        parseInt(game.playerW),
+        parseInt(game.playerB),
+        parseInt(winnerId),
+      );
+
+      this.markAsFinished(gameId);
+
+      server.to(gameId).emit('gameOver', {
+        gameOver: {
+          winnerColor,
+          reason: 'DISCONNECTION_TIMEOUT',
+        },
+      });
+
+      console.log(
+        `[Game] ${gameId} has finished by disconnection TimeOut of user ${loserUserId}`,
+      );
+
+      this.deleteGame(gameId);
+    }, this.ABANDON_TIME);
+  }
+
+  clearAbandonTimeout(gameId: string) {
+    const game = this.games.get(gameId);
+    if (game && game.disconnectTimeout) {
+      clearTimeout(game.disconnectTimeout);
+      game.disconnectTimeout = undefined;
+      console.log(
+        `[Game] Countdown has stopped ${gameId}. The player come back.`,
+      );
+    }
   }
 }

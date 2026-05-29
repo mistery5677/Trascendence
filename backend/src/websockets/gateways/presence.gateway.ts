@@ -41,8 +41,8 @@ export class PresenceGateway
     }
 
     const userId = user.userId;
-	
-	this.presenceService.setConnected(userId, client.id);
+
+    this.presenceService.setConnected(userId, client.id);
 
     if (this.server) {
       const allSockets = this.server.sockets.sockets;
@@ -59,8 +59,13 @@ export class PresenceGateway
 
     client.join(`user_${userId}`);
 
-
     this.server?.emit('userStatusChanged', { userId, status: 'online' });
+
+    const activeMatch = this.gameService.findActiveGameByUserId(userId);
+    if (activeMatch) {
+      this.gameService.clearAbandonTimeout(activeMatch.gameId);
+	  client.join(activeMatch.gameId);
+    }
 
     console.log(
       `[Presence] User:${userId} successfully connected, ${client.id}`,
@@ -69,6 +74,7 @@ export class PresenceGateway
 
   handleDisconnect(client: Socket) {
     const user = client.data?.user;
+
     if (!user || !user.userId) return;
 
     const userId = user.userId;
@@ -83,10 +89,18 @@ export class PresenceGateway
     if (isRealDisconnect) {
       this.server?.emit('userStatusChanged', { userId, status: 'offline' });
       console.log(`[Presence] User ${user.username} fully disconnected.`);
-    } else {
-      console.log(
-        `[Presence] Ignored old socket cleanup for user ${user.username}`,
-      );
+      const activeMatch = this.gameService.findActiveGameByUserId(userId);
+      if (activeMatch && activeMatch.game.mode === 'online') {
+        this.gameService.startAbandonTimeout(
+          activeMatch.gameId,
+          userId,
+          this.server,
+        );
+      } else {
+        console.log(
+          `[Presence] Ignored old socket cleanup for user ${user.username}`,
+        );
+      }
     }
   }
 }
