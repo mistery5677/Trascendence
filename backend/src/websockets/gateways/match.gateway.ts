@@ -71,7 +71,6 @@ export class MatchGateway {
     if (!state) return;
     const userId = client.data.user.userId;
     const userColor = userId === game.playerW ? 'w' : 'b';
-
     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
 
     client.emit('gameState', {
@@ -81,6 +80,9 @@ export class MatchGateway {
       color: userColor,
       mode: state.mode,
       opponentId: String(opponentId) || 'bot',
+
+      whiteTimeLeft: state.whiteTimeLeft,
+      blackTimeLeft: state.blackTimeLeft,
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);

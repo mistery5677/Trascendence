@@ -1,53 +1,25 @@
 import { useEffect, useState } from "react";
-import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 type TimerProps = {
-	startTimerInSeconds: number;
-	isRunning: boolean;
+    timeLeftInSeconds: number;
+    isRunning: boolean;
+    onTimeUp?: () => void;
 };
 
-const getTimerSize = () => {
-	const base = Math.min(window.innerWidth, window.innerHeight);
-	return Math.max(18, Math.min(base * 0.07, 46));
-};
+export function Timer({ timeLeftInSeconds, isRunning, onTimeUp }: TimerProps) {
+    useEffect(() => {
+        if (timeLeftInSeconds <= 0 && isRunning && onTimeUp) {
+            onTimeUp();
+        }
+    }, [timeLeftInSeconds, isRunning, onTimeUp]);
 
-const getTimerFontSize = (timerSize: number) => Math.max(8, Math.floor(timerSize * 0.38));
+    const minutes = Math.floor(Math.max(0, timeLeftInSeconds) / 60);
+    const seconds = Math.floor(Math.max(0, timeLeftInSeconds) % 60);
+    const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
-export function Timer({ startTimerInSeconds, isRunning }: TimerProps) {
-	const [key, setKey] = useState(0);
-	const [timerSize, setTimerSize] = useState(getTimerSize());
-	const remainingTimeFontSize = getTimerFontSize(timerSize);
-
-	useEffect(() => {
-		setKey((prevKey) => prevKey + 1);
-	}, [startTimerInSeconds]);
-
-	useEffect(() => {
-		const handleResize = () => {
-			setTimerSize(getTimerSize());
-		};
-
-		window.addEventListener("resize", handleResize);
-
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
-
-	return (
-		<div>
-			<CountdownCircleTimer
-				key={key}
-				isPlaying={isRunning ? true : false}
-				size={timerSize}
-				strokeLinecap="butt"
-				strokeWidth={3}
-				initialRemainingTime={startTimerInSeconds}
-				duration={startTimerInSeconds}
-				colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-				colorsTime={[7, 5, 2, 0]}>
-				{({ remainingTime }) => (
-					<span style={{ fontSize: `${remainingTimeFontSize}px`, fontWeight: 600 }}>{remainingTime}</span>
-				)}
-			</CountdownCircleTimer>
-		</div>
-	);
+    return (
+        <div className={`font-mono font-black text-2xl sm:text-3xl tracking-wider ${timeLeftInSeconds <= 10 ? 'text-red-500 animate-pulse' : 'text-stone-100'}`}>
+            {formattedTime}
+        </div>
+    );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Board, PlayerHeader, MatchSidebar } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
@@ -23,12 +23,18 @@ const BACKGROUND_THEMES: Record<number, string> = {
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
-	const [timerKey, setTimerKey] = useState(0);
-	const { gameId, isConnected, color, opponentId, drawProposal, handleDrawResponse } = useGame();
 
-	useEffect(() => {
-		setTimerKey((prevKey) => prevKey + 1);
-	}, [currentTurn]);
+	const {
+		gameId,
+		isConnected,
+		color,
+		opponentId,
+		drawProposal,
+		handleDrawResponse,
+		myTimeLeft = 10,
+		opponentTimeLeft = 10,
+		handleTimeOut,
+	} = useGame();
 
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
@@ -39,7 +45,6 @@ export function Play() {
 	}
 
 	const userThemeId = state.user?.backgroundTheme || 1;
-
 	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
 
 	return (
@@ -68,9 +73,13 @@ export function Play() {
 								currentTurn={currentTurn}
 								color={color}
 								state={state}
-								timerKey={timerKey}
-								opponentId={opponentId}
-								className="w-full"
+								myTimeLeft={myTimeLeft}
+								opponentTimeLeft={opponentTimeLeft}
+								onTimeOut={(loserColor) => {
+									if (color === loserColor && handleTimeOut) {
+										handleTimeOut();
+									}
+								}}
 							/>
 						</div>
 						<section className="flex w-full items-center justify-center xl:basis-[75%] 2xl:basis-[80%] 2xl:items-start xl:min-h-0">
