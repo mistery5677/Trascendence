@@ -43,22 +43,22 @@ export class GameService {
     return newGame;
   }
 
-//   createRematch(oldGameId: string) {
-//     const oldGame = this.games.get(oldGameId);
-//     if (!oldGame) {
-//       console.log('Old Game Not found');
-//       return null;
-//     }
+  //   createRematch(oldGameId: string) {
+  //     const oldGame = this.games.get(oldGameId);
+  //     if (!oldGame) {
+  //       console.log('Old Game Not found');
+  //       return null;
+  //     }
 
-//     const newGameId = uuidv4();
+  //     const newGameId = uuidv4();
 
-//     const playerWId = oldGame.playerB;
-//     const playerBId = oldGame.playerW;
+  //     const playerWId = oldGame.playerB;
+  //     const playerBId = oldGame.playerW;
 
-//     this.createGame(newGameId, 'online', playerWId, playerBId);
-//     this.deleteGame(oldGameId);
-//     return { newGameId };
-//   }
+  //     this.createGame(newGameId, 'online', playerWId, playerBId);
+  //     this.deleteGame(oldGameId);
+  //     return { newGameId };
+  //   }
 
   getGame(gameId: string): GameInstance | undefined {
     return this.games.get(gameId);

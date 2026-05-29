@@ -122,6 +122,7 @@ export class GameGateway {
         game.playerW,
       );
       if (newGame) {
+        this.gameService.deleteGame(data.gameId);
         this.server
           .to(data.gameId)
           .emit('rematchStarted', { newGameId: newGameId });
@@ -130,6 +131,7 @@ export class GameGateway {
       }
     } else {
       client.to(data.gameId).emit('rematchRejected');
+	  this.gameService.deleteGame(data.gameId);
     }
   }
 

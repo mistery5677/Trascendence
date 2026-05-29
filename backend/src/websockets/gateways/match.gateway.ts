@@ -79,7 +79,7 @@ export class MatchGateway {
           currentTurn: state.turn,
           color: userColor,
           mode: game.mode,
-          opponentId: opponentId || 'bot',
+          opponentId: opponentId ? String(opponentId) : 'bot',
         });
         //! Still considering have a screen that tells the other player when user reconnect
         client.to(gameId).emit('opponentReconnected', { userId });
@@ -119,7 +119,7 @@ export class MatchGateway {
       currentTurn: state.turn,
       color: userColor,
       mode: state.mode,
-      opponentId: String(opponentId) || 'bot',
+      opponentId: opponentId ? String(opponentId) : 'bot',
     });
 
     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
