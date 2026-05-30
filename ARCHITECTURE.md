@@ -53,6 +53,8 @@
     * Show achievements and progression.
     * Leaderboard integration.
 
+---
+
 ### Artificial Intelligence (Page 15) (2 points)
 * **--> (2 pts)Major: Introduce an AI Opponent for games.
    * The AI must be challenging and able to win occasionally.
