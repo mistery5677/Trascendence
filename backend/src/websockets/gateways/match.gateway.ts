@@ -130,4 +130,4 @@ export class MatchGateway {
 
 //     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
 //   }
-// }
+}
