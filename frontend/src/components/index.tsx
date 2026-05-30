@@ -15,3 +15,4 @@ export { MatchSidebarButton } from "./MatchSidebarButton/MatchSidebarButton";
 export { BoardThemeButton } from "./BoardThemeButton/BoardThemeButton";
 export { SurrenderButton } from "./SurrenderButton/SurrenderButton";
 export { OfferDrawButton } from "./OfferDrawButton/OfferDrawButton";
+export { PlayOptions } from "./PlayOptions/PlayOptions";

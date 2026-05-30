@@ -214,7 +214,7 @@ export function Friends() {
 											onClick={() => handleRemoveFriend(friend.id, friend.username)}
 											className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
 											title="Remove Friend">
-											<span>Unfriend</span>
+											<span>❌</span>
 										</button>
 									</div>
 								</div>

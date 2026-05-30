@@ -31,7 +31,7 @@ interface GameInstance {
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
-  private readonly MATCH_TIMER = 10;
+  private readonly MATCH_TIMER = 1250;
   constructor(private readonly matchesService: MatchesService) {}
 
   createGame(

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Chat } from "../Chat/Chat";
 import { MatchSidebarButton } from "../MatchSidebarButton/MatchSidebarButton";
 import { GameSettings } from "./GameSettings/GameSettings";
+import { PlayOptions } from "../PlayOptions/PlayOptions";
 
-type currentTabOpt = "chat" | "actions" | "settings" | null;
+type currentTabOpt = "chat" | "actions" | "settings" | "playOptions" | null;
 
 type Menu = {
 	currentTab: currentTabOpt;
@@ -24,29 +25,27 @@ export function MatchSidebar() {
 	return (
 		<div className="flex flex-col bg-stone-900 text-stone-200 rounded-xl shadow-md border border-stone-700 overflow-hidden h-full min-h-140 sm:min-h-155">
 			<header className="w-full p-5 sm:p-6 bg-stone-800 border-b border-stone-700">
-				<p className="mb-3 text-xs font-semibold tracking-[0.18em] uppercase text-stone-400">
-					Match controls
-				</p>
+				<p className="mb-3 text-xs font-semibold tracking-[0.18em] uppercase text-stone-400">Match controls</p>
 				<div className="flex items-center gap-3">
 					<MatchSidebarButton
 						onClick={() => toggleMenu("chat")}
-						className="flex-1 text-base sm:text-lg"
-					>
+						className="flex-1 text-base sm:text-lg">
 						Chat
 					</MatchSidebarButton>
-					<MatchSidebarButton className="flex-1 text-base sm:text-lg">
-						Actions
+					<MatchSidebarButton className="flex-1 text-base sm:text-lg">Actions</MatchSidebarButton>
+					<MatchSidebarButton
+						variant="playNow"
+						className="text-base sm:text-lg"
+						onClick={() => toggleMenu("playOptions")}>
+						PLAY NOW
 					</MatchSidebarButton>
 				</div>
 			</header>
 			{/* Middle Section */}
-			<section
-				className={`flex-1 flex flex-col min-h-0 ${menu.isOpen ? "flex" : "hidden"}`}
-			>
-				{menu.currentTab === "chat" && (
-					<Chat classname="h-full flex-1" />
-				)}
+			<section className={`flex-1 flex flex-col min-h-0 ${menu.isOpen ? "flex" : "hidden"}`}>
+				{menu.currentTab === "chat" && <Chat classname="h-full flex-1" />}
 				{menu.currentTab === "settings" && <GameSettings />}
+				{menu.currentTab === "playOptions" && <PlayOptions />}
 			</section>
 			{
 				<section className="mt-auto w-full p-5 sm:p-6 bg-stone-900 border-t border-stone-700">
@@ -56,8 +55,7 @@ export function MatchSidebar() {
 					</p> */}
 						<MatchSidebarButton
 							onClick={() => toggleMenu("settings")}
-							className="w-full justify-center bg-stone-700 hover:bg-stone-600 text-base sm:text-lg"
-						>
+							className="w-full justify-center bg-stone-700 hover:bg-stone-600 text-base sm:text-lg">
 							⚙️ Settings
 						</MatchSidebarButton>
 					</div>
