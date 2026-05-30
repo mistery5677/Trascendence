@@ -48,6 +48,8 @@ export class MatchGateway {
       fen: newGame.chess.fen(),
       currentTurn: newGame.chess.turn(),
       mode: 'bot',
+        whiteTimeLeft: newGame.whiteTimeLeft,
+        blackTimeLeft: newGame.blackTimeLeft,
     });
   }
 
@@ -80,6 +82,8 @@ export class MatchGateway {
           color: userColor,
           mode: game.mode,
           opponentId: opponentId ? String(opponentId) : 'bot',
+          whiteTimeLeft: state.whiteTimeLeft,
+          blackTimeLeft: state.blackTimeLeft,
         });
         //! Still considering have a screen that tells the other player when user reconnect
         client.to(gameId).emit('opponentReconnected', { userId });
@@ -92,36 +96,38 @@ export class MatchGateway {
     }
   }
 
-  @SubscribeMessage('joinGame')
-  async handleJoinGame(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { gameId: string },
-  ) {
-    const game = this.gameService.getGame(data.gameId);
-    if (!game) {
-      client.emit('error', { message: 'Game not Found' });
-      return;
-    }
+//   @SubscribeMessage('joinGame')
+//   async handleJoinGame(
+//     @ConnectedSocket() client: Socket,
+//     @MessageBody() data: { gameId: string },
+//   ) {
+//     const game = this.gameService.getGame(data.gameId);
+//     if (!game) {
+//       client.emit('error', { message: 'Game not Found' });
+//       return;
+//     }
 
-    const userId = client.data.user.userId;
+//     const userId = client.data.user.userId;
 
-    client.join(data.gameId);
+//     client.join(data.gameId);
 
-    const state = this.gameService.getGameState(data.gameId);
-    if (!state) return;
-    const userColor = userId === game.playerW ? 'w' : 'b';
+//     const state = this.gameService.getGameState(data.gameId);
+//     if (!state) return;
+//     const userColor = userId === game.playerW ? 'w' : 'b';
+//     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
 
-    const opponentId = userId === game.playerW ? game.playerB : game.playerW;
+//     client.emit('gameState', {
+//       gameId: data.gameId,
+//       fen: state.fen,
+//       currentTurn: state.turn,
+//       color: userColor,
+//       mode: state.mode,
+//       opponentId: opponentId ? String(opponentId) : 'bot',
 
-    client.emit('gameState', {
-      gameId: data.gameId,
-      fen: state.fen,
-      currentTurn: state.turn,
-      color: userColor,
-      mode: state.mode,
-      opponentId: opponentId ? String(opponentId) : 'bot',
-    });
+//       whiteTimeLeft: state.whiteTimeLeft,
+//       blackTimeLeft: state.blackTimeLeft,
+//     });
 
-    console.log(`User ${userId} rejoin to the room ${data.gameId}`);
-  }
-}
+//     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
+//   }
+// }

@@ -66,12 +66,16 @@ export class MatchMakingService {
       ...commonData,
       color: 'w',
       opponentId: player2.data.user.userId,
+      whiteTimeLeft: game.whiteTimeLeft,
+      blackTimeLeft: game.blackTimeLeft,
     });
 
     player2.emit('gameState', {
       ...commonData,
       color: 'b',
       opponentId: player1.data.user.userId,
+      whiteTimeLeft: game.whiteTimeLeft,
+      blackTimeLeft: game.blackTimeLeft,
     });
 
     this.logger.log(
@@ -93,7 +97,4 @@ export class MatchMakingService {
       this.logger.log(`User ${username} removed from matchmaking Queue.`);
     }
   }
-
-
-  
 }

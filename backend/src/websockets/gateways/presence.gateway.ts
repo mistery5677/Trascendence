@@ -64,7 +64,7 @@ export class PresenceGateway
     const activeMatch = this.gameService.findActiveGameByUserId(userId);
     if (activeMatch) {
       this.gameService.clearAbandonTimeout(activeMatch.gameId);
-	  client.join(activeMatch.gameId);
+      client.join(activeMatch.gameId);
     }
 
     console.log(

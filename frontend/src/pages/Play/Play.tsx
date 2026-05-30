@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Board, PlayerHeader, MatchSidebar } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
@@ -20,7 +20,7 @@ const BACKGROUND_THEMES: Record<number, string> = {
 export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
-	const [timerKey, setTimerKey] = useState(0);
+
 	const {
 		gameId,
 		isConnected,
@@ -30,11 +30,10 @@ export function Play() {
 		rematchProposal,
 		handleDrawResponse,
 		handleRematchResponse,
+		myTimeLeft ,
+		opponentTimeLeft,
+		handleTimeOut,
 	} = useGame();
-
-	useEffect(() => {
-		setTimerKey((prevKey) => prevKey + 1);
-	}, [currentTurn]);
 
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
@@ -45,7 +44,6 @@ export function Play() {
 	}
 
 	const userThemeId = state.user?.backgroundTheme || 1;
-
 	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
 
 	return (
@@ -55,7 +53,7 @@ export function Play() {
 			{drawProposal && (
 				<ConfirmationModal
 					title="Draw?"
-					description="Your opponent offer you draws. Do you accept?"
+					description="The opponent wants to play again. Do you accept the challenge?"
 					icon="🔄"
 					confirmLabel="Accept"
 					cancelLabel="Decline"
@@ -74,8 +72,9 @@ export function Play() {
 					variant="info"
 				/>
 			)}
-			{/* GameOver */}
+
 			<GameOverModal />
+
 			<div className="relative z-10 w-fit mx-auto grid grid-cols-1 xl:grid-cols-[auto_22rem] xl:grid-rows-[auto_1fr] gap-4 items-start px-4">
 				{/* PlayerHeader */}
 				<div className="flex justify-center xl:col-start-1 xl:row-start-1">
@@ -83,18 +82,27 @@ export function Play() {
 						currentTurn={currentTurn}
 						color={color}
 						state={state}
-						timerKey={timerKey}
 						opponentId={opponentId}
 						className="max-w-[calc(100vh-5rem)]"
+						// Timer properties
+						myTimeLeft={myTimeLeft}
+						opponentTimeLeft={opponentTimeLeft}
+						onTimeOut={(loserColor) => {
+							if (color === loserColor && handleTimeOut) {
+								handleTimeOut();
+							}
+						}}
 					/>
 				</div>
+
 				{/* Board */}
 				<section className="flex items-center justify-center w-full max-h-screen xl:col-start-1 xl:row-start-2">
 					<div className="p-3 sm:p-5 bg-stone-900 max-w-[calc(100vh-15rem)] rounded-xl border border-stone-700 shadow-md">
 						<Board onTurnChange={handleTurnChange} />
 					</div>
 				</section>
-				{/* MatchSidebar: one instance; below board on narrow viewports, right column on xl */}
+
+				{/* MatchSidebar */}
 				<div className="flex w-full flex-col rounded-xl xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:min-h-0">
 					<div className="flex min-h-0 flex-col xl:h-[calc(100vh)] xl:max-h-[calc(100vh-7rem)]">
 						<MatchSidebar />
