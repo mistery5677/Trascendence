@@ -73,6 +73,7 @@ export function Play() {
 								currentTurn={currentTurn}
 								color={color}
 								state={state}
+								opponentId={opponentId}
 								myTimeLeft={myTimeLeft}
 								opponentTimeLeft={opponentTimeLeft}
 								onTimeOut={(loserColor) => {

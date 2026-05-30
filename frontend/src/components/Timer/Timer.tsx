@@ -18,7 +18,7 @@ export function Timer({ timeLeftInSeconds, isRunning, onTimeUp }: TimerProps) {
     const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
     return (
-        <div className={`font-mono font-black text-2xl sm:text-3xl tracking-wider ${timeLeftInSeconds <= 10 ? 'text-red-500 animate-pulse' : 'text-stone-100'}`}>
+        <div className={`font-mono font-black text-2xl sm:text-xs md:text-md xl:text-xl tracking-wider ${timeLeftInSeconds <= 10 ? 'text-red-500 animate-pulse' : 'text-stone-100'}`}>
             {formattedTime}
         </div>
     );
