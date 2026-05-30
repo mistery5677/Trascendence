@@ -52,3 +52,10 @@
     * Display match history (1v1 games, dates, results, opponents).
     * Show achievements and progression.
     * Leaderboard integration.
+
+### Artificial Intelligence (Page 15) (2 points)
+* **--> (2 pts)Major: Introduce an AI Opponent for games.
+   * The AI must be challenging and able to win occasionally.
+   * The AI should simulate human-like behavior (not perfect play).
+   * If you implement game customization options, the AI must be able to use them.
+   * You must be able to explain your AI implementation during evaluation.
