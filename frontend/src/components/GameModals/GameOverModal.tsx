@@ -10,13 +10,13 @@ export function GameOverModal() {
 	console.log(gameOver.winnerColor);
 
 	return (
-		<div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-			<div className="bg-slate-900 border border-emerald-500/30 p-10 rounded-3xl flex flex-col items-center gap-6 shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] transform transition-all scale-105">
-				<h2 className="text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">
+		<div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 px-[4%] backdrop-blur-md animate-in fade-in duration-500">
+			<div className="flex w-full max-w-[min(92vw,38rem)] -translate-y-[18%] flex-col items-center gap-[clamp(1rem,2.5vw,1.5rem)] rounded-[clamp(1rem,2vw,1.5rem)] border border-emerald-500/30 bg-slate-900 p-[clamp(1.25rem,4vw,2.5rem)] text-center shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] transition-all sm:translate-y-0">
+				<h2 className="bg-linear-to-r from-emerald-400 to-teal-400 bg-clip-text text-[clamp(2rem,7vw,3.5rem)] font-black text-transparent">
 					{isDraw ? "DRAW" : isWinner ? "VICTORY!" : "DEFEAT"}
 				</h2>
 
-				<p className="text-slate-400 text-lg">
+				<p className="max-w-[32ch] text-[clamp(0.95rem,2.5vw,1.125rem)] text-slate-400">
 					{isDraw
 						? "A tough battle with no clear winner."
 						: isWinner
@@ -24,24 +24,24 @@ export function GameOverModal() {
 							: "Better luck next time. -8 ELO"}
 				</p>
 
-				<span className="text-emerald-500/50 text-xs font-mono uppercase tracking-widest">
+				<span className="text-[clamp(0.7rem,1.8vw,0.8rem)] font-mono uppercase tracking-[0.25em] text-emerald-500/50">
 					Reason: {gameOver.reason}
 				</span>
 
-				<div className="flex gap-4 mt-4">
+				<div className="mt-2 flex w-full flex-col gap-3 sm:mt-4 sm:flex-row">
 					<button
 						onClick={() => (window.location.href = "/play")}
-						className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all">
+						className="w-full rounded-xl bg-emerald-500 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-slate-950 transition-all hover:bg-emerald-400 sm:flex-1">
 						Play Again
 					</button>
 					<button
 						onClick={() => (window.location.href = "/play")}
-						className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all">
+						className="w-full rounded-xl bg-emerald-500 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-slate-950 transition-all hover:bg-emerald-400 sm:flex-1">
 						Rematch
 					</button>
 					<a
 						href="/settings"
-						className="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold rounded-xl transition-all">
+						className="w-full rounded-xl border border-slate-600 bg-slate-800 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-white transition-all hover:bg-slate-700 sm:flex-1">
 						View Stats
 					</a>
 				</div>

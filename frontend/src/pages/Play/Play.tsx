@@ -68,7 +68,7 @@ export function Play() {
 				{/* Left column: centered stack, header on top and board pushed to bottom */}
 				<div className="flex w-full justify-center xl:w-auto xl:flex-none">
 					<div className="flex w-full flex-col gap-2 xl:h-[calc(100dvh-7rem)] xl:min-h-0 xl:max-w-[calc((100dvh-7rem)*0.75)] 2xl:max-w-[calc((100dvh-7rem)*0.80)]">
-						<div className="w-full xl:basis-[20%] 2xl:basis-[15%] xl:min-h-0">
+						<div className="w-full xl:basis-[15%] 2xl:basis-[15%] xl:min-h-0">
 							<PlayerHeader
 								currentTurn={currentTurn}
 								color={color}
