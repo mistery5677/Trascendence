@@ -11,6 +11,11 @@ export class MatchMakingService {
   constructor(private readonly gameService: GameService) {}
 
   addToQueue(client: Socket, server: Server) {
+    const userId = client.data.user.userId;
+
+    this.queue = this.queue.filter(
+      (queuedSocket) => queuedSocket.data.user.userId !== userId,
+    );
     if (
       this.queue.find((c) => c.data.user.userId === client.data.user.userId)
     ) {
@@ -61,12 +66,16 @@ export class MatchMakingService {
       ...commonData,
       color: 'w',
       opponentId: player2.data.user.userId,
+      whiteTimeLeft: game.whiteTimeLeft,
+      blackTimeLeft: game.blackTimeLeft,
     });
 
     player2.emit('gameState', {
       ...commonData,
       color: 'b',
       opponentId: player1.data.user.userId,
+      whiteTimeLeft: game.whiteTimeLeft,
+      blackTimeLeft: game.blackTimeLeft,
     });
 
     this.logger.log(
@@ -75,15 +84,17 @@ export class MatchMakingService {
   }
 
   removeFromQueue(client: Socket) {
+    const userId = client.data?.user?.userId;
+    const username = client.data?.user?.username;
+    if (!userId) return;
+
     const initialSize = this.queue.length;
     this.queue = this.queue.filter(
-      (queuedSocket) => queuedSocket.id !== client.id,
+      (queuedSocket) => queuedSocket.data?.user?.userId !== userId,
     );
 
     if (initialSize !== this.queue.length) {
-      this.logger.log(
-        `Player ${client.data.user?.username || client.id} removed from queue.`,
-      );
+      this.logger.log(`User ${username} removed from matchmaking Queue.`);
     }
   }
 }

@@ -2,22 +2,27 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
+import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
+import { data } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
-	const [socket, setSocket] = useState<Socket | null>(null);
+	const { socket } = useGlobalSocket();
 	const { state: authState } = useAuth();
+
 	const [gameId, setGameId] = useState<string | null>(null);
 	const [color, setColor] = useState<"w" | "b" | null>("w");
 	const [fen, setFen] = useState("start");
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
-	const [isConnected, setIsConnected] = useState(false);
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
+	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
-	const gameIdRef = React.useRef<string | null>(null);
 
+	const gameIdRef = React.useRef<string | null>(null);
+	const modeRef = React.useRef(mode);
+	const hasUser = !!authState.user;
 	//Timer variables
 	//TODO: Make the timer choosed by the room mode created
 	const [myTimeLeft, setMyTimeLeft] = useState<number>(10);
@@ -50,6 +55,15 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			});
 		}
 		setDrawProposal(false);
+	};
+	const handleRematchResponse = (accept: boolean) => {
+		if (socket && gameId) {
+			socket.emit("respondRematch", {
+				gameId: gameId,
+				response: accept,
+			});
+			setRematchProposal(false);
+		}
 	};
 
 	const handleTimeOut = () => {
@@ -91,35 +105,17 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 
 
 	useEffect(() => {
-		const socketInstance = io("/", {
-			withCredentials: true,
-			path: "/socket.io",
-		});
+		if (!socket || !hasUser) return;
 
-		socketInstance.on("connect", () => {
-			console.log("Connected to server");
-			setIsConnected(true);
+		console.log("[Game] Checking for active games");
+		socket.emit("checkActiveGame");
 
-			if (gameIdRef.current) {
-				console.log("Reconnection game on going");
-				return;
-			}
-			if (mode === "bot") {
-				console.log("Starting game against Bot");
-				socketInstance.emit("startBotGame");
-			} else {
-				console.log("Joining Queue");
-				socketInstance.emit("joinQueue");
-			}
-		});
-
-		socketInstance.on("gameState", (data: any) => {
+		const onGameState = (data: any) => {
 			setGameId(data.gameId);
 			gameIdRef.current = data.gameId;
 			setColor(data.color);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-			setIsConnected(true);
 			setOpponentId(data.opponentId);
 
 			// Read the timer came from the server
@@ -132,15 +128,22 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
             }
 
 			console.log("DADOS QUE CHEGARAM DO BACKEND NO REFRESH:", data);
-		});
+		};
 
-		socketInstance.on("move", (data: any) => {
-			console.log("Move");
+		const onNoActiveGame = () => {
+			if (modeRef.current === "bot") {
+				console.log("[Game] Starting game with bot");
+				socket.emit("startBotGame");
+			} else {
+				console.log("[Game] Joining the Queue");
+				socket.emit("joinQueue");
+			}
+		};
+
+		const onMove = (data: any) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-
-			// Get the updated timer after each move
-			if (color) {
+						if (color) {
                 if (color === 'w') {
                     setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
                     setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
@@ -149,37 +152,76 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
                     setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
                 }
             }
-		});
-
-		socketInstance.on("gameOver", (data: any) => {
-			console.log("Game Finished:", data);
-			setGameOver(data.gameOver);
-		});
-
-		setSocket(socketInstance);
-		return () => {
-			socketInstance.disconnect();
 		};
-	}, [gameId, mode, color]);
+
+		const onGameOver = (data: any) => {
+			setGameOver(data.gameOver);
+		};
+
+		const onActiveGameNotFound = () => {
+			alert("Your match finish on unexpected way");
+			setGameId(null);
+			gameIdRef.current = null;
+		};
+
+		const onError = (data: any) => {
+			if (data.message === "Game not Found") {
+				alert("The match doesn't exist anymore");
+			}
+		};
+
+		socket.on("gameState", onGameState);
+		socket.on("noActiveGame", onNoActiveGame);
+		socket.on("move", onMove);
+		socket.on("gameOver", onGameOver);
+		socket.on("activeGameNotFound", onActiveGameNotFound);
+		socket.on("error", onError);
+
+		return () => {
+			console.log("[Game] Exiting of game board. Removing all listeners");
+			socket.off("noActiveGame", onNoActiveGame);
+			socket.off("gameState", onGameState);
+			socket.off("move", onMove);
+			socket.off("gameOver", onGameOver);
+			socket.off("activeGameNotFound", onActiveGameNotFound);
+			socket.off("error", onError);
+		};
+	}, [socket]);
+
 	useEffect(() => {
 		if (!socket || !gameId) {
 			return;
 		}
 
-		socket.on("drawProposed", (data: any) => {
-			console.log("Propose Sent to :", data.gameId);
-			setDrawProposal(true);
-		});
+		const onDrawProposed = () => setDrawProposal(true);
+		const onRematchProposed = () => setRematchProposal(true);
+		const onDrawRejected = () => alert("The draw proposal was rejected.");
+		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
+		const onRematchStarted = (data: { newGameId: string }) => {
+			setGameOver(null);
+			setDrawProposal(false);
+			setRematchProposal(false);
+			setGameId(data.newGameId);
+			gameIdRef.current = data.newGameId;
 
-		socket.on("drawRejected", () => {
-			alert("The draw proposal was rejected.");
-		});
+			socket.emit("checkActiveGame");
+		};
+
+		socket.on("rematchProposed", onRematchProposed);
+		socket.on("drawProposed", onDrawProposed);
+		socket.on("drawRejected", onDrawRejected);
+		socket.on("rematchRejected", onRematchRejected);
+		socket.on("rematchStarted", onRematchStarted);
 
 		return () => {
-			socket.off("drawProposed");
-			socket.off("drawRejected");
+			socket.off("drawProposed", onDrawProposed);
+			socket.off("rematchProposed", onRematchProposed);
+			socket.off("drawRejected", onDrawRejected);
+			socket.off("rematchRejected", onRematchRejected);
+			socket.off("rematchStarted", onRematchStarted);
 		};
 	}, [socket, gameId]);
+	if (!authState.user) return null;
 
 	return (
 		<GameContext.Provider
@@ -187,13 +229,15 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				socket,
 				gameId,
 				color,
-				isConnected,
+				isConnected: !!socket?.connected,
 				fen,
 				currentTurn,
 				gameOver,
 				surrender,
 				drawProposal,
+				rematchProposal,
 				handleDrawResponse,
+				handleRematchResponse,
 				proposeDraw,
 				proposeRematch,
 				opponentId,

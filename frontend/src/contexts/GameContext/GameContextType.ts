@@ -16,6 +16,7 @@ export type GameContextType = {
 	opponentId: string | null;
 	gameOver: GameOverState;
 	drawProposal: boolean;
+	rematchProposal: boolean;
 
 	// Timer variables
 	myTimeLeft: number;
@@ -26,4 +27,5 @@ export type GameContextType = {
 	proposeDraw: () => void;
 	proposeRematch: () => void;
 	handleDrawResponse: (accept: boolean) => void;
+	handleRematchResponse: (accept: boolean) => void;
 };

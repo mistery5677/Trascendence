@@ -60,10 +60,15 @@ export function Board({ onTurnChange }: BoardProps) {
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
-	const [chessPosition, setChessPosition] = useState(chessGame.fen());
+	// const [chessPosition, setChessPosition] = useState(chessGame.fen());
+
 	const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
 
 	const { socket, gameId, color, fen, currentTurn } = useGame();
+	const [chessPosition, setChessPosition] = useState(() => {
+		if (fen) return fen;
+		return chessGame.fen();
+	});
 
 	useEffect(() => {
 		playMoveEffect.current = loadMoveEffect();
@@ -80,13 +85,15 @@ export function Board({ onTurnChange }: BoardProps) {
 
 	const isPromotionMove = useCallback(
 		(sourceSquare: string, targetSquare: string) => {
-			const sourcePiece = chessGame.get(sourceSquare as Square);
-			if (!sourcePiece || sourcePiece.type !== "p") return false;
+			try {
+				const sourcePiece = chessGame.get(sourceSquare as Square);
+				if (!sourcePiece || sourcePiece.type !== "p") return false;
 
-			return (
-				(sourcePiece.color === "w" && targetSquare[1] === "8") ||
-				(sourcePiece.color === "b" && targetSquare[1] === "1")
-			);
+				const legalMoves = chessGame.moves({ square: sourceSquare as Square, verbose: true });
+				return legalMoves.some((move) => move.to === targetSquare && move.flags.includes("p"));
+			} catch {
+				return false;
+			}
 		},
 		[chessGame],
 	);

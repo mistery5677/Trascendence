@@ -13,21 +13,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../services/game.service';
 import { UsersService } from 'src/users/users.service';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class MatchGateway {
   @WebSocketServer()
   server!: Server;
 
   constructor(
-    private readonly jwtService: JwtService,
     private readonly matchMakingService: MatchMakingService,
     private readonly gameService: GameService,
     private readonly userService: UsersService,
   ) {}
 
-  afterInit() {
-    this.server.use(WsMiddleware(this.jwtService));
-  }
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket) {
     this.matchMakingService.addToQueue(client, this.server);
@@ -52,39 +48,86 @@ export class MatchGateway {
       fen: newGame.chess.fen(),
       currentTurn: newGame.chess.turn(),
       mode: 'bot',
+        whiteTimeLeft: newGame.whiteTimeLeft,
+        blackTimeLeft: newGame.blackTimeLeft,
     });
   }
-  @SubscribeMessage('joinGame')
-  async handleJoinGame(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { gameId: string },
-  ) {
-    const game = this.gameService.getGame(data.gameId);
-    if (!game) {
-      client.emit('error', { message: 'Game not Found' });
+
+  @SubscribeMessage('checkActiveGame')
+  handleCheckActiveGame(@ConnectedSocket() client: Socket) {
+    const userId = client.data.user.userId;
+
+    if (!userId) {
+      client.emit('error', { message: 'User unauthorized or not found' });
       return;
     }
 
-    client.join(data.gameId);
+    const activeMatch = this.gameService.findActiveGameByUserId(userId);
+    if (activeMatch) {
+      const { gameId, game } = activeMatch;
+      console.log(`[Reconnection] User ${userId} have a active game ${gameId}`);
 
-    const state = this.gameService.getGameState(data.gameId);
-    if (!state) return;
-    const userId = client.data.user.userId;
-    const userColor = userId === game.playerW ? 'w' : 'b';
-    const opponentId = userId === game.playerW ? game.playerB : game.playerW;
+      client.join(gameId);
 
-    client.emit('gameState', {
-      gameId: data.gameId,
-      fen: state.fen,
-      currentTurn: state.turn,
-      color: userColor,
-      mode: state.mode,
-      opponentId: String(opponentId) || 'bot',
+      const state = this.gameService.getGameState(gameId);
+      if (state) {
+        const userColor = userId === game.playerW ? 'w' : 'b';
+        const opponentId =
+          userId === game.playerW ? game.playerB : game.playerW;
 
-      whiteTimeLeft: state.whiteTimeLeft,
-      blackTimeLeft: state.blackTimeLeft,
-    });
-
-    console.log(`User ${userId} rejoin to the room ${data.gameId}`);
+        client.emit('gameState', {
+          gameId: gameId,
+          fen: state.fen,
+          currentTurn: state.turn,
+          color: userColor,
+          mode: game.mode,
+          opponentId: opponentId ? String(opponentId) : 'bot',
+          whiteTimeLeft: state.whiteTimeLeft,
+          blackTimeLeft: state.blackTimeLeft,
+        });
+        //! Still considering have a screen that tells the other player when user reconnect
+        client.to(gameId).emit('opponentReconnected', { userId });
+      } else {
+        client.emit('activeGameNotFound');
+      }
+    } else {
+      console.log(`[Game] No active game for user ${userId}.`);
+      client.emit(`noActiveGame`);
+    }
   }
+
+//   @SubscribeMessage('joinGame')
+//   async handleJoinGame(
+//     @ConnectedSocket() client: Socket,
+//     @MessageBody() data: { gameId: string },
+//   ) {
+//     const game = this.gameService.getGame(data.gameId);
+//     if (!game) {
+//       client.emit('error', { message: 'Game not Found' });
+//       return;
+//     }
+
+//     const userId = client.data.user.userId;
+
+//     client.join(data.gameId);
+
+//     const state = this.gameService.getGameState(data.gameId);
+//     if (!state) return;
+//     const userColor = userId === game.playerW ? 'w' : 'b';
+//     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
+
+//     client.emit('gameState', {
+//       gameId: data.gameId,
+//       fen: state.fen,
+//       currentTurn: state.turn,
+//       color: userColor,
+//       mode: state.mode,
+//       opponentId: opponentId ? String(opponentId) : 'bot',
+
+//       whiteTimeLeft: state.whiteTimeLeft,
+//       blackTimeLeft: state.blackTimeLeft,
+//     });
+
+//     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
+//   }
 }

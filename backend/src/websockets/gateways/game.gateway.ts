@@ -1,40 +1,35 @@
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   SubscribeMessage,
-  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { MatchMakingService } from '../services/matchmaking.service';
-import { JwtService } from '@nestjs/jwt';
-import { WsMiddleware } from '../middleware/ws.middleware';
 import { GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
 
-@WebSocketGateway()
-export class GameGateway implements OnGatewayInit {
+@WebSocketGateway({ cors: true })
+export class GameGateway {
   @WebSocketServer()
   server!: Server;
 
-  constructor(
-    // private readonly matchMakingService: MatchMakingService,
-    private readonly jwtService: JwtService,
-    private readonly gameService: GameService,
-  ) {}
-
-  afterInit() {
-    this.server.use(WsMiddleware(this.jwtService));
-  }
+  constructor(private readonly gameService: GameService) {}
 
   @SubscribeMessage('requestSurrender')
   handleSurrender(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) return;
+
+    const userId = client.data.user.userId;
+    if (game.playerW !== userId && game.playerB !== userId) {
+      client.emit('error', { message: "Don't belong to this game." });
+      return;
+    }
+
     const result = this.gameService.surrender(
       data.gameId,
       client.data.user.userId,
@@ -49,6 +44,15 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) return;
+
+    const userId = client.data.user.userId;
+    if (game.playerW !== userId && game.playerB !== userId) {
+      client.emit('error', { message: "Don't belong to this game." });
+      return;
+    }
+
     client.to(data.gameId).emit('drawProposed', { from: client.id });
   }
 
@@ -57,6 +61,15 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string; response: boolean },
   ) {
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) return;
+
+    const userId = client.data.user.userId;
+    if (game.playerW !== userId && game.playerB !== userId) {
+      client.emit('error', { message: "Don't belong to this game." });
+      return;
+    }
+
     if (data.response) {
       const result = this.gameService.forceDraw(data.gameId);
       if (result)
@@ -71,6 +84,15 @@ export class GameGateway implements OnGatewayInit {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string },
   ) {
+    const game = this.gameService.getGame(data.gameId);
+    if (!game) return;
+
+    const userId = client.data.user.userId;
+    if (game.playerW !== userId && game.playerB !== userId) {
+      client.emit('error', { message: "Don't belong to this game." });
+      return;
+    }
+
     client
       .to(data.gameId)
       .emit('rematchProposed', { fromId: client.data.user.userId });
@@ -82,22 +104,34 @@ export class GameGateway implements OnGatewayInit {
     @MessageBody() data: { gameId: string; response: boolean },
   ) {
     const game = this.gameService.getGame(data.gameId);
-    if (!game) {
-      console.error('Game NOT found');
+    if (!game) return;
+
+    const userId = client.data.user.userId;
+    if (game.playerW !== userId && game.playerB !== userId) {
+      client.emit('error', { message: "Don't belong to this game." });
       return;
     }
+
     if (data.response) {
+      const newGameId = uuidv4();
+
       const newGame = this.gameService.createGame(
-        data.gameId,
+        newGameId,
         'online',
         game.playerB,
         game.playerW,
       );
       if (newGame) {
+        this.gameService.deleteGame(data.gameId);
         this.server
           .to(data.gameId)
-          .emit('rematchStarted', { newGameId: data.gameId });
+          .emit('rematchStarted', { newGameId: newGameId });
+      } else {
+        client.emit('error', { message: 'Could not generate rematch room' });
       }
+    } else {
+      client.to(data.gameId).emit('rematchRejected');
+	  this.gameService.deleteGame(data.gameId);
     }
   }
 
@@ -108,6 +142,17 @@ export class GameGateway implements OnGatewayInit {
   ) {
     const game = this.gameService.getGame(data.gameId);
     if (!game) return;
+
+    const userId = client.data.user.userId;
+    const currentTurn = game.chess.turn();
+    const expectedPlayerId = currentTurn === 'w' ? game.playerW : game.playerB;
+
+    if (userId !== expectedPlayerId) {
+      client.emit('error', {
+        message: "Don't belong to this game or its not your turn",
+      });
+      return;
+    }
 
     const validMove = this.gameService.makeMove(data.gameId, data.move);
     if (!validMove) {

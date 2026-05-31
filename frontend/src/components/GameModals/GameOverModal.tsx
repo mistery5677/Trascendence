@@ -1,7 +1,7 @@
 import { useGame } from "../../contexts/GameContext/GameContext";
 
 export function GameOverModal() {
-	const { gameOver, color } = useGame();
+	const { gameOver, color, proposeRematch } = useGame();
 
 	if (!gameOver) return null;
 
