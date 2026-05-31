@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/UserContext";
 import { GameProvider } from "../../contexts/GameContext/GameContext";
 import { Play } from "../../pages/Play/Play";
 import { GlobalSocketProvider } from "../../contexts/GlobalSocketContext/GlobalSocketContext";
+import { Rules } from "../../pages/Rules/Rules.tsx";
 
 type ActivateModal = "signup" | "login" | null;
 
@@ -61,6 +62,13 @@ export function MainRouter() {
 						/>
 					)}
 
+					{/* Path for the rules*/}
+					<Route
+						path={RouterPaths.RULES}
+						element={<Rules />}
+					/>
+
+					{/* Path for the leaderboard*/}
 					<Route
 						path={RouterPaths.LEADERBOARDS}
 						element={<LeaderBoards />}

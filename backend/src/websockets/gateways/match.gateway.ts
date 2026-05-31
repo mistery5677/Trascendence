@@ -95,39 +95,4 @@ export class MatchGateway {
       client.emit(`noActiveGame`);
     }
   }
-
-//   @SubscribeMessage('joinGame')
-//   async handleJoinGame(
-//     @ConnectedSocket() client: Socket,
-//     @MessageBody() data: { gameId: string },
-//   ) {
-//     const game = this.gameService.getGame(data.gameId);
-//     if (!game) {
-//       client.emit('error', { message: 'Game not Found' });
-//       return;
-//     }
-
-//     const userId = client.data.user.userId;
-
-//     client.join(data.gameId);
-
-//     const state = this.gameService.getGameState(data.gameId);
-//     if (!state) return;
-//     const userColor = userId === game.playerW ? 'w' : 'b';
-//     const opponentId = userId === game.playerW ? game.playerB : game.playerW;
-
-//     client.emit('gameState', {
-//       gameId: data.gameId,
-//       fen: state.fen,
-//       currentTurn: state.turn,
-//       color: userColor,
-//       mode: state.mode,
-//       opponentId: opponentId ? String(opponentId) : 'bot',
-
-//       whiteTimeLeft: state.whiteTimeLeft,
-//       blackTimeLeft: state.blackTimeLeft,
-//     });
-
-//     console.log(`User ${userId} rejoin to the room ${data.gameId}`);
-//   }
 }

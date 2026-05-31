@@ -88,7 +88,13 @@ export function NavBar({ onModal }: NavBarProps) {
 								42 <span className="text-emerald-200">Transcendence</span>
 							</span>
 						</a>
+						
 						<div className="hidden sm:ml-auto sm:flex sm:items-center">
+							<a
+								href="/rules"
+								className="mr-4 text-stone-300 hover:text-emerald-200 hover:bg-emerald-400/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+								Rules
+							</a>
 							<a
 								href="/leaderboards"
 								className="mr-4 text-stone-300 hover:text-emerald-200 hover:bg-emerald-400/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">

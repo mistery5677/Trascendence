@@ -126,8 +126,6 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
                 setMyTimeLeft(data.blackTimeLeft ?? 10);
                 setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
             }
-
-			console.log("DADOS QUE CHEGARAM DO BACKEND NO REFRESH:", data);
 		};
 
 		const onNoActiveGame = () => {
