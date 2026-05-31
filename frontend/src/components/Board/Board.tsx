@@ -1,10 +1,10 @@
 import { Chessboard } from "react-chessboard";
-import { useRef, useEffect, useCallback } from "react";
-import { Chess } from "chess.js";
-import { useState } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
+import { Chess, type Square } from "chess.js";
 import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { loadMoveEffect } from "../../utils/loadMoveEffect";
+import { PromotionPicker } from "../PromotionPicker/PromotionPicker";
 
 export type PieceColor = "w" | "b";
 
@@ -18,6 +18,14 @@ type PieceDropHandlerArgs = {
 	piece: DraggingPieceDataType;
 	sourceSquare: string;
 	targetSquare: string | null;
+};
+
+type PromotionPiece = "q" | "r" | "b" | "n";
+
+type PendingPromotion = {
+	from: string;
+	to: string;
+	color: PieceColor;
 };
 
 interface BoardProps {
@@ -53,6 +61,7 @@ export function Board({ onTurnChange }: BoardProps) {
 	const chessGame = chessGameRef.current;
 
 	const [chessPosition, setChessPosition] = useState(chessGame.fen());
+	const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
 
 	const { socket, gameId, color, fen, currentTurn } = useGame();
 
@@ -69,21 +78,25 @@ export function Board({ onTurnChange }: BoardProps) {
 		if (onTurnChange) onTurnChange(currentTurn);
 	}, [fen, currentTurn]);
 
-	const onPieceDrop = useCallback(
-		({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
-			if (!gameId || !socket || currentTurn !== color) return false;
+	const isPromotionMove = useCallback(
+		(sourceSquare: string, targetSquare: string) => {
+			const sourcePiece = chessGame.get(sourceSquare as Square);
+			if (!sourcePiece || sourcePiece.type !== "p") return false;
 
+			return (
+				(sourcePiece.color === "w" && targetSquare[1] === "8") ||
+				(sourcePiece.color === "b" && targetSquare[1] === "1")
+			);
+		},
+		[chessGame],
+	);
+
+	const submitMove = useCallback(
+		(from: string, to: string, promotion?: PromotionPiece) => {
+			if (!gameId || !socket || currentTurn !== color) return false;
 			if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
 
-			if (!targetSquare) {
-				return false;
-			}
-
-			const moveData = {
-				from: sourceSquare,
-				to: targetSquare,
-				promotion: "q",
-			};
+			const moveData = promotion ? { from, to, promotion } : { from, to };
 
 			try {
 				const move = chessGame.move(moveData);
@@ -92,8 +105,8 @@ export function Board({ onTurnChange }: BoardProps) {
 				if (playMoveEffect.current) {
 					playMoveEffect.current();
 				}
-				socket.emit("move", { gameId, move: moveData });
 
+				socket.emit("move", { gameId, move: moveData });
 				setChessPosition(chessGame.fen());
 				return true;
 			} catch {
@@ -101,6 +114,39 @@ export function Board({ onTurnChange }: BoardProps) {
 			}
 		},
 		[socket, gameId, color, currentTurn, chessGame],
+	);
+
+	const onPieceDrop = useCallback(
+		({ sourceSquare, targetSquare }: PieceDropHandlerArgs) => {
+			if (!gameId || !socket || currentTurn !== color) return false;
+			if (chessGame.turn() !== color || chessGame.isGameOver()) return false;
+
+			if (!targetSquare) {
+				return false;
+			}
+
+			if (isPromotionMove(sourceSquare, targetSquare)) {
+				setPendingPromotion({
+					from: sourceSquare,
+					to: targetSquare,
+					color: color === "b" ? "b" : "w",
+				});
+				return false;
+			}
+
+			return submitMove(sourceSquare, targetSquare);
+		},
+		[socket, gameId, color, currentTurn, chessGame, isPromotionMove, submitMove],
+	);
+
+	const onPromotionSelect = useCallback(
+		(piece: PromotionPiece) => {
+			if (!pendingPromotion) return;
+
+			submitMove(pendingPromotion.from, pendingPromotion.to, piece);
+			setPendingPromotion(null);
+		},
+		[pendingPromotion, submitMove],
 	);
 
 	const chessboardOptions = {
@@ -116,5 +162,15 @@ export function Board({ onTurnChange }: BoardProps) {
 		},
 	};
 
-	return <Chessboard options={chessboardOptions} />;
+	return (
+		<>
+			<Chessboard options={chessboardOptions} />
+			<PromotionPicker
+				open={pendingPromotion !== null}
+				color={pendingPromotion?.color ?? "w"}
+				onSelect={onPromotionSelect}
+				onCancel={() => setPendingPromotion(null)}
+			/>
+		</>
+	);
 }
