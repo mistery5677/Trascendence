@@ -18,13 +18,13 @@ export function PlayOptions() {
 
 	return (
 		<div className="flex w-full flex-col items-center justify-center gap-3">
-			<button className="group relative isolate w-full overflow-hidden rounded-2xl border border-emerald-300/35 bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 text-left shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/55 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+			<button
+				type="button"
+				onClick={startBotGame}
+				className="group relative isolate w-full overflow-hidden rounded-2xl border border-emerald-300/35 bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 text-left shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300/55 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 				<span className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-emerald-400/20 to-transparent sm:w-28" />
 
-				<button
-					type="button"
-					onClick={startBotGame}
-					className="relative z-10 flex min-h-30 items-stretch">
+				<div className="relative z-10 flex min-h-30 items-stretch">
 					<div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
 						<div>
 							<p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-200/70 uppercase">
@@ -46,7 +46,7 @@ export function PlayOptions() {
 							alt=""
 						/>
 					</div>
-				</button>
+				</div>
 			</button>
 
 			<button
