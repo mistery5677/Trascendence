@@ -218,4 +218,20 @@ export class UsersService {
       },
     });
   }
+  async findByIds(ids: number[]) {
+    if (ids.length === 0) return [];
+
+    return this.prisma.user.findMany({
+      where: {
+        id: {
+          in: ids, //Search all ids of the list
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        avatarUrl: true,
+      },
+    });
+  }
 }

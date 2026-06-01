@@ -20,7 +20,7 @@ export class PresenceService {
       this.userStatus.delete(userId);
       return true;
     }
-    return false; 
+    return false;
   }
 
   updateStatus(userId: string, status: UserStatus) {
@@ -31,4 +31,15 @@ export class PresenceService {
   getStatus(userId: string): UserStatus {
     return this.userStatus.get(userId) || 'offline';
   }
+
+  getConnectedUsers(): string[] {
+    return Array.from(this.userStatus.entries())
+      .filter(([_, status]) => status === 'online')
+      .map(([userId, _]) => userId);
+  }
 }
+//! All connected, with also playing list
+//   getConnectedUsers(): string[] {
+//   return Array.from(this.activeSockets.keys());
+// }
+// }

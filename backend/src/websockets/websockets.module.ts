@@ -8,6 +8,7 @@ import { ChatGateway } from './gateways/chat.gateway';
 import { PresenceGateway } from './gateways/presence.gateway';
 import { PresenceService } from './services/presence.service';
 import { MatchGateway } from './gateways/match.gateway';
+import { PresenceController } from './controllers/presence.controller';
 @Module({
   imports: [MatchesModule, UsersModule],
   providers: [
@@ -19,5 +20,6 @@ import { MatchGateway } from './gateways/match.gateway';
     MatchGateway,
     MatchMakingService,
   ],
+  controllers: [PresenceController],
 })
 export class WebsocketsModule {}
