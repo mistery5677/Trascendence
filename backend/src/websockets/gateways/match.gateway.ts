@@ -44,12 +44,12 @@ export class MatchGateway {
     client.emit('gameState', {
       gameId: gameId,
       color: 'w',
-      opponent: 'Bot (Random moves)',
+      opponentId: 'Bot (Random moves)',
       fen: newGame.chess.fen(),
       currentTurn: newGame.chess.turn(),
       mode: 'bot',
-        whiteTimeLeft: newGame.whiteTimeLeft,
-        blackTimeLeft: newGame.blackTimeLeft,
+      whiteTimeLeft: newGame.whiteTimeLeft,
+      blackTimeLeft: newGame.blackTimeLeft,
     });
   }
 

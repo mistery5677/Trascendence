@@ -131,7 +131,7 @@ export class GameGateway {
       }
     } else {
       client.to(data.gameId).emit('rematchRejected');
-	  this.gameService.deleteGame(data.gameId);
+      this.gameService.deleteGame(data.gameId);
     }
   }
 
@@ -163,10 +163,23 @@ export class GameGateway {
     this.processGameState(data.gameId, validMove);
 
     if (game.mode === 'bot' && !game.chess.isGameOver()) {
+      const humanizedDelay =
+        Math.floor(Math.random() * (3500 - 1200 + 1)) + 1200;
+
       setTimeout(() => {
+        const activeGame = this.gameService.getGame(data.gameId);
+        if (
+          !activeGame ||
+          activeGame.chess.isGameOver() ||
+          activeGame.chess.turn() !== 'b'
+        )
+          return;
+
         const botMove = this.gameService.generateBotMove(data.gameId);
-        this.processGameState(data.gameId, botMove);
-      }, 600);
+        if (botMove) {
+          this.processGameState(data.gameId, botMove);
+        }
+      }, humanizedDelay);
     }
   }
 
@@ -176,7 +189,7 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
   ) {
     const { gameId } = data;
-    
+
     // Get the game information
     const game = this.gameService.getGame(data.gameId);
     if (!game) return;
@@ -184,7 +197,10 @@ export class GameGateway {
     // Check who got timed out
     const loser = client.id === game.playerW ? 'w' : 'b';
     const winner = loser === 'w' ? 'b' : 'w';
-    const result = this.gameService.handleTimeOut(data.gameId, String(client.data.user.userId));
+    const result = this.gameService.handleTimeOut(
+      data.gameId,
+      String(client.data.user.userId),
+    );
     // await this.matchesService.saveMatchResult(game.whiteUserId, game.blackUserId, resultReason);
 
     // Set that the game is over
@@ -201,7 +217,7 @@ export class GameGateway {
       fen: game?.chess.fen(),
       currentTurn: game?.chess.turn(),
       whiteTimeLeft: move.whiteTimeLeft,
-      blackTimeLeft: move.blackTimeLeft
+      blackTimeLeft: move.blackTimeLeft,
     });
 
     const gameOver = this.gameService.checkGameOver(gameId);

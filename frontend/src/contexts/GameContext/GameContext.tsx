@@ -150,6 +150,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		};
 
 		const onMove = (data: any) => {
+			console.log(data);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			if (color) {
