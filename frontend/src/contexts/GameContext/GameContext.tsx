@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
-import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
-import { data } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
+export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const { socket } = useGlobalSocket();
 	const { state: authState } = useAuth();
 
@@ -21,10 +19,9 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 	const [opponentId, setOpponentId] = useState<string | null>(null);
 
 	const gameIdRef = React.useRef<string | null>(null);
-	const modeRef = React.useRef(mode);
 	const hasUser = !!authState.user;
 	//Timer variables
-	//TODO: Make the timer choosed by the room mode created
+	//TODO: Make the timer choose by the room mode created
 	const [myTimeLeft, setMyTimeLeft] = useState<number>(10);
 	const [opponentTimeLeft, setOpponentTimeLeft] = useState<number>(10);
 
@@ -56,6 +53,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		}
 		setDrawProposal(false);
 	};
+
 	const handleRematchResponse = (accept: boolean) => {
 		if (socket && gameId) {
 			socket.emit("respondRematch", {
@@ -71,38 +69,57 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			console.log("Time is over");
 			socket.emit("timeOut", { gameId });
 		}
-	}
+	};
+
+	const startOnlineGame = () => {
+		if (!socket || !hasUser) return;
+
+		console.log("[Game] Joining the Queue");
+		setGameOver(null);
+		setGameId(null);
+		setOpponentId(null);
+		socket.emit("joinQueue");
+	};
+
+	const startBotGame = () => {
+		if (!socket || !hasUser) return;
+
+		console.log("[Game] Starting game with bot");
+		setGameOver(null);
+		setGameId(null);
+		setOpponentId(null);
+		socket.emit("startBotGame");
+	};
 
 	useEffect(() => {
 		// If there is no game, it means that is over
-        if (!gameId || gameOver || !color) return;
+		if (!gameId || gameOver || !color) return;
 
-        const isMyTurn = currentTurn === color;
+		const isMyTurn = currentTurn === color;
 
-        const interval = setInterval(() => {
-            if (isMyTurn) {
-                setMyTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        handleTimeOut(); // Timed out
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            } else {
-                setOpponentTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }
-        }, 1000); // 1 second
+		const interval = setInterval(() => {
+			if (isMyTurn) {
+				setMyTimeLeft((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						handleTimeOut(); // Timed out
+						return 0;
+					}
+					return prev - 1;
+				});
+			} else {
+				setOpponentTimeLeft((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						return 0;
+					}
+					return prev - 1;
+				});
+			}
+		}, 1000); // 1 second
 
-        return () => clearInterval(interval);
-    }, [gameId, currentTurn, color, gameOver]);
-
+		return () => clearInterval(interval);
+	}, [gameId, currentTurn, color, gameOver]);
 
 	useEffect(() => {
 		if (!socket || !hasUser) return;
@@ -119,37 +136,31 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			setOpponentId(data.opponentId);
 
 			// Read the timer came from the server
-			if (data.color === 'w') {
-                setMyTimeLeft(data.whiteTimeLeft ?? 10);
-                setOpponentTimeLeft(data.blackTimeLeft ?? 10);
-            } else {
-                setMyTimeLeft(data.blackTimeLeft ?? 10);
-                setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
-            }
+			if (data.color === "w") {
+				setMyTimeLeft(data.whiteTimeLeft ?? 10);
+				setOpponentTimeLeft(data.blackTimeLeft ?? 10);
+			} else {
+				setMyTimeLeft(data.blackTimeLeft ?? 10);
+				setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
+			}
 		};
 
 		const onNoActiveGame = () => {
-			if (modeRef.current === "bot") {
-				console.log("[Game] Starting game with bot");
-				socket.emit("startBotGame");
-			} else {
-				console.log("[Game] Joining the Queue");
-				socket.emit("joinQueue");
-			}
+			console.log("There is no active Game, you can start on lateral buttons");
 		};
 
 		const onMove = (data: any) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-						if (color) {
-                if (color === 'w') {
-                    setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
-                    setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
-                } else {
-                    setMyTimeLeft(data.blackTimeLeft ?? myTimeLeft);
-                    setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
-                }
-            }
+			if (color) {
+				if (color === "w") {
+					setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
+					setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
+				} else {
+					setMyTimeLeft(data.blackTimeLeft ?? myTimeLeft);
+					setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
+				}
+			}
 		};
 
 		const onGameOver = (data: any) => {
@@ -238,12 +249,14 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				handleRematchResponse,
 				proposeDraw,
 				proposeRematch,
+				startOnlineGame,
+				startBotGame,
 				opponentId,
 
 				// Timer variables
 				myTimeLeft,
-                opponentTimeLeft,
-                handleTimeOut,
+				opponentTimeLeft,
+				handleTimeOut,
 			}}>
 			{children}
 		</GameContext.Provider>

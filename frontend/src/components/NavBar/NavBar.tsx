@@ -17,8 +17,8 @@ const navigation = [
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
 	{ name: "Play", href: "/play", current: false },
-	{ name: "LeaderBoards", href: "/leaderboards", current: false},
-	{ name: "Friends", href:"/friends", current: false}
+	{ name: "LeaderBoards", href: "/leaderboards", current: false },
+	{ name: "Friends", href: "/friends", current: false },
 ];
 
 function classNames(...classes: (string | undefined | false)[]): string {
@@ -85,10 +85,10 @@ export function NavBar({ onModal }: NavBarProps) {
 								<span className="text-4xl leading-none">♞</span>
 							</div>
 							<span className="ml-3 font-semibold tracking-tight text-xl text-stone-100 hidden sm:block">
-								42 <span className="text-emerald-200">Transcendence</span>
+								42 <span className="text-button-green">Transcendence</span>
 							</span>
 						</a>
-						
+
 						<div className="hidden sm:ml-auto sm:flex sm:items-center">
 							<a
 								href="/rules"
@@ -123,29 +123,12 @@ export function NavBar({ onModal }: NavBarProps) {
 									</button>
 								</div>
 
-								<div className="relative group/play">
-									<button
-										type="button"
-										className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-stone-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
-										Play
-									</button>
-
-									<div className="pointer-events-none invisible absolute right-0 top-full z-20 w-56 pt-3 opacity-0 translate-y-1 transition-all duration-200 group-hover/play:pointer-events-auto group-hover/play:visible group-hover/play:translate-y-0 group-hover/play:opacity-100 group-focus-within/play:pointer-events-auto group-focus-within/play:visible group-focus-within/play:translate-y-0 group-focus-within/play:opacity-100">
-										<div className="rounded-2xl border border-emerald-300/20 bg-stone-900/95 p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.85)] backdrop-blur-md">
-											<a
-												href="/play?mode=bot"
-												className="block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
-												Against <span className="text-2xl"> 🤖</span>
-											</a>
-											<a
-												href="/play?mode=online"
-												className="mt-1 block rounded-xl px-4 py-3 text-sm font-semibold text-stone-200 transition-colors hover:bg-emerald-400/12 hover:text-emerald-100 align-middle">
-												Online
-												<span className="text-3xl"> ♞</span>
-											</a>
-										</div>
-									</div>
-								</div>
+								<a
+									type="button"
+									href="/play"
+									className="block rounded-2xl border border-button-green bg-button-green px-6 py-2 text-sm tracking-wide text-white font-extrabold shadow-button-green transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+									Play
+								</a>
 							</div>
 						</div>
 					</div>
@@ -196,7 +179,7 @@ export function NavBar({ onModal }: NavBarProps) {
 											Friends
 										</a>
 									</MenuItem>
-									
+
 									<MenuItem>
 										<a
 											href="/settings"

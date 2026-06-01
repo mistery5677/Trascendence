@@ -60,13 +60,12 @@ export function Board({ onTurnChange }: BoardProps) {
 	const chessGameRef = useRef(new Chess());
 	const chessGame = chessGameRef.current;
 
-	// const [chessPosition, setChessPosition] = useState(chessGame.fen());
-
 	const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
 
 	const { socket, gameId, color, fen, currentTurn } = useGame();
+
 	const [chessPosition, setChessPosition] = useState(() => {
-		if (fen) return fen;
+		if (fen && fen !== "start") return fen;
 		return chessGame.fen();
 	});
 
@@ -75,11 +74,23 @@ export function Board({ onTurnChange }: BoardProps) {
 	}, []);
 
 	useEffect(() => {
-		if (!socket || !gameId) return;
-		if (fen) {
+		if (!fen) return;
+
+		if (fen === "start") {
+			chessGame.reset();
+			setChessPosition(chessGame.fen());
+			if (onTurnChange) onTurnChange("w");
+			return;
+		}
+
+		try {
 			chessGame.load(fen);
 			setChessPosition(fen);
+		} catch {
+			// Ignore malformed FEN payloads to avoid crashing the play page.
+			setChessPosition(chessGame.fen());
 		}
+
 		if (onTurnChange) onTurnChange(currentTurn);
 	}, [fen, currentTurn]);
 
@@ -159,6 +170,7 @@ export function Board({ onTurnChange }: BoardProps) {
 	const chessboardOptions = {
 		position: chessPosition,
 		onPieceDrop,
+		allowDragging: Boolean(gameId),
 		id: "play-vs-random",
 		boardOrientation: color === "b" ? ("black" as const) : ("white" as const),
 		lightSquareStyle: {
@@ -168,6 +180,19 @@ export function Board({ onTurnChange }: BoardProps) {
 			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
 		},
 	};
+
+	const returnOpt = {
+		id: "play-vs-random",
+		boardOrientation: "white" as const,
+		lightSquareStyle: {
+			backgroundColor: "var(--color-board-light)",
+		},
+		darkSquareStyle: {
+			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
+		},
+	};
+
+	if (!gameId) return <Chessboard options={returnOpt} />;
 
 	return (
 		<>

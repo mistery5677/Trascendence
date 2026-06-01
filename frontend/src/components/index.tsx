@@ -17,3 +17,4 @@ export { SurrenderButton } from "./SurrenderButton/SurrenderButton";
 export { OfferDrawButton } from "./OfferDrawButton/OfferDrawButton";
 export { PlayOptions } from "./PlayOptions/PlayOptions";
 export { PromotionPicker } from "./PromotionPicker/PromotionPicker";
+export { LeftUser } from "./LeftUser/LeftUser";

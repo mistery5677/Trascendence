@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RouterPaths } from "./RouterPath";
 import { Error, Home, Settings, Ze, LeaderBoards, Friends, HistoryPage } from "../../pages";
-import { FallBack, Login, Signup } from "../../components";
-import { MultiRoute, NavBar } from "../../components";
+import { FallBack, Login, Signup, MultiRoute, NavBar } from "../../components";
 import { useAuth } from "../../contexts/UserContext";
 import { GameProvider } from "../../contexts/GameContext/GameContext";
 import { Play } from "../../pages/Play/Play";
@@ -13,11 +12,8 @@ import { Rules } from "../../pages/Rules/Rules.tsx";
 type ActivateModal = "signup" | "login" | null;
 
 function PlayRouteWithProvider() {
-	const location = useLocation();
-	const searchParams = new URLSearchParams(location.search);
-	const mode = searchParams.get("mode") || "online";
 	return (
-		<GameProvider mode={mode}>
+		<GameProvider>
 			<Play />
 		</GameProvider>
 	);

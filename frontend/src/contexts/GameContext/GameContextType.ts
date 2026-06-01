@@ -26,6 +26,8 @@ export type GameContextType = {
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;
+	startOnlineGame: () => void;
+	startBotGame: () => void;
 	handleDrawResponse: (accept: boolean) => void;
 	handleRematchResponse: (accept: boolean) => void;
 };

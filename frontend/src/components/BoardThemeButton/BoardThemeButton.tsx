@@ -5,12 +5,10 @@ type BoardThemeButtonProps = {
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function BoardThemeButton({ children, className, type = "button", ...props }: BoardThemeButtonProps) {
-	const baseClassName =
-		"rounded-lg border border-stone-600 bg-stone-900/60 px-3 py-2 text-left text-sm font-medium hover:border-3";
 	return (
 		<button
 			type={type}
-			className={`${baseClassName} ${className}`}
+			className={` rounded-lg border bg-button-stone border-button-stone px-3 py-2 text-left text-sm font-extrabold items-center justify-center flex hover:border-3 ${className}`}
 			{...props}>
 			{children}
 		</button>

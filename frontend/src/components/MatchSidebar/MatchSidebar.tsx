@@ -23,7 +23,7 @@ export function MatchSidebar() {
 	};
 
 	return (
-		<div className="flex flex-col bg-stone-900 text-stone-200 rounded-xl shadow-md border border-stone-700 overflow-hidden h-full min-h-140 sm:min-h-155">
+		<div className="flex flex-col bg-sidebar-bg text-stone-200 rounded-xl shadow-md border border-stone-700 overflow-hidden h-full min-h-140 sm:min-h-155">
 			<header className="w-full p-5 sm:p-6 bg-stone-800 border-b border-stone-700">
 				<p className="mb-3 text-xs font-semibold tracking-[0.18em] uppercase text-stone-400">Match controls</p>
 				<div className="flex items-center gap-3">

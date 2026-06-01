@@ -91,7 +91,7 @@ export class GameService {
         fen: game.chess.fen(),
         currentTurn: game.chess.turn(),
         whiteTimeLeft: game.whiteTimeLeft,
-        blackTimeLeft: game.blackTimeLeft
+        blackTimeLeft: game.blackTimeLeft,
       };
     } catch (e) {
       return null;
@@ -106,14 +106,21 @@ export class GameService {
     const elapsedSeconds = Math.floor((now - game.lastMoveTimestamp) / 1000);
 
     const possibleMoves = game.chess.moves();
-    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    const randomMove =
+      possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
 
     game.blackTimeLeft = Math.max(0, game.blackTimeLeft - elapsedSeconds);
     game.chess.move(randomMove);
 
     game.lastMoveTimestamp = Date.now();
 
-    return randomMove;
+    return {
+      randomMove,
+      fen: game.chess.fen(),
+      currentTurn: game.chess.turn(),
+      whiteTimeLeft: game.whiteTimeLeft,
+      blackTimeLeft: game.blackTimeLeft,
+    };
   }
 
   getGameState(gameId: string) {
@@ -123,7 +130,7 @@ export class GameService {
     // Calculate the real time after a page refresh
     const now = Date.now();
     const elapsedSeconds = Math.floor((now - game.lastMoveTimestamp) / 1000);
-    
+
     let currentWTime = game.whiteTimeLeft;
     let currentBTime = game.blackTimeLeft;
 
@@ -182,6 +189,7 @@ export class GameService {
       reason,
     };
   }
+
   surrender(gameId: string, surrenderPlayerId: string): GameOverResult | null {
     const game = this.getGame(gameId);
     if (!game) return null;
@@ -201,7 +209,6 @@ export class GameService {
     return { winnerColor, reason: 'RESIGNATION' };
   }
 
-  
   forceDraw(gameId: string): GameOverResult | null {
     const game = this.getGame(gameId);
     if (!game) return null;
@@ -252,6 +259,7 @@ export class GameService {
       game.isFinished = true;
     }
   }
+
   findActiveGameByUserId(userId: string): {
     gameId: string;
     game: GameInstance;

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Timer } from "../index";
+import { LeftUser, Timer } from "../index";
 import type { PieceColor } from "../Board/Board";
 import type { AuthState } from "../../contexts/UserContext/authTypes";
 import type { PlayerData } from "../../api/PlayerDataType";
 import { getOpponentData } from "../../api/users";
+import { RightUser } from "../RightUser/RightUser";
+import  magnusImg  from "../../assets/magnus-carlsen.jpg";
 
 type PlayerHeaderProps = {
 	currentTurn: PieceColor;
@@ -29,7 +31,7 @@ export function PlayerHeader({
 }: PlayerHeaderProps) {
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
 	useEffect(() => {
-		if (!opponentId || String(opponentId).startsWith("bot_")) {
+		if (!opponentId || String(opponentId).startsWith("bot")) {
 			return;
 		}
 
@@ -46,10 +48,15 @@ export function PlayerHeader({
 			cancelled = true;
 		};
 	}, [opponentId]);
-
-	const opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
-
-	const opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : undefined;
+	let opponentDisplayName;
+	let opponentAvatarUrl;
+	if (String(opponentId).startsWith("bot")) {
+		opponentDisplayName = "Uncle Carlsen (bot)";
+		opponentAvatarUrl = magnusImg;
+	} else {
+		opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
+		opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : undefined;
+	}
 
 	const isMyTurn = color != null && currentTurn === color;
 	const isOpponentTurn = color != null && currentTurn !== color;
@@ -57,49 +64,14 @@ export function PlayerHeader({
 	return (
 		<div
 			className={`grid w-full grid-cols-[1fr_auto_1fr] items-center gap-[2%] rounded-2xl border border-emerald-300/15 bg-stone-900/70 p-[2.5%] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
-			{/* left user */}
-			<div
-				className={`flex w-full min-w-0 items-center gap-[3%] rounded-2xl p-[3%] transition-all duration-500 justify-self-start ${
-					color != null && currentTurn === color
-						? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[.90] hover:scale-[1.05]"
-						: "opacity-65 scale-100"
-				}`}>
-				{/* avatar */}
-				<img
-					src={state.user?.avatarUrl}
-					className={`aspect-square w-[34%] md:w-[20%] shrink-0 rounded-full object-cover shadow-lg ring-2 transition-all duration-500 ${
-						color != null && currentTurn === color
-							? "ring-emerald-300 shadow-emerald-700/20"
-							: "ring-slate-700 shadow-none border border-slate-600"
-					}`}
-				/>
-				{/* name & rank + timer */}
-				<div className="max-w-[80%] md:flex items-center flex-nowrap gap-[4%] flex-1 min-w-0">
-					<div className="flex flex-col justify-center items-start overflow-hidden flex-1 min-w-0">
-						<div
-							className={`truncate w-full text-[clamp(0.85rem,1.15vw,2.5rem)] font-extrabold transition-colors duration-500 ${
-								color != null && currentTurn === color ? "text-stone-100" : "text-slate-400"
-							}`}>
-							{state.user ? state.user?.username : "Player 1"}
-						</div>
-						<div
-							className={`truncate w-full text-[clamp(0.65rem,0.75vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
-								color != null && currentTurn === color ? "text-emerald-300" : "text-slate-500"
-							}`}>
-							GRANDMASTER
-						</div>
-					</div>
-					<div className="shrink-0">
-						<Timer
-							timeLeftInSeconds={myTimeLeft}
-							isRunning={isMyTurn}
-							onTimeUp={() => {
-								if (color) onTimeOut(color);
-							}}
-						/>
-					</div>
-				</div>
-			</div>
+			<LeftUser
+				color={color}
+				currentTurn={currentTurn}
+				state={state}
+				myTimeLeft={myTimeLeft}
+				isMyTurn={isMyTurn}
+				onTimeOut={onTimeOut}
+			/>
 
 			{/* VS — diamond plate + gradient type */}
 			<div className="flex w-full flex-col items-center justify-self-center shrink-0">
@@ -117,50 +89,15 @@ export function PlayerHeader({
 				</div>
 			</div>
 
-			{/* right user */}
-			<div
-				className={`flex w-full min-w-0 items-center gap-[3%] rounded-2xl p-[3%] justify-end justify-self-end transition-all duration-500 ${
-					color != null && currentTurn !== color
-						? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[.90] hover:scale-[1.05]"
-						: "opacity-65 scale-100"
-				}`}>
-				{/* timer + name & rank */}
-				<div className="flex flex-col items-end gap-[1%] flex-1 min-w-0 justify-end md:flex-row-reverse md:items-center md:gap-[4%]">
-					<div className="flex flex-col justify-center items-end overflow-hidden flex-1 min-w-0">
-						<div
-							className={`truncate w-full text-right text-[clamp(0.85rem,1.15vw,2.5rem)] font-extrabold transition-colors duration-500 ${
-								color != null && currentTurn !== color ? "text-stone-100" : "text-slate-400"
-							}`}>
-							{opponentDisplayName}
-						</div>
-						<div
-							className={`truncate w-full text-right text-[clamp(0.65rem,0.75vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
-								color != null && currentTurn !== color ? "text-emerald-300" : "text-slate-500"
-							}`}>
-							BEGINNER
-						</div>
-					</div>
-					<div className="shrink-0">
-						<Timer
-							timeLeftInSeconds={opponentTimeLeft}
-							isRunning={isOpponentTurn}
-							onTimeUp={() => {
-								const opponentColor = color === "w" ? "b" : "w";
-								onTimeOut(opponentColor);
-							}}
-						/>
-					</div>
-				</div>
-				{/* avatar */}
-				<img
-					src={opponentAvatarUrl}
-					className={`aspect-square w-[34%] md:w-[20%] shrink-0 rounded-full object-cover shadow-lg ring-2 transition-all duration-500 ${
-						color != null && currentTurn !== color
-							? "ring-emerald-300 shadow-emerald-700/20"
-							: "ring-slate-700 shadow-none border border-slate-600"
-					}`}
-				/>
-			</div>
+			<RightUser
+				color={color}
+				currentTurn={currentTurn}
+				onTimeOut={onTimeOut}
+				opponentDisplayName={opponentDisplayName}
+				opponentTimeLeft={opponentTimeLeft}
+				isOpponentTurn={isOpponentTurn}
+				opponentAvatarUrl={opponentAvatarUrl}
+			/>
 		</div>
 	);
 }
