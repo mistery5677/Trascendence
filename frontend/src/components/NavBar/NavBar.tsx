@@ -85,7 +85,7 @@ export function NavBar({ onModal }: NavBarProps) {
 								<span className="text-4xl leading-none">♞</span>
 							</div>
 							<span className="ml-3 font-semibold tracking-tight text-xl text-stone-100 hidden sm:block">
-								42 <span className="text-emerald-200">Transcendence</span>
+								42 <span className="text-button-green">Transcendence</span>
 							</span>
 						</a>
 
@@ -126,7 +126,7 @@ export function NavBar({ onModal }: NavBarProps) {
 								<a
 									type="button"
 									href="/play"
-									className="block rounded-2xl border border-lime-100/90 bg-linear-to-r from-lime-300 to-emerald-300 px-6 py-2 text-sm font-black tracking-wide text-stone-950 shadow-[0_10px_20px_-12px_rgba(132,204,22,0.9)] transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+									className="block rounded-2xl border border-button-green bg-button-green px-6 py-2 text-sm tracking-wide text-white font-extrabold shadow-button-green transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 									Play
 								</a>
 							</div>
