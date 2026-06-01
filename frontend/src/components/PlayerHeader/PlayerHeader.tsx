@@ -5,6 +5,7 @@ import type { AuthState } from "../../contexts/UserContext/authTypes";
 import type { PlayerData } from "../../api/PlayerDataType";
 import { getOpponentData } from "../../api/users";
 import { RightUser } from "../RightUser/RightUser";
+import  magnusImg  from "../../assets/magnus-carlsen.jpg";
 
 type PlayerHeaderProps = {
 	currentTurn: PieceColor;
@@ -30,7 +31,7 @@ export function PlayerHeader({
 }: PlayerHeaderProps) {
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
 	useEffect(() => {
-		if (!opponentId || String(opponentId).startsWith("bot_")) {
+		if (!opponentId || String(opponentId).startsWith("bot")) {
 			return;
 		}
 
@@ -47,10 +48,15 @@ export function PlayerHeader({
 			cancelled = true;
 		};
 	}, [opponentId]);
-
-	const opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
-
-	const opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : undefined;
+	let opponentDisplayName;
+	let opponentAvatarUrl;
+	if (String(opponentId).startsWith("bot")) {
+		opponentDisplayName = "Uncle Carlsen (bot)";
+		opponentAvatarUrl = magnusImg;
+	} else {
+		opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
+		opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : undefined;
+	}
 
 	const isMyTurn = color != null && currentTurn === color;
 	const isOpponentTurn = color != null && currentTurn !== color;
