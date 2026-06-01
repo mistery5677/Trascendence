@@ -65,6 +65,20 @@ export function Board({ onTurnChange }: BoardProps) {
 	const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
 
 	const { socket, gameId, color, fen, currentTurn } = useGame();
+
+	const returnOpt = {
+		id: "play-vs-random",
+		boardOrientation: "white" as const,
+		lightSquareStyle: {
+			backgroundColor: "var(--color-board-light)",
+		},
+		darkSquareStyle: {
+			backgroundColor: themeArray[state.user?.boardTheme ? state.user?.boardTheme - 1 : 0]?.background,
+		},
+	};
+
+	if (!gameId) return <Chessboard options={returnOpt} />;
+
 	const [chessPosition, setChessPosition] = useState(() => {
 		if (fen) return fen;
 		return chessGame.fen();

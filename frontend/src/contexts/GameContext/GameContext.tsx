@@ -24,7 +24,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 	const modeRef = React.useRef(mode);
 	const hasUser = !!authState.user;
 	//Timer variables
-	//TODO: Make the timer choosed by the room mode created
+	//TODO: Make the timer choose by the room mode created
 	const [myTimeLeft, setMyTimeLeft] = useState<number>(10);
 	const [opponentTimeLeft, setOpponentTimeLeft] = useState<number>(10);
 
@@ -56,6 +56,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		}
 		setDrawProposal(false);
 	};
+
 	const handleRematchResponse = (accept: boolean) => {
 		if (socket && gameId) {
 			socket.emit("respondRematch", {
@@ -71,38 +72,49 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			console.log("Time is over");
 			socket.emit("timeOut", { gameId });
 		}
-	}
+	};
+
+	const onNoActiveGame = () => {
+		if (!socket || !hasUser) return;
+
+		if (modeRef.current === "bot") {
+			console.log("[Game] Starting game with bot");
+			socket.emit("startBotGame");
+		} else {
+			console.log("[Game] Joining the Queue");
+			socket.emit("joinQueue");
+		}
+	};
 
 	useEffect(() => {
 		// If there is no game, it means that is over
-        if (!gameId || gameOver || !color) return;
+		if (!gameId || gameOver || !color) return;
 
-        const isMyTurn = currentTurn === color;
+		const isMyTurn = currentTurn === color;
 
-        const interval = setInterval(() => {
-            if (isMyTurn) {
-                setMyTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        handleTimeOut(); // Timed out
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            } else {
-                setOpponentTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }
-        }, 1000); // 1 second
+		const interval = setInterval(() => {
+			if (isMyTurn) {
+				setMyTimeLeft((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						handleTimeOut(); // Timed out
+						return 0;
+					}
+					return prev - 1;
+				});
+			} else {
+				setOpponentTimeLeft((prev) => {
+					if (prev <= 1) {
+						clearInterval(interval);
+						return 0;
+					}
+					return prev - 1;
+				});
+			}
+		}, 1000); // 1 second
 
-        return () => clearInterval(interval);
-    }, [gameId, currentTurn, color, gameOver]);
-
+		return () => clearInterval(interval);
+	}, [gameId, currentTurn, color, gameOver]);
 
 	useEffect(() => {
 		if (!socket || !hasUser) return;
@@ -119,37 +131,29 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			setOpponentId(data.opponentId);
 
 			// Read the timer came from the server
-			if (data.color === 'w') {
-                setMyTimeLeft(data.whiteTimeLeft ?? 10);
-                setOpponentTimeLeft(data.blackTimeLeft ?? 10);
-            } else {
-                setMyTimeLeft(data.blackTimeLeft ?? 10);
-                setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
-            }
-		};
-
-		const onNoActiveGame = () => {
-			if (modeRef.current === "bot") {
-				console.log("[Game] Starting game with bot");
-				socket.emit("startBotGame");
+			if (data.color === "w") {
+				setMyTimeLeft(data.whiteTimeLeft ?? 10);
+				setOpponentTimeLeft(data.blackTimeLeft ?? 10);
 			} else {
-				console.log("[Game] Joining the Queue");
-				socket.emit("joinQueue");
+				setMyTimeLeft(data.blackTimeLeft ?? 10);
+				setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
 			}
 		};
+
+		// onNoActiveGame();
 
 		const onMove = (data: any) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-						if (color) {
-                if (color === 'w') {
-                    setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
-                    setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
-                } else {
-                    setMyTimeLeft(data.blackTimeLeft ?? myTimeLeft);
-                    setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
-                }
-            }
+			if (color) {
+				if (color === "w") {
+					setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
+					setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
+				} else {
+					setMyTimeLeft(data.blackTimeLeft ?? myTimeLeft);
+					setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
+				}
+			}
 		};
 
 		const onGameOver = (data: any) => {
@@ -169,7 +173,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		};
 
 		socket.on("gameState", onGameState);
-		socket.on("noActiveGame", onNoActiveGame);
+		// socket.on("noActiveGame", onNoActiveGame);
 		socket.on("move", onMove);
 		socket.on("gameOver", onGameOver);
 		socket.on("activeGameNotFound", onActiveGameNotFound);
@@ -177,7 +181,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 
 		return () => {
 			console.log("[Game] Exiting of game board. Removing all listeners");
-			socket.off("noActiveGame", onNoActiveGame);
+			// socket.off("noActiveGame", onNoActiveGame);
 			socket.off("gameState", onGameState);
 			socket.off("move", onMove);
 			socket.off("gameOver", onGameOver);
@@ -239,11 +243,12 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				proposeDraw,
 				proposeRematch,
 				opponentId,
+				onNoActiveGame,
 
 				// Timer variables
 				myTimeLeft,
-                opponentTimeLeft,
-                handleTimeOut,
+				opponentTimeLeft,
+				handleTimeOut,
 			}}>
 			{children}
 		</GameContext.Provider>

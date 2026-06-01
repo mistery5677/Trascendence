@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Board, PlayerHeader, MatchSidebar } from "../../components";
 import type { PieceColor } from "../../components/Board/Board";
 import { useAuth } from "../../contexts/UserContext";
@@ -36,13 +36,14 @@ export function Play() {
 		handleTimeOut,
 	} = useGame();
 
+	// if (!gameId) {
+	// 	return <MatchmakingLoading isConnected={isConnected} />;
+	// }
+
+
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
 	};
-
-	if (!gameId) {
-		return <MatchmakingLoading isConnected={isConnected} />;
-	}
 
 	const userThemeId = state.user?.backgroundTheme || 1;
 	const selectedBackground = BACKGROUND_THEMES[userThemeId] || chess;
