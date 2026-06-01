@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState } from "./GameContextType";
-import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
-import { data } from "react-router-dom";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -74,15 +72,33 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		}
 	};
 
+	const joinQueue = () => {
+		if (!socket || !hasUser) return;
+
+		console.log("[Game] Joining the Queue");
+		setGameOver(null);
+		setGameId(null);
+		setOpponentId(null);
+		socket.emit("joinQueue");
+	};
+
+	const startBotGame = () => {
+		if (!socket || !hasUser) return;
+
+		console.log("[Game] Starting game with bot");
+		setGameOver(null);
+		setGameId(null);
+		setOpponentId(null);
+		socket.emit("startBotGame");
+	};
+
 	const onNoActiveGame = () => {
 		if (!socket || !hasUser) return;
 
 		if (modeRef.current === "bot") {
-			console.log("[Game] Starting game with bot");
-			socket.emit("startBotGame");
+			startBotGame();
 		} else {
-			console.log("[Game] Joining the Queue");
-			socket.emit("joinQueue");
+			joinQueue();
 		}
 	};
 
@@ -242,6 +258,8 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				handleRematchResponse,
 				proposeDraw,
 				proposeRematch,
+				joinQueue,
+				startBotGame,
 				opponentId,
 				onNoActiveGame,
 
