@@ -5,7 +5,7 @@ import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-export const GameProvider = ({ children, mode }: { children: React.ReactNode; mode: string }) => {
+export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const { socket } = useGlobalSocket();
 	const { state: authState } = useAuth();
 
@@ -19,7 +19,6 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 	const [opponentId, setOpponentId] = useState<string | null>(null);
 
 	const gameIdRef = React.useRef<string | null>(null);
-	const modeRef = React.useRef(mode);
 	const hasUser = !!authState.user;
 	//Timer variables
 	//TODO: Make the timer choose by the room mode created
@@ -72,7 +71,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		}
 	};
 
-	const joinQueue = () => {
+	const startOnlineGame = () => {
 		if (!socket || !hasUser) return;
 
 		console.log("[Game] Joining the Queue");
@@ -90,16 +89,6 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		setGameId(null);
 		setOpponentId(null);
 		socket.emit("startBotGame");
-	};
-
-	const onNoActiveGame = () => {
-		if (!socket || !hasUser) return;
-
-		if (modeRef.current === "bot") {
-			startBotGame();
-		} else {
-			joinQueue();
-		}
 	};
 
 	useEffect(() => {
@@ -156,7 +145,9 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 			}
 		};
 
-		// onNoActiveGame();
+		const onNoActiveGame = () => {
+			console.log("There is no active Game, you can start on lateral buttons");
+		};
 
 		const onMove = (data: any) => {
 			setFen(data.fen);
@@ -189,7 +180,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 		};
 
 		socket.on("gameState", onGameState);
-		// socket.on("noActiveGame", onNoActiveGame);
+		socket.on("noActiveGame", onNoActiveGame);
 		socket.on("move", onMove);
 		socket.on("gameOver", onGameOver);
 		socket.on("activeGameNotFound", onActiveGameNotFound);
@@ -197,7 +188,7 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 
 		return () => {
 			console.log("[Game] Exiting of game board. Removing all listeners");
-			// socket.off("noActiveGame", onNoActiveGame);
+			socket.off("noActiveGame", onNoActiveGame);
 			socket.off("gameState", onGameState);
 			socket.off("move", onMove);
 			socket.off("gameOver", onGameOver);
@@ -258,10 +249,9 @@ export const GameProvider = ({ children, mode }: { children: React.ReactNode; mo
 				handleRematchResponse,
 				proposeDraw,
 				proposeRematch,
-				joinQueue,
+				startOnlineGame,
 				startBotGame,
 				opponentId,
-				onNoActiveGame,
 
 				// Timer variables
 				myTimeLeft,

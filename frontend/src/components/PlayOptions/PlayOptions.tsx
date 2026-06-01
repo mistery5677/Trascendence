@@ -9,11 +9,11 @@ export function PlayOptions() {
 		(window as { Tenor?: { Embed?: { load?: () => void } } }).Tenor?.Embed?.load?.();
 	}, []);
 
-	const { joinQueue, startBotGame } = useGame();
+	const { startOnlineGame, startBotGame } = useGame();
 
 	const handleVsPlayer = () => {
 		toastWrapper.success("OK OK OK");
-		joinQueue();
+		startOnlineGame();
 	};
 
 	return (
