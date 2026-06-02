@@ -51,7 +51,7 @@ export function PlayerHeader({
 	let opponentDisplayName;
 	let opponentAvatarUrl;
 	if (String(opponentId).startsWith("bot")) {
-		opponentDisplayName = "Uncle Carlsen (bot)";
+		opponentDisplayName = "Uncle Carl (bot)";
 		opponentAvatarUrl = magnusImg;
 	} else {
 		opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";

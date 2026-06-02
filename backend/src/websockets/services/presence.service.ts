@@ -28,10 +28,8 @@ export class PresenceService {
       this.userStatus.set(parseInt(userId), status);
     }
   }
-  getStatus(userId: string): UserStatus | undefined {
-    console.log('userID presence', userId);
-    console.log(this.getConnectedUsers());
-    return this.userStatus.get(parseInt(userId));
+  getStatus(userId: number): UserStatus{
+    return this.userStatus.get(userId) || 'offline';
   }
 
   getConnectedUsers(): number[] {

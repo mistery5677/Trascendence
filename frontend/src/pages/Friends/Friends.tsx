@@ -35,7 +35,11 @@ export function Friends() {
 	if (!state || !state.user) {
 		return <div className="text-white text-center mt-20">Loading profile...</div>;
 	}
-
+	const statusColors: Record<string, string> = {
+		online: "bg-green-500 shadow-green-500/50",
+		playing: "bg-amber-500 shadow-amber-500/50",
+		offline: "bg-stone-500 shadow-stone-500/30",
+	};
 	// Handle the friend request button
 	const handleAddFriend = async (username: string) => {
 		try {
@@ -181,44 +185,53 @@ export function Friends() {
 								You don't have any friends yet. Go to 'Add Friend' to find some rivals!
 							</p>
 						) : (
-							friends.map((friend, index) => (
-								<div
-									key={index}
-									className="flex gap-5 items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl transition-all duration-200 hover:border-emerald-400/45 hover:bg-stone-900/70">
-									<div className="flex items-center gap-2 sm:gap-4">
-										<div className="h-12 w-12 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center text-xl">
-											<img
-												className="rounded-full"
-												src={friend.avatarUrl}
-												alt="Avatar Photo"
-											/>
+							friends.map((friend, index) => {
+								const currentStatusColor = statusColors[friend.status] || statusColors.offline;
+								return (
+									<div
+										key={index}
+										className="flex gap-5 items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl transition-all duration-200 hover:border-emerald-400/45 hover:bg-stone-900/70">
+										<div className="flex items-center gap-2 sm:gap-4">
+											<div className="relative h-12 w-12 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center text-xl">
+												<img
+													className="rounded-full"
+													src={friend.avatarUrl}
+													alt="Avatar Photo"
+												/>
+												<span
+													className={`absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full border-2 border-stone-900 shadow-[0_0_8px_1px] ${currentStatusColor}`}
+													title={`Status: ${friend.status || "offline"}`}
+												/>
+											</div>
+											<div>
+												{/* Redirects to user match history */}
+												<Link
+													to={`/history/${friend.username}`}
+													className="hover:text-emerald-400 hover:underline transition-colors"
+													title={`View ${friend.username}'s Match History`}>
+													<p className="font-bold text-lg text-stone-200">
+														{friend.username}
+													</p>
+												</Link>
+												<p className="text-sm whitespace-nowrap  text-emerald-400">
+													ELO: {friend.elo}
+												</p>
+											</div>
 										</div>
-										<div>
-											{/* Redirects to user match history */}
-											<Link
-												to={`/history/${friend.username}`}
-												className="hover:text-emerald-400 hover:underline transition-colors"
-												title={`View ${friend.username}'s Match History`}>
-												<p className="font-bold text-lg text-stone-200">{friend.username}</p>
-											</Link>
-											<p className="text-sm whitespace-nowrap  text-emerald-400">
-												ELO: {friend.elo}
-											</p>
+										<div className="flex gap-3">
+											<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-emerald-400 to-emerald-500 px-5 py-2 text-sm sm:text-base font-semibold tracking-wide text-stone-950 shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-300 hover:to-emerald-400 active:translate-y-0">
+												Play ⚔️
+											</button>
+											<button
+												onClick={() => handleRemoveFriend(friend.id, friend.username)}
+												className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
+												title="Remove Friend">
+												<span>❌</span>
+											</button>
 										</div>
 									</div>
-									<div className="flex gap-3">
-										<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-emerald-400 to-emerald-500 px-5 py-2 text-sm sm:text-base font-semibold tracking-wide text-stone-950 shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-300 hover:to-emerald-400 active:translate-y-0">
-											Play ⚔️
-										</button>
-										<button
-											onClick={() => handleRemoveFriend(friend.id, friend.username)}
-											className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
-											title="Remove Friend">
-											<span>❌</span>
-										</button>
-									</div>
-								</div>
-							))
+								);
+							})
 						)}
 					</div>
 				)}

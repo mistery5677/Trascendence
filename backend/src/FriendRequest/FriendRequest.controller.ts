@@ -53,7 +53,6 @@ export class FriendRequestController {
   @Get('list')
   async getFriends(@Req() req) {
     const friends = await this.friendRequestService.getFriends(req.user.userId);
-    console.log('list', friends);
     return friends;
   }
 
