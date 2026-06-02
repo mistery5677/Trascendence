@@ -4,12 +4,12 @@ export type UserStatus = 'online' | 'playing' | 'offline';
 
 @Injectable()
 export class PresenceService {
-  private userStatus = new Map<string, UserStatus>();
+  private userStatus = new Map<number, UserStatus>();
   private activeSockets = new Map<string, string>();
 
   setConnected(userId: string, socketId: string) {
     this.activeSockets.set(userId, socketId);
-    this.userStatus.set(userId, 'online');
+    this.userStatus.set(parseInt(userId), 'online');
   }
 
   setDisconnected(userId: string, socketId: string): boolean {
@@ -17,22 +17,24 @@ export class PresenceService {
 
     if (currentActiveSocketId === socketId) {
       this.activeSockets.delete(userId);
-      this.userStatus.delete(userId);
+      this.userStatus.delete(parseInt(userId));
       return true;
     }
     return false;
   }
 
   updateStatus(userId: string, status: UserStatus) {
-    if (this.userStatus.has(userId)) {
-      this.userStatus.set(userId, status);
+    if (this.userStatus.has(parseInt(userId))) {
+      this.userStatus.set(parseInt(userId), status);
     }
   }
-  getStatus(userId: string): UserStatus {
-    return this.userStatus.get(userId) || 'offline';
+  getStatus(userId: string): UserStatus | undefined {
+    console.log('userID presence', userId);
+    console.log(this.getConnectedUsers());
+    return this.userStatus.get(parseInt(userId));
   }
 
-  getConnectedUsers(): string[] {
+  getConnectedUsers(): number[] {
     return Array.from(this.userStatus.entries())
       .filter(([_, status]) => status === 'online')
       .map(([userId, _]) => userId);

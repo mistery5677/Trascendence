@@ -21,5 +21,6 @@ import { PresenceController } from './controllers/presence.controller';
     MatchMakingService,
   ],
   controllers: [PresenceController],
+  exports: [PresenceService]
 })
 export class WebsocketsModule {}

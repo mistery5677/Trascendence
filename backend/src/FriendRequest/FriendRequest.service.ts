@@ -5,10 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PresenceService } from 'src/websockets/services/presence.service';
 
 @Injectable()
 export class FriendRequestService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private presenceService: PresenceService,
+  ) {}
 
   async sendRequest(senderId: number, targetUsername: string) {
     // Find the invited user
@@ -126,19 +130,29 @@ export class FriendRequestService {
 
   // Get all the friends
   async getFriends(userId: number) {
+    const publicUserFields = {
+      id: true,
+      username: true,
+      avatarUrl: true,
+      elo: true,
+      // NOTA: 'password' y 'email' NO se incluyen aquí de manera deliberada
+    };
+
     const friends = await this.prisma.friendRequest.findMany({
       where: {
         status: 'ACCEPTED',
         OR: [{ senderId: userId }, { receiverId: userId }],
       },
       include: {
-        sender: true,
-        receiver: true,
+        sender: { select: publicUserFields },
+        receiver: { select: publicUserFields },
       },
     });
 
     return friends.map((rel) => {
-      return rel.senderId === userId ? rel.receiver : rel.sender;
+      const friendData = rel.senderId === userId ? rel.receiver : rel.sender;
+      const status = this.presenceService.getStatus(friendData.id);
+      return { ...friendData, status };
     });
   }
 
