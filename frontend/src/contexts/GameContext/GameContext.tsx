@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState } from "./GameContextType";
+import type { GameContextType, GameOverState, MessageType } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 
@@ -14,6 +14,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [fen, setFen] = useState("start");
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
+	const [messages, setMessages] = useState<MessageType[]>([]);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("joinQueue");
 	};
 
@@ -88,6 +90,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("startBotGame");
 	};
 
@@ -134,6 +137,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			setOpponentId(data.opponentId);
+
+			if (data.chatHistory) {
+				setMessages(data.chatHistory);
+			}
 
 			// Read the timer came from the server
 			if (data.color === "w") {
@@ -252,7 +259,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				startOnlineGame,
 				startBotGame,
 				opponentId,
-
+				// For component Chat Persistence
+				messages,
+				setMessages,
 				// Timer variables
 				myTimeLeft,
 				opponentTimeLeft,

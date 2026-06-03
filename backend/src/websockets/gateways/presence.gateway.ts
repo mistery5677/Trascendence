@@ -27,7 +27,7 @@ export class PresenceGateway
   ) {}
 
   afterInit() {
-    this.server?.use(WsMiddleware(this.jwtService));
+    this.server?.use(WsMiddleware(this.jwtService, this.userService));
   }
 
   handleConnection(client: Socket) {

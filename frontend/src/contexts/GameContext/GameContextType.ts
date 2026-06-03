@@ -6,6 +6,13 @@ export type GameOverState = {
 	resultString: string;
 } | null;
 
+export type MessageType = {
+	from: string;
+	message: string;
+	timeStamp: string;
+	avatarUrl?: string;
+};
+
 export type GameContextType = {
 	socket: Socket | null;
 	gameId: string | null;
@@ -21,6 +28,8 @@ export type GameContextType = {
 	// Timer variables
 	myTimeLeft: number;
 	opponentTimeLeft: number;
+	messages: MessageType[];
+	setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
 	handleTimeOut: () => void;
 
 	surrender: () => void;
