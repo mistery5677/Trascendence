@@ -122,10 +122,10 @@ export class GameGateway {
         game.playerW,
       );
       if (newGame) {
-        this.gameService.deleteGame(data.gameId);
         this.server
           .to(data.gameId)
           .emit('rematchStarted', { newGameId: newGameId });
+        this.gameService.deleteGame(data.gameId);
       } else {
         client.emit('error', { message: 'Could not generate rematch room' });
       }

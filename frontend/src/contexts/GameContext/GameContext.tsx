@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import type { GameContextType, GameOverState, MessageType } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
+import { toastWrapper } from "../../adapters/toastWrapper";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -76,6 +77,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		if (!socket || !hasUser) return;
 
 		console.log("[Game] Joining the Queue");
+		toastWrapper.warn("Waiting for opponent. Please be patient...");
+
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
@@ -131,6 +134,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.emit("checkActiveGame");
 
 		const onGameState = (data: any) => {
+			if (!gameIdRef.current && data.fen === "start") {
+				toastWrapper.success("Opponent Found! Match has started.");
+			} else if (!gameIdRef.current && data.fen !== "start") {
+				toastWrapper.success("Reconnected to your active match.");
+			}
 			setGameId(data.gameId);
 			gameIdRef.current = data.gameId;
 			setColor(data.color);
@@ -211,9 +219,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
 		const onDrawProposed = () => setDrawProposal(true);
 		const onRematchProposed = () => setRematchProposal(true);
-		const onDrawRejected = () => alert("The draw proposal was rejected.");
-		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
+		const onDrawRejected = () => {
+			toastWrapper.warn("The draw proposal was rejected.");
+		};
+
+		const onRematchRejected = () => {
+			toastWrapper.error("The Rematch proposal was rejected.");
+		};
 		const onRematchStarted = (data: { newGameId: string }) => {
+			toastWrapper.success("Rematch started! Good luck.");
 			setGameOver(null);
 			setDrawProposal(false);
 			setRematchProposal(false);

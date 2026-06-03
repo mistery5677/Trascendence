@@ -35,7 +35,7 @@ export function GameOverModal() {
 						Play Again
 					</button>
 					<button
-						onClick={() => (window.location.href = "/play")}
+						onClick={proposeRematch}
 						className="w-full rounded-xl bg-emerald-500 px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-slate-950 transition-all hover:bg-emerald-400 sm:flex-1">
 						Rematch
 					</button>
