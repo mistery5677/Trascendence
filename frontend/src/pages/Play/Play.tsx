@@ -10,6 +10,7 @@ import chess from "../../assets/chess-pieces.png";
 import penguin from "../../assets/penguin.jpg";
 import cat from "../../assets/cat.jpg";
 import sky from "../../assets/sky.jpg";
+import { GameProposalsRespond } from "../../components/GameModals/GameProposalsRespond";
 
 const BACKGROUND_THEMES: Record<number, string> = {
 	1: chess,
@@ -27,16 +28,13 @@ export function Play() {
 		color,
 		opponentId,
 		drawProposal,
+		rematchProposal,
 		handleDrawResponse,
+		handleRematchResponse,
 		myTimeLeft = 10,
 		opponentTimeLeft = 10,
 		handleTimeOut,
 	} = useGame();
-
-	// if (!gameId) {
-	// 	return <MatchmakingLoading isConnected={isConnected} />;
-	// }
-
 
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
@@ -49,19 +47,12 @@ export function Play() {
 		<div
 			className="min-h-[calc(100dvh-5rem)]  bg-stone-800 font-sans flex flex-col items-center py-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
 			style={{ backgroundImage: "url(" + selectedBackground + ")" }}>
-			{drawProposal && (
-				<ConfirmationModal
-					title="Draw?"
-					description="The opponent wants to play again. Do you accept the challenge?"
-					icon="🔄"
-					confirmLabel="Accept"
-					cancelLabel="Decline"
-					onResponse={handleDrawResponse}
-					variant="info"
-				/>
-			)}
+			
+			{/* GameProposalRespond */}
+			<GameProposalsRespond />
 			{/* GameOver */}
 			<GameOverModal />
+			
 			<div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 xl:max-w-380 xl:flex-row xl:items-stretch xl:justify-center xl:gap-2">
 				{/* Left column: centered stack, header on top and board pushed to bottom */}
 				<div className="flex w-full justify-center xl:w-auto xl:flex-none">
