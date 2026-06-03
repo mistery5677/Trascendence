@@ -28,7 +28,7 @@ export class PresenceService {
       this.userStatus.set(parseInt(userId), status);
     }
   }
-  getStatus(userId: number): UserStatus{
+  getStatus(userId: number): UserStatus {
     return this.userStatus.get(userId) || 'offline';
   }
 

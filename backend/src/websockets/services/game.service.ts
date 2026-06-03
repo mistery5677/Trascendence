@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Chess } from 'chess.js';
 import { MatchesService } from 'src/matches/matches.service';
 import { v4 as uuidv4 } from 'uuid';
+import { PresenceService } from './presence.service';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
@@ -34,7 +35,10 @@ export class GameService {
   private games = new Map<string, GameInstance>();
   private readonly ABANDON_TIME = 60000;
   private readonly MATCH_TIMER = 1250;
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    private readonly matchesService: MatchesService,
+    private readonly presenceService: PresenceService,
+  ) {}
 
   createGame(
     gameId: string,
@@ -53,6 +57,8 @@ export class GameService {
       blackTimeLeft: this.MATCH_TIMER,
       lastMoveTimestamp: Date.now(),
     };
+    this.presenceService.updateStatus(playerBId, 'playing');
+    this.presenceService.updateStatus(playerWId, 'playing');
     this.games.set(gameId, newGame);
     return newGame;
   }
@@ -257,6 +263,8 @@ export class GameService {
     const game = this.games.get(gameId);
     if (game) {
       game.isFinished = true;
+      this.presenceService.updateStatus(game.playerB, 'online');
+      this.presenceService.updateStatus(game.playerW, 'online');
     }
   }
 

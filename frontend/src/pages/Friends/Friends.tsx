@@ -12,6 +12,7 @@ import { ConfirmDialog } from "../../components/index";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { getUsers } from "../../api/users"; // Adjust path if needed
 import { Link } from "react-router-dom";
+import bishop from "../../assets/chess-piece-bishop.png";
 
 type Friends = "list" | "requests" | "add";
 
@@ -37,8 +38,8 @@ export function Friends() {
 	}
 	const statusColors: Record<string, string> = {
 		online: "bg-green-500 shadow-green-500/50",
-		playing: "bg-amber-500 shadow-amber-500/50",
 		offline: "bg-stone-500 shadow-stone-500/30",
+		playing: "bg-stone-500 shadow-stone-500/30",
 	};
 	// Handle the friend request button
 	const handleAddFriend = async (username: string) => {
@@ -200,8 +201,15 @@ export function Friends() {
 												/>
 												<span
 													className={`absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full border-2 border-stone-900 shadow-[0_0_8px_1px] ${currentStatusColor}`}
-													title={`Status: ${friend.status || "offline"}`}
-												/>
+													title={`Status: ${friend.status || "offline"}`}>
+													{friend.status === "playing" && (
+														<img
+															src={bishop}
+															alt="Playing"
+															className="h-full w-full object-contain p-0.5 inverted"
+														/>
+													)}
+												</span>
 											</div>
 											<div>
 												{/* Redirects to user match history */}
