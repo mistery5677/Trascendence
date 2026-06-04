@@ -3,6 +3,8 @@ import type { GameContextType, GameOverState, MessageType } from "./GameContextT
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 import { toastWrapper } from "../../adapters/toastWrapper";
+import { ConfirmDialog } from "../../components";
+import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -19,7 +21,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
-
+	const [showBotWarning, setShowBotWarning] = useState<boolean>(false);
 	const gameIdRef = React.useRef<string | null>(null);
 	const hasUser = !!authState.user;
 	//Timer variables
@@ -73,9 +75,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const startOnlineGame = () => {
-		if (!socket || !hasUser) return;
-
+	const proceedToOnlineQueue = () => {
 		console.log("[Game] Joining the Queue");
 		toastWrapper.warn("Waiting for opponent. Please be patient...");
 
@@ -83,11 +83,29 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameId(null);
 		setOpponentId(null);
 		setMessages([]);
-		socket.emit("joinQueue");
+		socket?.emit("joinQueue");
+	};
+
+	const startOnlineGame = () => {
+		if (!socket || !hasUser) return;
+		console.log(opponentId);
+		if (gameId && opponentId === "bot") {
+			setShowBotWarning(true);
+			return;
+		} else if (gameId && opponentId !== "bot") {
+			toastWrapper.error("You're already playing a game, finish this first");
+			return;
+		}
+		proceedToOnlineQueue();
 	};
 
 	const startBotGame = () => {
 		if (!socket || !hasUser) return;
+
+		if (gameId) {
+			toastWrapper.error("You're already playing a game, finish this first");
+			return;
+		}
 
 		console.log("[Game] Starting game with bot");
 		setGameOver(null);
@@ -282,6 +300,21 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				handleTimeOut,
 			}}>
 			{children}
+			{showBotWarning && (
+				<ConfirmationModal
+					title="Abandon?"
+					description="You're playing with a bot, are you sure that you want to abandon?"
+					confirmLabel="Go Away"
+					cancelLabel="Stay"
+					variant="danger"
+					onResponse={(accept) => {
+						setShowBotWarning(false);
+						if (accept) {
+							proceedToOnlineQueue();
+						}
+					}}
+				/>
+			)}
 		</GameContext.Provider>
 	);
 };

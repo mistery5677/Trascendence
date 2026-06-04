@@ -44,7 +44,7 @@ export class MatchGateway {
     client.emit('gameState', {
       gameId: gameId,
       color: 'w',
-      opponentId: 'Bot (Random moves)',
+      opponentId: 'bot',
       fen: newGame.chess.fen(),
       currentTurn: newGame.chess.turn(),
       mode: 'bot',

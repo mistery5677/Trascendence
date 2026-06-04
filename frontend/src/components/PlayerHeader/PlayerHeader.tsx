@@ -5,7 +5,7 @@ import type { AuthState } from "../../contexts/UserContext/authTypes";
 import type { PlayerData } from "../../api/PlayerDataType";
 import { getOpponentData } from "../../api/users";
 import { RightUser } from "../RightUser/RightUser";
-import  magnusImg  from "../../assets/magnus-carlsen.jpg";
+import magnusImg from "../../assets/magnus-carlsen.jpg";
 
 type PlayerHeaderProps = {
 	currentTurn: PieceColor;
