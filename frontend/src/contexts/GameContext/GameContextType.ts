@@ -6,6 +6,10 @@ export type GameOverState = {
 	resultString: string;
 } | null;
 
+export type MatchStartOptions = {
+	time: string;
+};
+
 export type GameContextType = {
 	socket: Socket | null;
 	gameId: string | null;
@@ -14,6 +18,7 @@ export type GameContextType = {
 	fen: string;
 	currentTurn: "w" | "b";
 	opponentId: string | null;
+	isSearchingMatch: boolean;
 	gameOver: GameOverState;
 	drawProposal: boolean;
 	rematchProposal: boolean;
@@ -26,8 +31,8 @@ export type GameContextType = {
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;
-	startOnlineGame: () => void;
-	startBotGame: () => void;
+	startOnlineGame: (options: MatchStartOptions) => void;
+	startBotGame: (options: MatchStartOptions) => void;
 	handleDrawResponse: (accept: boolean) => void;
 	handleRematchResponse: (accept: boolean) => void;
 };

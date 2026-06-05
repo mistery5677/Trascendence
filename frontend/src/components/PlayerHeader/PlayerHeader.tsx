@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { LeftUser, Timer } from "../index";
+import { LeftUser } from "../index";
 import type { PieceColor } from "../Board/Board";
 import type { AuthState } from "../../contexts/UserContext/authTypes";
 import type { PlayerData } from "../../api/PlayerDataType";
 import { getOpponentData } from "../../api/users";
 import { RightUser } from "../RightUser/RightUser";
-import  magnusImg  from "../../assets/magnus-carlsen.jpg";
+import magnusImg from "../../assets/magnus-carlsen.jpg";
 
 type PlayerHeaderProps = {
 	currentTurn: PieceColor;
@@ -13,6 +13,7 @@ type PlayerHeaderProps = {
 	state: AuthState;
 	className?: string | undefined;
 	opponentId?: string | null;
+	isSearchingMatch?: boolean;
 
 	myTimeLeft: number;
 	opponentTimeLeft: number;
@@ -24,14 +25,19 @@ export function PlayerHeader({
 	color,
 	state,
 	opponentId,
+	isSearchingMatch = false,
 	className = "",
 	myTimeLeft,
 	opponentTimeLeft,
 	onTimeOut,
 }: PlayerHeaderProps) {
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
+	const normalizedOpponentId = String(opponentId ?? "").toLowerCase();
+	const isBotOpponent = normalizedOpponentId.includes("bot");
+
 	useEffect(() => {
-		if (!opponentId || String(opponentId).startsWith("bot")) {
+		if (!opponentId || isBotOpponent) {
+			setOpponentProfile(null);
 			return;
 		}
 
@@ -47,10 +53,13 @@ export function PlayerHeader({
 		return () => {
 			cancelled = true;
 		};
-	}, [opponentId]);
+	}, [opponentId, isBotOpponent]);
 	let opponentDisplayName;
 	let opponentAvatarUrl;
-	if (String(opponentId).startsWith("bot")) {
+	if (isSearchingMatch) {
+		opponentDisplayName = "Searching for opponent...";
+		opponentAvatarUrl = "";
+	} else if (isBotOpponent) {
 		opponentDisplayName = "Uncle Carlsen (bot)";
 		opponentAvatarUrl = magnusImg;
 	} else {
@@ -97,6 +106,7 @@ export function PlayerHeader({
 				opponentTimeLeft={opponentTimeLeft}
 				isOpponentTurn={isOpponentTurn}
 				opponentAvatarUrl={opponentAvatarUrl}
+				isSearchingMatch={isSearchingMatch}
 			/>
 		</div>
 	);

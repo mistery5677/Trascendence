@@ -36,11 +36,22 @@ export class GameService {
   private readonly MATCH_TIMER = 1250;
   constructor(private readonly matchesService: MatchesService) {}
 
+  private getTimeControlInSeconds(timeControl: string): number {
+    const timeMap: Record<string, number> = {
+      '3 min': 180,
+      '5 min': 300,
+      '10 min': 600,
+    };
+
+    return timeMap[timeControl] ?? 300;
+  }
+
   createGame(
     gameId: string,
     mode: 'online' | 'bot',
     playerWId: string,
     playerBId: string = 'bot',
+    timeControl: string = '5 min',
   ) {
     const newGame: GameInstance = {
       chess: new Chess(),
@@ -49,8 +60,8 @@ export class GameService {
       playerB: playerBId,
 
       // Start the timer
-      whiteTimeLeft: this.MATCH_TIMER,
-      blackTimeLeft: this.MATCH_TIMER,
+      whiteTimeLeft: this.getTimeControlInSeconds(timeControl),
+      blackTimeLeft: this.getTimeControlInSeconds(timeControl),
       lastMoveTimestamp: Date.now(),
     };
     this.games.set(gameId, newGame);

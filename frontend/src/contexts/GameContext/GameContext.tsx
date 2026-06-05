@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState } from "./GameContextType";
+import type { GameContextType, GameOverState, MatchStartOptions } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 
@@ -17,6 +17,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
+	const [lastFinishedGameId, setLastFinishedGameId] = useState<string | null>(null);
+	const [isSearchingMatch, setIsSearchingMatch] = useState<boolean>(false);
 
 	const gameIdRef = React.useRef<string | null>(null);
 	const hasUser = !!authState.user;
@@ -39,8 +41,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 	const proposeRematch = () => {
-		if (socket && gameId) {
-			socket.emit("proposeRematch", { gameId });
+		const targetGameId = gameId ?? lastFinishedGameId;
+		if (socket && targetGameId) {
+			socket.emit("proposeRematch", { gameId: targetGameId });
 		}
 	};
 
@@ -55,9 +58,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	const handleRematchResponse = (accept: boolean) => {
-		if (socket && gameId) {
+		const targetGameId = gameId ?? lastFinishedGameId;
+		if (socket && targetGameId) {
 			socket.emit("respondRematch", {
-				gameId: gameId,
+				gameId: targetGameId,
 				response: accept,
 			});
 			setRematchProposal(false);
@@ -71,24 +75,26 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const startOnlineGame = () => {
+	const startOnlineGame = (options: MatchStartOptions) => {
 		if (!socket || !hasUser) return;
 
-		console.log("[Game] Joining the Queue");
+		console.log("[Game] Joining the Queue", options);
+		setIsSearchingMatch(true);
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
-		socket.emit("joinQueue");
+		socket.emit("joinQueue", options);
 	};
 
-	const startBotGame = () => {
+	const startBotGame = (options: MatchStartOptions) => {
 		if (!socket || !hasUser) return;
 
-		console.log("[Game] Starting game with bot");
+		console.log("[Game] Starting game with bot", options);
+		setIsSearchingMatch(false);
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
-		socket.emit("startBotGame");
+		socket.emit("startBotGame", options);
 	};
 
 	useEffect(() => {
@@ -128,8 +134,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.emit("checkActiveGame");
 
 		const onGameState = (data: any) => {
+			setIsSearchingMatch(false);
 			setGameId(data.gameId);
 			gameIdRef.current = data.gameId;
+			setLastFinishedGameId(null);
 			setColor(data.color);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
@@ -164,17 +172,28 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		};
 
 		const onGameOver = (data: any) => {
+			setLastFinishedGameId(gameIdRef.current);
+			setIsSearchingMatch(false);
 			setGameOver(data.gameOver);
+			setFen("start");
+			setCurrentTurn("w");
+			setGameId(null);
+			gameIdRef.current = null;
+			setOpponentId(null);
+			setMyTimeLeft(10);
+			setOpponentTimeLeft(10);
 		};
 
 		const onActiveGameNotFound = () => {
 			alert("Your match finish on unexpected way");
+			setIsSearchingMatch(false);
 			setGameId(null);
 			gameIdRef.current = null;
 		};
 
 		const onError = (data: any) => {
 			if (data.message === "Game not Found") {
+				setIsSearchingMatch(false);
 				alert("The match doesn't exist anymore");
 			}
 		};
@@ -198,7 +217,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	}, [socket]);
 
 	useEffect(() => {
-		if (!socket || !gameId) {
+		if (!socket) {
 			return;
 		}
 
@@ -210,6 +229,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setGameOver(null);
 			setDrawProposal(false);
 			setRematchProposal(false);
+			setLastFinishedGameId(null);
 			setGameId(data.newGameId);
 			gameIdRef.current = data.newGameId;
 
@@ -229,7 +249,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			socket.off("rematchRejected", onRematchRejected);
 			socket.off("rematchStarted", onRematchStarted);
 		};
-	}, [socket, gameId]);
+	}, [socket]);
 	if (!authState.user) return null;
 
 	return (
@@ -252,6 +272,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				startOnlineGame,
 				startBotGame,
 				opponentId,
+				isSearchingMatch,
 
 				// Timer variables
 				myTimeLeft,

@@ -31,15 +31,20 @@ export function LeftUser({ color, currentTurn, state, myTimeLeft, isMyTurn, onTi
 				/>
 				{/* name & rank + timer */}
 				<div className="max-w-[80%] md:flex items-center flex-nowrap gap-[4%] flex-1 min-w-0">
-					<div className="flex flex-col justify-center items-start overflow-hidden flex-1 min-w-0">
-						<div
-							className={`truncate w-full text-[clamp(0.85rem,1.15vw,2.5rem)] font-extrabold transition-colors duration-500 ${
-								color != null && currentTurn === color ? "text-stone-100" : "text-slate-400"
-							}`}>
-							{state.user ? state.user?.username : "Player 1"}
+					<div className="flex flex-col justify-center items-start flex-1 min-w-0">
+						<div className="group relative w-full overflow-visible text-left">
+							<div
+								className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.72rem,1vw,2.5rem)] font-extrabold transition-colors duration-500 ${
+									color != null && currentTurn === color ? "text-stone-100" : "text-slate-400"
+								}`}>
+								{state.user ? state.user?.username : "Player 1"}
+							</div>
+							<div className="pointer-events-none absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5">
+								{state.user ? state.user?.username : "Player 1"}
+							</div>
 						</div>
 						<div
-							className={`truncate w-full text-[clamp(0.65rem,0.75vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
+							className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
 								color != null && currentTurn === color ? "text-emerald-300" : "text-slate-500"
 							}`}>
 							GRANDMASTER

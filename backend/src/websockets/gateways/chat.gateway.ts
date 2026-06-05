@@ -23,7 +23,14 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string; message: string },
   ) {
-    console.error('here');
+    const rawUserId = client.data?.user?.userId;
+    const userId = Number(rawUserId);
+
+    if (!Number.isInteger(userId)) {
+      client.emit(`error`, { message: 'Unauthorized user id' });
+      return;
+    }
+
     const user = await this.userService.findOneById(client.data.user.userId);
 
     this.server?.to(data.gameId).emit('receiveRoomMessage', {

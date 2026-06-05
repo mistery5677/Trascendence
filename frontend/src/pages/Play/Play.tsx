@@ -26,17 +26,13 @@ export function Play() {
 	const {
 		color,
 		opponentId,
+		isSearchingMatch,
 		drawProposal,
 		handleDrawResponse,
-		myTimeLeft = 10,
-		opponentTimeLeft = 10,
+		myTimeLeft = 0,
+		opponentTimeLeft = 0,
 		handleTimeOut,
 	} = useGame();
-
-	// if (!gameId) {
-	// 	return <MatchmakingLoading isConnected={isConnected} />;
-	// }
-
 
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
@@ -72,6 +68,7 @@ export function Play() {
 								color={color}
 								state={state}
 								opponentId={opponentId}
+								isSearchingMatch={isSearchingMatch}
 								myTimeLeft={myTimeLeft}
 								opponentTimeLeft={opponentTimeLeft}
 								onTimeOut={(loserColor) => {

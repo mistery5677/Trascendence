@@ -25,18 +25,26 @@ export class MatchGateway {
   ) {}
 
   @SubscribeMessage('joinQueue')
-  handleJoinQueue(@ConnectedSocket() client: Socket) {
-    this.matchMakingService.addToQueue(client, this.server);
+  handleJoinQueue(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload?: { time?: string },
+  ) {
+    this.matchMakingService.addToQueue(client, this.server, payload);
   }
 
   @SubscribeMessage('startBotGame')
-  handleStartBot(@ConnectedSocket() client: Socket) {
+  handleStartBot(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { time: string },
+  ) {
     const gameId = `bot_${uuidv4()}`;
 
     const newGame = this.gameService.createGame(
       gameId,
       'bot',
       client.data.user.userId,
+      '',
+      payload.time,
     );
 
     client.join(gameId);
