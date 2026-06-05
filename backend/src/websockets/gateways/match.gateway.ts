@@ -77,7 +77,7 @@ export class MatchGateway {
 
       client.join(gameId);
 
-      const state = this.gameService.getGameState(gameId);
+      const state = this.gameService.getGame(gameId);
       if (state) {
         const userColor = userId === game.playerW ? 'w' : 'b';
         const opponentId =
@@ -85,13 +85,14 @@ export class MatchGateway {
 
         client.emit('gameState', {
           gameId: gameId,
-          fen: state.fen,
-          currentTurn: state.turn,
+          fen: state.chess.fen,
+          currentTurn: state.chess.turn,
           color: userColor,
           mode: game.mode,
           opponentId: opponentId ? String(opponentId) : 'bot',
           whiteTimeLeft: state.whiteTimeLeft,
           blackTimeLeft: state.blackTimeLeft,
+          chatHistory: state.chatHistory,
         });
         //! Still considering have a screen that tells the other player when user reconnect
         client.to(gameId).emit('opponentReconnected', { userId });

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState, MatchStartOptions } from "./GameContextType";
+import type { GameContextType, GameOverState, MatchStartOptions, MessageType } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 
@@ -16,6 +16,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
+	const [messages, setMessages] = useState<MessageType[]>([]);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
 	const [lastFinishedGameId, setLastFinishedGameId] = useState<string | null>(null);
 	const [isSearchingMatch, setIsSearchingMatch] = useState<boolean>(false);
@@ -83,6 +84,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("joinQueue", options);
 	};
 
@@ -94,6 +96,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("startBotGame", options);
 	};
 
@@ -142,6 +145,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
 			setOpponentId(data.opponentId);
+
+			if (data.chatHistory) {
+				setMessages(data.chatHistory);
+			}
 
 			// Read the timer came from the server
 			if (data.color === "w") {
@@ -273,6 +280,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				startBotGame,
 				opponentId,
 				isSearchingMatch,
+				messages,
+				setMessages,
 
 				// Timer variables
 				myTimeLeft,

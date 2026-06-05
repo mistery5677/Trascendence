@@ -15,6 +15,13 @@ interface GameOverResult {
     | 'TIMEOUT';
 }
 
+interface ChatMessage {
+  from: string;
+  avatarUrl?: string;
+  message: string;
+  timeStamp: string;
+}
+
 interface GameInstance {
   chess: Chess;
   mode: 'online' | 'bot';
@@ -27,6 +34,7 @@ interface GameInstance {
   whiteTimeLeft: number;
   blackTimeLeft: number;
   lastMoveTimestamp: number; // Time of the last move
+  chatHistory: ChatMessage[];
 }
 
 @Injectable()
@@ -63,6 +71,7 @@ export class GameService {
       whiteTimeLeft: this.getTimeControlInSeconds(timeControl),
       blackTimeLeft: this.getTimeControlInSeconds(timeControl),
       lastMoveTimestamp: Date.now(),
+      chatHistory: [],
     };
     this.games.set(gameId, newGame);
     return newGame;

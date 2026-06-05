@@ -43,7 +43,10 @@ export function MatchSidebar() {
 			</header>
 			{/* Middle Section */}
 			<section className={`flex-1 flex flex-col min-h-0 ${menu.isOpen ? "flex" : "hidden"}`}>
-				{menu.currentTab === "chat" && <Chat classname="h-full flex-1" />}
+				{/* {menu.currentTab === "chat" && <Chat classname="h-full flex-1" />} */}
+				<div className={menu.currentTab === "chat" ? "block h-full flex-1" : "hidden"}>
+					<Chat classname="h-full flex-1" />
+				</div>
 				{menu.currentTab === "settings" && <GameSettings />}
 				{menu.currentTab === "playOptions" && <PlayOptions />}
 			</section>
