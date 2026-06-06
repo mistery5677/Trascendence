@@ -5,17 +5,27 @@ export type UserStatus = 'online' | 'playing' | 'offline';
 @Injectable()
 export class PresenceService {
   private userStatus = new Map<number, UserStatus>();
-  private activeSockets = new Map<string, string>();
+  private activeSockets = new Map<string, Set<string>>();
 
   setConnected(userId: string, socketId: string) {
-    this.activeSockets.set(userId, socketId);
+    if (!this.activeSockets.has(userId)) {
+      this.activeSockets.set(userId, new Set());
+    }
+
+    this.activeSockets.get(userId)?.add(socketId);
     this.userStatus.set(parseInt(userId), 'online');
   }
 
   setDisconnected(userId: string, socketId: string): boolean {
-    const currentActiveSocketId = this.activeSockets.get(userId);
+    const userSockets = this.activeSockets.get(userId);
 
-    if (currentActiveSocketId === socketId) {
+    if (userSockets) {
+      userSockets.delete(socketId);
+
+      if (userSockets.size > 0) {
+        return false;
+      }
+
       this.activeSockets.delete(userId);
       this.userStatus.delete(parseInt(userId));
       return true;

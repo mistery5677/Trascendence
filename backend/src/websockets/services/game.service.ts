@@ -42,7 +42,6 @@ interface GameInstance {
 export class GameService {
   private games = new Map<string, GameInstance>();
   private readonly ABANDON_TIME = 60000;
-  private readonly MATCH_TIMER = 1250;
   constructor(
     private readonly matchesService: MatchesService,
     private readonly presenceService: PresenceService,
@@ -171,7 +170,7 @@ export class GameService {
       turn: game.chess.turn(),
       history: game.chess.history(),
       mode: game.mode,
-
+      chatHistory: game.chatHistory,
       // Send the timer info
       whiteTimeLeft: currentWTime,
       blackTimeLeft: currentBTime,

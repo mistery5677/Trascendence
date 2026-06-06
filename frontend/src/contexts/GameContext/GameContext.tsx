@@ -159,6 +159,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				setMyTimeLeft(data.blackTimeLeft ?? 10);
 				setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
 			}
+			console.log("white", data.whiteTimeLeft, "black", data.blackTimeLeft);
 		};
 
 		const onNoActiveGame = () => {
@@ -205,6 +206,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				alert("The match doesn't exist anymore");
 			}
 		};
+		const onOpponentDisconnected = () => {
+			toastWrapper.warn("Player has left, have 1 Minute to come back");
+		};
+		const onOpponentReconnected = () => {
+			toastWrapper.success("Opponent has reconnected, ready to play");
+		};
 
 		socket.on("gameState", onGameState);
 		socket.on("noActiveGame", onNoActiveGame);
@@ -212,6 +219,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.on("gameOver", onGameOver);
 		socket.on("activeGameNotFound", onActiveGameNotFound);
 		socket.on("error", onError);
+		socket.on("opponentDisconnected", onOpponentDisconnected);
+		socket.on("opponentReconnected", onOpponentReconnected);
 
 		return () => {
 			console.log("[Game] Exiting of game board. Removing all listeners");
@@ -221,6 +230,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			socket.off("gameOver", onGameOver);
 			socket.off("activeGameNotFound", onActiveGameNotFound);
 			socket.off("error", onError);
+			socket.off("opponentDisconnected", onOpponentDisconnected);
+			socket.off("opponentReconnected", onOpponentReconnected);
 		};
 	}, [socket]);
 
