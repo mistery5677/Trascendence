@@ -159,7 +159,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				setMyTimeLeft(data.blackTimeLeft ?? 10);
 				setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
 			}
-			console.log("white", data.whiteTimeLeft, "black", data.blackTimeLeft);
 		};
 
 		const onNoActiveGame = () => {

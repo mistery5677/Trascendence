@@ -94,7 +94,6 @@ export class MatchGateway {
           blackTimeLeft: state.blackTimeLeft,
           chatHistory: state.chatHistory,
         });
-        console.log('white', state.whiteTimeLeft, 'black', state.blackTimeLeft);
       } else {
         client.emit('activeGameNotFound');
       }
