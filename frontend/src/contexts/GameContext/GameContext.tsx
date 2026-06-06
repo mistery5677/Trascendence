@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState, MessageType } from "./GameContextType";
+import type { GameContextType, GameOverState, MatchStartOptions, MessageType } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 import { toastWrapper } from "../../adapters/toastWrapper";
-import { ConfirmDialog } from "../../components";
-import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -21,7 +19,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
-	const [showBotWarning, setShowBotWarning] = useState<boolean>(false);
+	const [lastFinishedGameId, setLastFinishedGameId] = useState<string | null>(null);
+	const [isSearchingMatch, setIsSearchingMatch] = useState<boolean>(false);
+
 	const gameIdRef = React.useRef<string | null>(null);
 	const hasUser = !!authState.user;
 	//Timer variables
@@ -43,8 +43,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 	const proposeRematch = () => {
-		if (socket && gameId) {
-			socket.emit("proposeRematch", { gameId });
+		const targetGameId = gameId ?? lastFinishedGameId;
+		if (socket && targetGameId) {
+			socket.emit("proposeRematch", { gameId: targetGameId });
 		}
 	};
 
@@ -59,9 +60,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	const handleRematchResponse = (accept: boolean) => {
-		if (socket && gameId) {
+		const targetGameId = gameId ?? lastFinishedGameId;
+		if (socket && targetGameId) {
 			socket.emit("respondRematch", {
-				gameId: gameId,
+				gameId: targetGameId,
 				response: accept,
 			});
 			setRematchProposal(false);
@@ -75,44 +77,28 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const proceedToOnlineQueue = () => {
-		console.log("[Game] Joining the Queue");
-		toastWrapper.warn("Waiting for opponent. Please be patient...");
+	const startOnlineGame = (options: MatchStartOptions) => {
+		if (!socket || !hasUser) return;
 
+		console.log("[Game] Joining the Queue", options);
+		setIsSearchingMatch(true);
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
 		setMessages([]);
-		socket?.emit("joinQueue");
+		socket.emit("joinQueue", options);
 	};
 
-	const startOnlineGame = () => {
-		if (!socket || !hasUser) return;
-		console.log(opponentId);
-		if (gameId && opponentId === "bot") {
-			setShowBotWarning(true);
-			return;
-		} else if (gameId && opponentId !== "bot") {
-			toastWrapper.error("You're already playing a game, finish this first");
-			return;
-		}
-		proceedToOnlineQueue();
-	};
-
-	const startBotGame = () => {
+	const startBotGame = (options: MatchStartOptions) => {
 		if (!socket || !hasUser) return;
 
-		if (gameId) {
-			toastWrapper.error("You're already playing a game, finish this first");
-			return;
-		}
-
-		console.log("[Game] Starting game with bot");
+		console.log("[Game] Starting game with bot", options);
+		setIsSearchingMatch(false);
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
 		setMessages([]);
-		socket.emit("startBotGame");
+		socket.emit("startBotGame", options);
 	};
 
 	useEffect(() => {
@@ -152,13 +138,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.emit("checkActiveGame");
 
 		const onGameState = (data: any) => {
-			if (!gameIdRef.current && data.fen === "start") {
-				toastWrapper.success("Opponent Found! Match has started.");
-			} else if (!gameIdRef.current && data.fen !== "start") {
-				toastWrapper.success("Reconnected to your active match.");
-			}
+			setIsSearchingMatch(false);
 			setGameId(data.gameId);
 			gameIdRef.current = data.gameId;
+			setLastFinishedGameId(null);
 			setColor(data.color);
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
@@ -197,17 +180,28 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		};
 
 		const onGameOver = (data: any) => {
+			setLastFinishedGameId(gameIdRef.current);
+			setIsSearchingMatch(false);
 			setGameOver(data.gameOver);
+			setFen("start");
+			setCurrentTurn("w");
+			setGameId(null);
+			gameIdRef.current = null;
+			setOpponentId(null);
+			setMyTimeLeft(10);
+			setOpponentTimeLeft(10);
 		};
 
 		const onActiveGameNotFound = () => {
 			alert("Your match finish on unexpected way");
+			setIsSearchingMatch(false);
 			setGameId(null);
 			gameIdRef.current = null;
 		};
 
 		const onError = (data: any) => {
 			if (data.message === "Game not Found") {
+				setIsSearchingMatch(false);
 				alert("The match doesn't exist anymore");
 			}
 		};
@@ -231,7 +225,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	}, [socket]);
 
 	useEffect(() => {
-		if (!socket || !gameId) {
+		if (!socket) {
 			return;
 		}
 
@@ -249,6 +243,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setGameOver(null);
 			setDrawProposal(false);
 			setRematchProposal(false);
+			setLastFinishedGameId(null);
 			setGameId(data.newGameId);
 			gameIdRef.current = data.newGameId;
 
@@ -268,7 +263,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			socket.off("rematchRejected", onRematchRejected);
 			socket.off("rematchStarted", onRematchStarted);
 		};
-	}, [socket, gameId]);
+	}, [socket]);
 	if (!authState.user) return null;
 
 	return (
@@ -291,30 +286,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				startOnlineGame,
 				startBotGame,
 				opponentId,
-				// For component Chat Persistence
+				isSearchingMatch,
 				messages,
 				setMessages,
+
 				// Timer variables
 				myTimeLeft,
 				opponentTimeLeft,
 				handleTimeOut,
 			}}>
 			{children}
-			{showBotWarning && (
-				<ConfirmationModal
-					title="Abandon?"
-					description="You're playing with a bot, are you sure that you want to abandon?"
-					confirmLabel="Go Away"
-					cancelLabel="Stay"
-					variant="danger"
-					onResponse={(accept) => {
-						setShowBotWarning(false);
-						if (accept) {
-							proceedToOnlineQueue();
-						}
-					}}
-				/>
-			)}
 		</GameContext.Provider>
 	);
 };

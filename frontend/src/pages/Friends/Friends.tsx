@@ -39,7 +39,7 @@ export function Friends() {
 	const statusColors: Record<string, string> = {
 		online: "bg-green-500 shadow-green-500/50",
 		offline: "bg-stone-500 shadow-stone-500/30",
-		playing: "bg-stone-500 shadow-stone-500/30",
+		playing: "bg-amber-500 shadow-amber-500/50",
 	};
 	// Handle the friend request button
 	const handleAddFriend = async (username: string) => {
@@ -57,7 +57,7 @@ export function Friends() {
 			await acceptFriendRequest(senderId);
 			// Allows to always have the pending request updated.
 			setRequests((actualRequest) => actualRequest.filter((req) => req.senderId !== senderId));
-			alert("Friend request accepted!");
+			toastWrapper.success("Friend request accepted!");
 		} catch (error) {
 			alert("Error accepting friend request.");
 		}
@@ -152,19 +152,21 @@ export function Friends() {
 
 			<div className="relative max-w-4xl sm:mx-auto mx-2 p-8 text-stone-100 rounded-3xl border border-white/15 bg-stone-900/50 shadow-[0_24px_70px_rgba(15,23,42,0.6)] backdrop-blur-2xl">
 				<div className="flex items-center justify-between mb-8">
-					<h1 className="text-4xl font-black text-emerald-300">Friends Hub</h1>
+					<h1 className="text-4xl font-black bg-linear-to-t from-green-button via-emerald-500 to-emerald-600 bg-clip-text text-transparent">
+						Friends Hub
+					</h1>
 				</div>
 
 				{/* NAVIGATION TABS */}
 				<div className="flex gap-6 mb-8 border-b border-white/10 pb-3 text-xl">
 					<button
 						onClick={() => setActiveTab("list")}
-						className={`pb-2 transition-all duration-300 ${activeTab === "list" ? "text-emerald-300 border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
+						className={`pb-2 transition-all duration-300 ${activeTab === "list" ? "text-transparent bg-linear-to-b bg-clip-text from-emerald-500 via-emerald-500 to-green-button border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
 						My Friends
 					</button>
 					<button
 						onClick={() => setActiveTab("requests")}
-						className={`pb-2 transition-all duration-300 relative ${activeTab === "requests" ? "text-emerald-300 border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
+						className={`pb-2 transition-all duration-300 relative ${activeTab === "requests" ? "text-transparent bg-linear-to-b bg-clip-text from-emerald-500 via-emerald-500 to-green-button border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
 						Pending Requests
 						{/* NOTIFICATION RED CIRCLE */}
 						{requests.length > 0 && (
@@ -173,7 +175,7 @@ export function Friends() {
 					</button>
 					<button
 						onClick={() => setActiveTab("add")}
-						className={`pb-2 transition-all duration-300 ${activeTab === "add" ? "text-emerald-300 border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
+						className={`pb-2 transition-all duration-300 ${activeTab === "add" ? "text-transparent bg-linear-to-b bg-clip-text from-emerald-500 via-emerald-500 to-green-button border-b-2 border-emerald-400 font-bold" : "text-stone-400 hover:text-stone-100"}`}>
 						Add Friend
 					</button>
 				</div>
@@ -227,7 +229,7 @@ export function Friends() {
 											</div>
 										</div>
 										<div className="flex gap-3">
-											<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-emerald-400 to-emerald-500 px-5 py-2 text-sm sm:text-base font-semibold tracking-wide text-stone-950 shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-300 hover:to-emerald-400 active:translate-y-0">
+											<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-button-green to-emerald-700 font-extrabold px-5 py-2 text-sm sm:text-base  tracking-wide text-white shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-green-button hover:via-emerald-700 hover:to-emerald-800 active:translate-y-0">
 												Play ⚔️
 											</button>
 											<button
@@ -279,7 +281,7 @@ export function Friends() {
 									<div className="sm:flex flex-row gap-3">
 										<button
 											onClick={() => handleAccept(req.senderId)}
-											className="px-4 py-2 text-xl bg-emerald-500 hover:bg-emerald-400 hover:text-white text-stone-950 rounded-lg font-bold transition-all">
+											className="px-4 py-2 text-xl bg-emerald-500 hover:bg-emerald-400 hover:text-white text-white rounded-lg font-bold transition-all">
 											Accept
 										</button>
 										<button
@@ -302,7 +304,7 @@ export function Friends() {
 								Search by Username
 							</label>
 							<div className="relative flex items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/55 px-2 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl transition-all focus-within:border-emerald-400/60">
-								<span className="pl-2 pr-1 text-emerald-300 text-xl">@</span>
+								<span className="pl-2 pr-1 text-emerald-500 text-xl">@</span>
 								<input
 									ref={inputRef}
 									type="text"
@@ -315,7 +317,7 @@ export function Friends() {
 								/>
 								<button
 									onClick={() => handleAddFriend(searchUsername)}
-									className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-stone-950 font-bold rounded-lg text-base shadow-md transition-all disabled:opacity-50"
+									className="flex items-center gap-2 px-4 py-2 bg-linear-to-b from-button-green to-emerald-800 hover:from-green-button hover:via-emerald-700 hover:to-emerald-800 text-white font-bold rounded-lg text-base shadow-md transition-all disabled:opacity-50"
 									disabled={!searchUsername.trim()}
 									title="Send Friend Request">
 									<svg

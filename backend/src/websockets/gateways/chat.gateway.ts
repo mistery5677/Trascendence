@@ -26,6 +26,14 @@ export class ChatGateway {
   ) {
     if (!client.data.user) return;
 
+    const rawUserId = client.data?.user?.userId;
+    const userId = Number(rawUserId);
+
+    if (!Number.isInteger(userId)) {
+      client.emit(`error`, { message: 'Unauthorized user id' });
+      return;
+    }
+
     const game = this.gameService.getGame(data.gameId);
     if (!game) return;
 
@@ -40,7 +48,6 @@ export class ChatGateway {
         minute: '2-digit',
       }),
     };
-
     game.chatHistory.push(newMessage);
 
     this.server?.to(data.gameId).emit('receiveRoomMessage', newMessage);

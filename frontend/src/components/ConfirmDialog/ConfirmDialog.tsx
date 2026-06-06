@@ -18,12 +18,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	if (!open) return null;
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-			<div className="bg-slate-900 rounded-xl shadow-lg p-8 border border-emerald-500/40 min-w-[320px] max-w-xs">
-				<h1 className=" text-lg font-bold text-emerald-400 mb-2">{title}</h1>
-				<p className=" text-slate-200  mb-6 text-xl">{message}</p>
+			<div className="bg-sidebar-bg rounded-xl shadow-lg p-8 border border-sidebar-bg min-w-[320px] max-w-xs">
+				<h1 className=" text-xl text-emerald-600 mb-2 font-extrabold">{title}</h1>
+				<p className=" text-slate-200  mb-6 text-lg font-bold">{message}</p>
 				<div className="flex justify-center gap-3">
 					<button
-						className="px-4 text-xl py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-800 transition-all"
+						className="px-4 text-xl py-2 rounded-lg bg-button-stone border border-button-stone font-bold text-slate-300 hover:bg-stone-700 transition-all"
 						onClick={onCancel}>
 						Cancel
 					</button>

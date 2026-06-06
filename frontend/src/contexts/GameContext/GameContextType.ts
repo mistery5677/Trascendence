@@ -6,6 +6,10 @@ export type GameOverState = {
 	resultString: string;
 } | null;
 
+export type MatchStartOptions = {
+	time: string;
+};
+
 export type MessageType = {
 	from: string;
 	message: string;
@@ -21,6 +25,7 @@ export type GameContextType = {
 	fen: string;
 	currentTurn: "w" | "b";
 	opponentId: string | null;
+	isSearchingMatch: boolean;
 	gameOver: GameOverState;
 	drawProposal: boolean;
 	rematchProposal: boolean;
@@ -28,15 +33,17 @@ export type GameContextType = {
 	// Timer variables
 	myTimeLeft: number;
 	opponentTimeLeft: number;
+	handleTimeOut: () => void;
+
+	//Messages
 	messages: MessageType[];
 	setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
-	handleTimeOut: () => void;
 
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;
-	startOnlineGame: () => void;
-	startBotGame: () => void;
+	startOnlineGame: (options: MatchStartOptions) => void;
+	startBotGame: (options: MatchStartOptions) => void;
 	handleDrawResponse: (accept: boolean) => void;
 	handleRematchResponse: (accept: boolean) => void;
 };
