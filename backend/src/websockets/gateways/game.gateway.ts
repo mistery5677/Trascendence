@@ -8,13 +8,17 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
+import { StockfishService } from 'src/stockfish/stockfish.service';
 
 @WebSocketGateway({ cors: true })
 export class GameGateway {
   @WebSocketServer()
   server!: Server;
 
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly stockfishAI: StockfishService,
+  ) {}
 
   @SubscribeMessage('requestSurrender')
   handleSurrender(
@@ -36,6 +40,10 @@ export class GameGateway {
     );
     if (result) {
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+
+      if (game.mode === 'ai') {
+        this.stockfishAI.stopEngine();
+      }
     }
   }
 
@@ -136,7 +144,7 @@ export class GameGateway {
   }
 
   @SubscribeMessage('move')
-  handleMove(
+  async handleMove(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string; move: any },
   ) {
@@ -162,6 +170,23 @@ export class GameGateway {
 
     this.processGameState(data.gameId, validMove);
 
+    if (game.mode === 'ai' && !game.chess.isGameOver()) {
+      const move = await this.stockfishAI.getBestMove(
+        game.chess.fen(),
+        game.level,
+      );
+      console.log(move);
+
+      const validMove = this.gameService.makeMove(data.gameId, move);
+
+      if (validMove) {
+        const humanizedDelay =
+          Math.floor(Math.random() * (1000 - 1200 + 1)) + 1000;
+        setTimeout(() => {
+          this.processGameState(data.gameId, validMove);
+        }, humanizedDelay);
+      }
+    }
     if (game.mode === 'bot' && !game.chess.isGameOver()) {
       const humanizedDelay =
         Math.floor(Math.random() * (3500 - 1200 + 1)) + 1200;

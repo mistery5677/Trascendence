@@ -7,7 +7,9 @@ import { MatchesModule } from './matches/matches.module';
 import { FriendRequestModule } from './FriendRequest/FriendRequest.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { PrismaModule } from './prisma/prisma.module';
-
+import { StockfishModule } from './stockfish/stockfish.module';
+import { StockfishController } from './stockfish/stockfish.controller';
+import { StockfishService } from './stockfish/stockfish.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -17,8 +19,9 @@ import { PrismaModule } from './prisma/prisma.module';
     MatchesModule,
     WebsocketsModule,
     FriendRequestModule,
+    StockfishModule,
   ], //Allows to all variables be accessed
-  controllers: [],
-  providers: [],
+  controllers: [StockfishController],
+  providers: [StockfishService],
 })
 export class AppModule {}

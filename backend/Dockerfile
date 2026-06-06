@@ -15,6 +15,15 @@ RUN npm install
 # Copy the code
 COPY . .
 
+RUN apk add --no-cache make g++ libstdc++ \
+  && make -C ./assets/Stockfish/src clean \
+  && find ./assets/Stockfish/src -type f \( -name "*.o" -o -name "*.d" \) -delete \
+  && make -C ./assets/Stockfish/src -j$(nproc) build \
+  && install -m 0755 ./assets/Stockfish/src/stockfish /usr/bin/stockfish
+
+
+ENV STOCKFISH_PATH=/usr/bin/stockfish
+
 EXPOSE 3000
 
 # Command to start the dev server

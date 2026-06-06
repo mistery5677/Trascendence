@@ -6,10 +6,5 @@
 		"scrollbar.shadow": "#00000000"
 	},
 	"material-icon-theme.activeIconPack": "nest",
-	"cSpell.words": [
-		"Carlsen",
-		"Magnus",
-		"tabler",
-		"uuidv"
-	],
+	"cSpell.words": ["Carlsen", "Magnus", "Stockfish", "tabler", "uuidv"]
 }

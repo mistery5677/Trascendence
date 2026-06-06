@@ -19,3 +19,4 @@ export { PlayOptions } from "./PlayOptions/PlayOptions";
 export { PromotionPicker } from "./PromotionPicker/PromotionPicker";
 export { LeftUser } from "./LeftUser/LeftUser";
 export { MatchOptions } from "./MatchOptions/MatchOptions";
+export { DiscreteSlider } from "./DiscreteSlider/DiscreteSlider";

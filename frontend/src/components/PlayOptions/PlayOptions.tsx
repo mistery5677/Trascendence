@@ -1,40 +1,49 @@
 import { useEffect, useState } from "react";
 import penguinBot from "../../assets/penguin-pudgy.gif";
 import penguinPlayer from "../../assets/penguin-player.gif";
+import penguinSensei from "../../assets/penguin-sensei.gif";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { toastWrapper } from "../../adapters/toastWrapper";
 import { MatchOptions } from "../MatchOptions/MatchOptions";
 
 export function PlayOptions() {
-	const [expandedOption, setExpandedOption] = useState<"bot" | "player" | null>(null);
+	const [expandedOption, setExpandedOption] = useState<"bot" | "player" | "AI" | null>(null);
 	const [botMatchTime, setBotMatchTime] = useState("5 min");
 	const [playerMatchTime, setPlayerMatchTime] = useState("5 min");
-	const [pendingStart, setPendingStart] = useState<{ mode: "bot" | "player"; time: string } | null>(null);
+	const [aiLevel, setAiLevel] = useState(5);
+	const [pendingStart, setPendingStart] = useState<{ mode: "bot" | "player" | "AI"; time: string } | null>(null);
 
 	useEffect(() => {
 		(window as { Tenor?: { Embed?: { load?: () => void } } }).Tenor?.Embed?.load?.();
 	}, []);
 
-	const { startOnlineGame, startBotGame, gameId, surrender } = useGame();
+	const { startOnlineGame, startBotGame, startAIGame, gameId, surrender } = useGame();
 
 	useEffect(() => {
 		if (!pendingStart || gameId) return;
 
 		if (pendingStart.mode === "bot") {
 			startBotGame({ time: pendingStart.time });
+		} else if (pendingStart.mode === "AI") {
+			startAIGame({ time: pendingStart.time, level: aiLevel });
 		} else {
 			startOnlineGame({ time: pendingStart.time });
 		}
 
 		setPendingStart(null);
-	}, [pendingStart, gameId, startBotGame, startOnlineGame]);
+	}, [pendingStart, gameId, startBotGame, startAIGame, startOnlineGame]);
 
-	const handleStartRequest = (mode: "bot" | "player", time: string) => {
+	const handleStartRequest = (mode: "bot" | "player" | "AI", time: string) => {
 		if (!gameId) {
 			if (mode === "bot") {
 				toastWrapper.success("Uncle Carlsen is taking his seat...");
 				startBotGame({ time });
+			} else if (mode === "AI") {
+				toastWrapper.success(`Sensei is thinking... (Level ${aiLevel})`);
+				startAIGame({ time, level: aiLevel });
 			} else {
+				toastWrapper.success(`Searching for ${playerMatchTime} match...`);
+
 				startOnlineGame({ time });
 			}
 			return;
@@ -50,16 +59,7 @@ export function PlayOptions() {
 		});
 	};
 
-	const handleStartOnline = () => {
-		toastWrapper.success(`Searching for ${playerMatchTime} match...`);
-		handleStartRequest("player", playerMatchTime);
-	};
-
-	const handleStartBotGame = () => {
-		handleStartRequest("bot", botMatchTime);
-	};
-
-	const toggleExpandedOption = (option: "bot" | "player") => {
+	const toggleExpandedOption = (option: "bot" | "player" | "AI") => {
 		setExpandedOption((prev) => (prev === option ? null : option));
 	};
 
@@ -114,7 +114,7 @@ export function PlayOptions() {
 							/>
 							<button
 								type="button"
-								onClick={handleStartBotGame}
+								onClick={() => handleStartRequest("bot", botMatchTime)}
 								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
 								Play Bot Match
 							</button>
@@ -172,7 +172,69 @@ export function PlayOptions() {
 							/>
 							<button
 								type="button"
-								onClick={handleStartOnline}
+								onClick={() => handleStartRequest("player", playerMatchTime)}
+								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
+								Find Match
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* AI BUTTON */}
+			<div
+				className={`w-full overflow-hidden rounded-2xl border bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] ${
+					expandedOption === "AI"
+						? "border-emerald-400 shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)]"
+						: "border-emerald-300/35 hover:border-emerald-300/55"
+				}`}>
+				<button
+					type="button"
+					onClick={() => toggleExpandedOption("AI")}
+					className="group relative isolate w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
+					<span className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-emerald-400/20 to-transparent sm:w-28" />
+
+					<div className="relative z-10 flex min-h-30 items-stretch">
+						<div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+							<div>
+								<p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-200/70 uppercase">
+									Head to head
+								</p>
+								<h3 className="mt-1 text-lg font-extrabold tracking-wide text-emerald-100 sm:text-xl">
+									PLAY VS AI
+								</h3>
+							</div>
+							<p className="mt-2 max-w-[20ch] text-sm leading-snug text-stone-300/95">
+								Challenge a friend and battle live in a pure skill matchup.
+							</p>
+						</div>
+
+						<div className="relative flex w-24 shrink-0 items-center justify-center overflow-hidden border-l border-emerald-300/20 bg-stone-950/50 sm:w-40">
+							<img
+								className="h-full w-full"
+								src={penguinSensei}
+								alt=""
+							/>
+						</div>
+					</div>
+				</button>
+
+				<div
+					className={`grid transition-all duration-300 ${
+						expandedOption === "AI" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+					}`}>
+					<div className="overflow-hidden border-t border-emerald-300/20 bg-stone-950/35">
+						<div className="p-4 sm:p-5">
+							<MatchOptions
+								selectedTime={playerMatchTime}
+								onSelectTime={setPlayerMatchTime}
+								selectedLevel={aiLevel}
+								onSelectLevel={setAiLevel}
+								showAILevel
+							/>
+							<button
+								type="button"
+								onClick={() => handleStartRequest("AI", playerMatchTime)}
 								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
 								Find Match
 							</button>

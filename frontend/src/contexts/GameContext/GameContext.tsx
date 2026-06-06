@@ -97,6 +97,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.emit("startBotGame", options);
 	};
 
+	const startAIGame = (options: MatchStartOptions) => {
+		if (!socket || !hasUser) return;
+
+		setIsSearchingMatch(false);
+		setGameOver(null);
+		setGameId(null);
+		setOpponentId(null);
+		socket.emit("startAIGame", options);
+	};
+
 	useEffect(() => {
 		// If there is no game, it means that is over
 		if (!gameId || gameOver || !color) return;
@@ -271,6 +281,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				proposeRematch,
 				startOnlineGame,
 				startBotGame,
+				startAIGame,
 				opponentId,
 				isSearchingMatch,
 

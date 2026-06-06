@@ -17,7 +17,8 @@ interface GameOverResult {
 
 interface GameInstance {
   chess: Chess;
-  mode: 'online' | 'bot';
+  mode: 'online' | 'bot' | 'ai';
+  level: number | undefined;
   playerW: string;
   playerB: string;
   isFinished?: boolean;
@@ -48,14 +49,16 @@ export class GameService {
 
   createGame(
     gameId: string,
-    mode: 'online' | 'bot',
+    mode: 'online' | 'bot' | 'ai',
     playerWId: string,
     playerBId: string = 'bot',
     timeControl: string = '5 min',
+    level?: number,
   ) {
     const newGame: GameInstance = {
       chess: new Chess(),
       mode: mode,
+      level: level,
       playerW: playerWId,
       playerB: playerBId,
 

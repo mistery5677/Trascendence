@@ -8,6 +8,7 @@ export type GameOverState = {
 
 export type MatchStartOptions = {
 	time: string;
+	level?: number;
 };
 
 export type GameContextType = {
@@ -33,6 +34,7 @@ export type GameContextType = {
 	proposeRematch: () => void;
 	startOnlineGame: (options: MatchStartOptions) => void;
 	startBotGame: (options: MatchStartOptions) => void;
+	startAIGame: (options: MatchStartOptions) => void;
 	handleDrawResponse: (accept: boolean) => void;
 	handleRematchResponse: (accept: boolean) => void;
 };
