@@ -1,6 +1,5 @@
+import { OfferDrawButton, SurrenderButton } from "../../components";
 import { useGame } from "../../contexts/GameContext/GameContext";
-import { SurrenderButton } from "../SurrenderButton/SurrenderButton";
-import { OfferDrawButton } from "../OfferDrawButton/OfferDrawButton";
 
 export const GameActions = () => {
 	const { surrender, proposeDraw, isConnected, gameOver, gameId } = useGame();

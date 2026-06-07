@@ -15,6 +15,7 @@ RUN npm install
 # Copy the code
 COPY . .
 
+
 EXPOSE 5173
 
 # Command to start the dev server

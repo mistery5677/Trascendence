@@ -4,14 +4,56 @@ import penguinPlayer from "../../assets/penguin-player.gif";
 import penguinSensei from "../../assets/penguin-sensei.gif";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { toastWrapper } from "../../adapters/toastWrapper";
-import { MatchOptions } from "../MatchOptions/MatchOptions";
+import { PlayOptionsCard, type PlayMode, type PlayOptionCardContent } from "./PlayOptionsCard";
+
+type ModeVisual = {
+	imageSrc: string;
+	imageAlt: string;
+};
+
+const CARD_CONTENT: Record<PlayMode, PlayOptionCardContent> = {
+	bot: {
+		eyebrow: "Solo challenge",
+		title: "PLAY VS BOT",
+		description: "Your quick arena for practice, openings, and warm-up games.",
+		startLabel: "Play Bot Match",
+	},
+	player: {
+		eyebrow: "Head to head",
+		title: "PLAY VS PLAYER",
+		description: "Challenge a friend and battle live in a pure skill matchup.",
+		startLabel: "Find Match",
+	},
+	AI: {
+		eyebrow: "Sensei mode",
+		title: "PLAY VS AI",
+		description: "Tune the AI level, then test your tactics against a stronger mind.",
+		startLabel: "Start AI Match",
+		showAILevel: true,
+	},
+};
+
+const CARD_VISUALS: Record<PlayMode, ModeVisual> = {
+	bot: { imageSrc: penguinBot, imageAlt: "Penguin bot" },
+	player: { imageSrc: penguinPlayer, imageAlt: "Player versus player" },
+	AI: { imageSrc: penguinSensei, imageAlt: "Penguin sensei" },
+};
+
+const PLAY_MODES: PlayMode[] = ["bot", "player", "AI"];
 
 export function PlayOptions() {
-	const [expandedOption, setExpandedOption] = useState<"bot" | "player" | "AI" | null>(null);
-	const [botMatchTime, setBotMatchTime] = useState("5 min");
-	const [playerMatchTime, setPlayerMatchTime] = useState("5 min");
+	const [expandedOption, setExpandedOption] = useState<PlayMode | null>(null);
+	const [matchTimeByMode, setMatchTimeByMode] = useState<Record<PlayMode, string>>({
+		bot: "5 min",
+		player: "5 min",
+		AI: "5 min",
+	});
 	const [aiLevel, setAiLevel] = useState(5);
-	const [pendingStart, setPendingStart] = useState<{ mode: "bot" | "player" | "AI"; time: string } | null>(null);
+	const [pendingStart, setPendingStart] = useState<{
+		mode: PlayMode;
+		time: string;
+		level?: number;
+	} | null>(null);
 
 	useEffect(() => {
 		(window as { Tenor?: { Embed?: { load?: () => void } } }).Tenor?.Embed?.load?.();
@@ -25,7 +67,7 @@ export function PlayOptions() {
 		if (pendingStart.mode === "bot") {
 			startBotGame({ time: pendingStart.time });
 		} else if (pendingStart.mode === "AI") {
-			startAIGame({ time: pendingStart.time, level: aiLevel });
+			startAIGame({ time: pendingStart.time, level: pendingStart.level ?? aiLevel });
 		} else {
 			startOnlineGame({ time: pendingStart.time });
 		}
@@ -33,7 +75,7 @@ export function PlayOptions() {
 		setPendingStart(null);
 	}, [pendingStart, gameId, startBotGame, startAIGame, startOnlineGame]);
 
-	const handleStartRequest = (mode: "bot" | "player" | "AI", time: string) => {
+	const handleStartRequest = (mode: PlayMode, time: string) => {
 		if (!gameId) {
 			if (mode === "bot") {
 				toastWrapper.success("Uncle Carlsen is taking his seat...");
@@ -42,7 +84,7 @@ export function PlayOptions() {
 				toastWrapper.success(`Sensei is thinking... (Level ${aiLevel})`);
 				startAIGame({ time, level: aiLevel });
 			} else {
-				toastWrapper.success(`Searching for ${playerMatchTime} match...`);
+				toastWrapper.success(`Searching for ${time} match...`);
 
 				startOnlineGame({ time });
 			}
@@ -51,7 +93,7 @@ export function PlayOptions() {
 
 		toastWrapper.confirm("You are currently in a match. To continue, do you want to surrender this game?", {
 			onAccept: () => {
-				setPendingStart({ mode, time });
+				setPendingStart({ mode, time, level: mode === "AI" ? aiLevel : undefined });
 				surrender();
 			},
 			acceptLabel: "Surrender & Continue",
@@ -59,189 +101,32 @@ export function PlayOptions() {
 		});
 	};
 
-	const toggleExpandedOption = (option: "bot" | "player" | "AI") => {
+	const toggleExpandedOption = (option: PlayMode) => {
 		setExpandedOption((prev) => (prev === option ? null : option));
+	};
+
+	const setModeTime = (mode: PlayMode, time: string) => {
+		setMatchTimeByMode((prev) => ({ ...prev, [mode]: time }));
 	};
 
 	return (
 		<div className="flex w-full flex-col items-center justify-center gap-3 pt-0">
-			<div
-				className={`w-full overflow-hidden rounded-2xl border bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] ${
-					expandedOption === "bot"
-						? "border-emerald-400 shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)]"
-						: "border-emerald-300/35 hover:border-emerald-300/55"
-				}`}>
-				<button
-					type="button"
-					onClick={() => toggleExpandedOption("bot")}
-					className="group relative isolate w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
-					<span className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-emerald-400/20 to-transparent sm:w-28" />
-
-					<div className="relative z-10 flex min-h-30 items-stretch">
-						<div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-							<div>
-								<p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-200/70 uppercase">
-									Solo challenge
-								</p>
-								<h3 className="mt-1 text-lg font-extrabold tracking-wide text-emerald-100 sm:text-xl">
-									PLAY VS BOT
-								</h3>
-							</div>
-							<p className="mt-2 max-w-[20ch] text-sm leading-snug text-stone-300/95">
-								Your quick arena for practice, openings, and warm-up games.
-							</p>
-						</div>
-
-						<div className="relative flex w-24 shrink-0 items-center justify-center overflow-hidden border-l border-emerald-300/20 bg-stone-950/50 sm:w-40">
-							<img
-								className="h-full w-full"
-								src={penguinBot}
-								alt="Penguin emoji"
-							/>
-						</div>
-					</div>
-				</button>
-
-				<div
-					className={`grid transition-all duration-300 ${
-						expandedOption === "bot" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-					}`}>
-					<div className="overflow-hidden border-t border-emerald-300/20 bg-stone-950/35">
-						<div className="p-4 sm:p-5">
-							<MatchOptions
-								selectedTime={botMatchTime}
-								onSelectTime={setBotMatchTime}
-							/>
-							<button
-								type="button"
-								onClick={() => handleStartRequest("bot", botMatchTime)}
-								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
-								Play Bot Match
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div
-				className={`w-full overflow-hidden rounded-2xl border bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] ${
-					expandedOption === "player"
-						? "border-emerald-400 shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)]"
-						: "border-emerald-300/35 hover:border-emerald-300/55"
-				}`}>
-				<button
-					type="button"
-					onClick={() => toggleExpandedOption("player")}
-					className="group relative isolate w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
-					<span className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-emerald-400/20 to-transparent sm:w-28" />
-
-					<div className="relative z-10 flex min-h-30 items-stretch">
-						<div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-							<div>
-								<p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-200/70 uppercase">
-									Head to head
-								</p>
-								<h3 className="mt-1 text-lg font-extrabold tracking-wide text-emerald-100 sm:text-xl">
-									PLAY VS PLAYER
-								</h3>
-							</div>
-							<p className="mt-2 max-w-[20ch] text-sm leading-snug text-stone-300/95">
-								Challenge a friend and battle live in a pure skill matchup.
-							</p>
-						</div>
-
-						<div className="relative flex w-24 shrink-0 items-center justify-center overflow-hidden border-l border-emerald-300/20 bg-stone-950/50 sm:w-40">
-							<img
-								className="h-full w-full"
-								src={penguinPlayer}
-								alt=""
-							/>
-						</div>
-					</div>
-				</button>
-
-				<div
-					className={`grid transition-all duration-300 ${
-						expandedOption === "player" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-					}`}>
-					<div className="overflow-hidden border-t border-emerald-300/20 bg-stone-950/35">
-						<div className="p-4 sm:p-5">
-							<MatchOptions
-								selectedTime={playerMatchTime}
-								onSelectTime={setPlayerMatchTime}
-							/>
-							<button
-								type="button"
-								onClick={() => handleStartRequest("player", playerMatchTime)}
-								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
-								Find Match
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* AI BUTTON */}
-			<div
-				className={`w-full overflow-hidden rounded-2xl border bg-linear-to-br from-stone-900 via-stone-850 to-stone-900 shadow-[0_18px_34px_-20px_rgba(0,0,0,0.9)] transition-all duration-300 hover:shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)] ${
-					expandedOption === "AI"
-						? "border-emerald-400 shadow-[0_24px_36px_-18px_rgba(16,185,129,0.28)]"
-						: "border-emerald-300/35 hover:border-emerald-300/55"
-				}`}>
-				<button
-					type="button"
-					onClick={() => toggleExpandedOption("AI")}
-					className="group relative isolate w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
-					<span className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-linear-to-l from-emerald-400/20 to-transparent sm:w-28" />
-
-					<div className="relative z-10 flex min-h-30 items-stretch">
-						<div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-							<div>
-								<p className="text-[10px] font-semibold tracking-[0.18em] text-emerald-200/70 uppercase">
-									Head to head
-								</p>
-								<h3 className="mt-1 text-lg font-extrabold tracking-wide text-emerald-100 sm:text-xl">
-									PLAY VS AI
-								</h3>
-							</div>
-							<p className="mt-2 max-w-[20ch] text-sm leading-snug text-stone-300/95">
-								Challenge a friend and battle live in a pure skill matchup.
-							</p>
-						</div>
-
-						<div className="relative flex w-24 shrink-0 items-center justify-center overflow-hidden border-l border-emerald-300/20 bg-stone-950/50 sm:w-40">
-							<img
-								className="h-full w-full"
-								src={penguinSensei}
-								alt=""
-							/>
-						</div>
-					</div>
-				</button>
-
-				<div
-					className={`grid transition-all duration-300 ${
-						expandedOption === "AI" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-					}`}>
-					<div className="overflow-hidden border-t border-emerald-300/20 bg-stone-950/35">
-						<div className="p-4 sm:p-5">
-							<MatchOptions
-								selectedTime={playerMatchTime}
-								onSelectTime={setPlayerMatchTime}
-								selectedLevel={aiLevel}
-								onSelectLevel={setAiLevel}
-								showAILevel
-							/>
-							<button
-								type="button"
-								onClick={() => handleStartRequest("AI", playerMatchTime)}
-								className="mt-3 w-full rounded-xl border border-emerald-300/35 bg-button-green px-4 py-2.5 text-sm font-bold tracking-wide text-emerald-100 transition-colors hover:bg-green-600 sm:text-base">
-								Find Match
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
+			{PLAY_MODES.map((mode) => (
+				<PlayOptionsCard
+					key={mode}
+					expandedOption={expandedOption}
+					toggleExpandedOption={toggleExpandedOption}
+					mode={mode}
+					content={CARD_CONTENT[mode]}
+					imageSrc={CARD_VISUALS[mode].imageSrc}
+					imageAlt={CARD_VISUALS[mode].imageAlt}
+					selectedTime={matchTimeByMode[mode]}
+					onSelectTime={(time) => setModeTime(mode, time)}
+					onStart={handleStartRequest}
+					selectedLevel={mode === "AI" ? aiLevel : undefined}
+					onSelectLevel={mode === "AI" ? setAiLevel : undefined}
+				/>
+			))}
 		</div>
 	);
 }

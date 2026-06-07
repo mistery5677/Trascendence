@@ -2,6 +2,14 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import * as readline from 'readline';
 
+export type StockfishAnalysis = {
+  bestMove: string;
+  depth?: number;
+  positionEvaluation?: string;
+  possibleMate?: string;
+  pv?: string;
+};
+
 @Injectable()
 export class StockfishService implements OnModuleDestroy {
   private engine: ChildProcessWithoutNullStreams | null = null;
@@ -23,15 +31,23 @@ export class StockfishService implements OnModuleDestroy {
     send('isready');
   }
 
-  async getBestMove(fen: string, level = 5, moveTimeMs = 400): Promise<string> {
+  async analyzePosition(
+    fen: string,
+    level = 5,
+    moveTimeMs = 400,
+  ): Promise<StockfishAnalysis> {
     this.ensureEngine(level);
 
     if (!this.engine || !this.rl) throw new Error('Stockfish not started');
 
     const send = (cmd: string) => this.engine!.stdin.write(cmd + '\n');
 
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<StockfishAnalysis>((resolve, reject) => {
       let settled = false;
+      let depth: number | undefined;
+      let positionEvaluation: string | undefined;
+      let possibleMate: string | undefined;
+      let pv: string | undefined;
 
       const cleanup = () => {
         clearTimeout(timeout);
@@ -46,6 +62,20 @@ export class StockfishService implements OnModuleDestroy {
       }, moveTimeMs + 3000);
 
       const onLine = (line: string) => {
+        if (line.startsWith('info')) {
+          const depthMatch = line.match(/\bdepth\s+(\d+)/);
+          const cpMatch = line.match(/\bscore\s+cp\s+(-?\d+)/);
+          const mateMatch = line.match(/\bscore\s+mate\s+(-?\d+)/);
+          const pvMatch = line.match(/\bpv\s+(.+)$/);
+
+          if (depthMatch) depth = Number(depthMatch[1]);
+          if (cpMatch) positionEvaluation = cpMatch[1];
+          if (mateMatch) possibleMate = mateMatch[1];
+          if (pvMatch) pv = pvMatch[1];
+
+          return;
+        }
+
         if (!line.startsWith('bestmove')) return;
 
         const move = line.split(' ')[1];
@@ -60,7 +90,13 @@ export class StockfishService implements OnModuleDestroy {
         if (settled) return;
         settled = true;
         cleanup();
-        resolve(move);
+        resolve({
+          bestMove: move,
+          depth,
+          positionEvaluation,
+          possibleMate,
+          pv,
+        });
       };
 
       this.rl?.on('line', onLine);
@@ -70,6 +106,15 @@ export class StockfishService implements OnModuleDestroy {
       send(`position fen ${fen}`);
       send(`go movetime ${moveTimeMs}`);
     });
+  }
+
+  async getBestMove(
+    fen: string,
+    level = 5,
+    moveTimeMs = 400,
+  ): Promise<string> {
+    const analysis = await this.analyzePosition(fen, level, moveTimeMs);
+    return analysis.bestMove;
   }
 
   stopEngine() {
