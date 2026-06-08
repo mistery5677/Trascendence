@@ -5,7 +5,6 @@ import { useAuth } from "../../contexts/UserContext";
 import { useGame } from "../../contexts/GameContext/GameContext";
 import { GameOverModal } from "../../components/GameModals/GameOverModal";
 import { GameActions } from "./GameActions";
-import { ConfirmationModal } from "../../components/GameModals/ConfirmationModal";
 import chess from "../../assets/chess-pieces.png";
 import penguin from "../../assets/penguin.jpg";
 import cat from "../../assets/cat.jpg";
