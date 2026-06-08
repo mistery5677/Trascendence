@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { GameContextType, GameOverState, MatchStartOptions } from "./GameContextType";
+import type { GameContextType, GameOverState, MatchStartOptions, MessageType } from "./GameContextType";
 import { useAuth } from "../UserContext";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
+import { toastWrapper } from "../../adapters/toastWrapper";
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
@@ -14,6 +15,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [fen, setFen] = useState("start");
 	const [currentTurn, setCurrentTurn] = useState<"w" | "b">("w");
 	const [gameOver, setGameOver] = useState<GameOverState>(null);
+	const [messages, setMessages] = useState<MessageType[]>([]);
 	const [drawProposal, setDrawProposal] = useState<boolean>(false);
 	const [rematchProposal, setRematchProposal] = useState<boolean>(false);
 	const [opponentId, setOpponentId] = useState<string | null>(null);
@@ -83,6 +85,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("joinQueue", options);
 	};
 
@@ -94,6 +97,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		setGameOver(null);
 		setGameId(null);
 		setOpponentId(null);
+		setMessages([]);
 		socket.emit("startBotGame", options);
 	};
 
@@ -153,6 +157,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setCurrentTurn(data.currentTurn);
 			setOpponentId(data.opponentId);
 
+			if (data.chatHistory) {
+				setMessages(data.chatHistory);
+			}
+
 			// Read the timer came from the server
 			if (data.color === "w") {
 				setMyTimeLeft(data.whiteTimeLeft ?? 10);
@@ -207,6 +215,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				alert("The match doesn't exist anymore");
 			}
 		};
+		const onOpponentDisconnected = () => {
+			toastWrapper.warn("Player has left, have 1 Minute to come back");
+		};
+		const onOpponentReconnected = () => {
+			toastWrapper.success("Opponent has reconnected, ready to play");
+		};
 
 		socket.on("gameState", onGameState);
 		socket.on("noActiveGame", onNoActiveGame);
@@ -214,6 +228,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.on("gameOver", onGameOver);
 		socket.on("activeGameNotFound", onActiveGameNotFound);
 		socket.on("error", onError);
+		socket.on("opponentDisconnected", onOpponentDisconnected);
+		socket.on("opponentReconnected", onOpponentReconnected);
 
 		return () => {
 			console.log("[Game] Exiting of game board. Removing all listeners");
@@ -223,6 +239,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			socket.off("gameOver", onGameOver);
 			socket.off("activeGameNotFound", onActiveGameNotFound);
 			socket.off("error", onError);
+			socket.off("opponentDisconnected", onOpponentDisconnected);
+			socket.off("opponentReconnected", onOpponentReconnected);
 		};
 	}, [socket]);
 
@@ -233,9 +251,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
 		const onDrawProposed = () => setDrawProposal(true);
 		const onRematchProposed = () => setRematchProposal(true);
-		const onDrawRejected = () => alert("The draw proposal was rejected.");
-		const onRematchRejected = () => alert("The Rematch proposal was rejected.");
+		const onDrawRejected = () => {
+			toastWrapper.warn("The draw proposal was rejected.");
+		};
+
+		const onRematchRejected = () => {
+			toastWrapper.error("The Rematch proposal was rejected.");
+		};
 		const onRematchStarted = (data: { newGameId: string }) => {
+			toastWrapper.success("Rematch started! Good luck.");
 			setGameOver(null);
 			setDrawProposal(false);
 			setRematchProposal(false);
@@ -284,6 +308,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				startAIGame,
 				opponentId,
 				isSearchingMatch,
+				messages,
+				setMessages,
 
 				// Timer variables
 				myTimeLeft,

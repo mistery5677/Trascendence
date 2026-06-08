@@ -52,7 +52,7 @@ export class MatchGateway {
     client.emit('gameState', {
       gameId: gameId,
       color: 'w',
-      opponentId: 'Bot (Random moves)',
+      opponentId: 'bot',
       fen: newGame.chess.fen(),
       currentTurn: newGame.chess.turn(),
       mode: 'bot',
@@ -125,9 +125,8 @@ export class MatchGateway {
           opponentId: opponentId ? String(opponentId) : 'bot',
           whiteTimeLeft: state.whiteTimeLeft,
           blackTimeLeft: state.blackTimeLeft,
+          chatHistory: state.chatHistory,
         });
-        //! Still considering have a screen that tells the other player when user reconnect
-        client.to(gameId).emit('opponentReconnected', { userId });
       } else {
         client.emit('activeGameNotFound');
       }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Chess } from 'chess.js';
 import { MatchesService } from 'src/matches/matches.service';
 import { v4 as uuidv4 } from 'uuid';
+import { PresenceService } from './presence.service';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
@@ -13,6 +14,13 @@ interface GameOverResult {
     | 'RESIGNATION'
     | 'DISCONNECTION_TIMEOUT'
     | 'TIMEOUT';
+}
+
+interface ChatMessage {
+  from: string;
+  avatarUrl?: string;
+  message: string;
+  timeStamp: string;
 }
 
 interface GameInstance {
@@ -28,14 +36,17 @@ interface GameInstance {
   whiteTimeLeft: number;
   blackTimeLeft: number;
   lastMoveTimestamp: number; // Time of the last move
+  chatHistory: ChatMessage[];
 }
 
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
   private readonly ABANDON_TIME = 60000;
-  private readonly MATCH_TIMER = 1250;
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    private readonly matchesService: MatchesService,
+    private readonly presenceService: PresenceService,
+  ) {}
 
   private getTimeControlInSeconds(timeControl: string): number {
     const timeMap: Record<string, number> = {
@@ -66,7 +77,10 @@ export class GameService {
       whiteTimeLeft: this.getTimeControlInSeconds(timeControl),
       blackTimeLeft: this.getTimeControlInSeconds(timeControl),
       lastMoveTimestamp: Date.now(),
+      chatHistory: [],
     };
+    this.presenceService.updateStatus(playerBId, 'playing');
+    this.presenceService.updateStatus(playerWId, 'playing');
     this.games.set(gameId, newGame);
     return newGame;
   }
@@ -159,7 +173,7 @@ export class GameService {
       turn: game.chess.turn(),
       history: game.chess.history(),
       mode: game.mode,
-
+      chatHistory: game.chatHistory,
       // Send the timer info
       whiteTimeLeft: currentWTime,
       blackTimeLeft: currentBTime,
@@ -271,6 +285,8 @@ export class GameService {
     const game = this.games.get(gameId);
     if (game) {
       game.isFinished = true;
+      this.presenceService.updateStatus(game.playerB, 'online');
+      this.presenceService.updateStatus(game.playerW, 'online');
     }
   }
 
@@ -290,7 +306,6 @@ export class GameService {
   }
 
   startAbandonTimeout(gameId: string, loserUserId: string, server: any) {
-    console.log('AQui???\n');
     const game = this.getGame(gameId);
     if (!game || game.isFinished || game.mode === 'bot') return;
 

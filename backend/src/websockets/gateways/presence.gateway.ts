@@ -27,7 +27,7 @@ export class PresenceGateway
   ) {}
 
   afterInit() {
-    this.server?.use(WsMiddleware(this.jwtService));
+    this.server?.use(WsMiddleware(this.jwtService, this.userService));
   }
 
   handleConnection(client: Socket) {
@@ -63,6 +63,10 @@ export class PresenceGateway
 
     const activeMatch = this.gameService.findActiveGameByUserId(userId);
     if (activeMatch) {
+      if (activeMatch.game.disconnectTimeout) {
+        this.server?.to(activeMatch.gameId).emit('opponentReconnected');
+        client.emit('haveActiveGame');
+      }
       this.gameService.clearAbandonTimeout(activeMatch.gameId);
       client.join(activeMatch.gameId);
     }
@@ -81,26 +85,30 @@ export class PresenceGateway
 
     this.matchMakingService.removeFromQueue(client);
 
-    const isRealDisconnect = this.presenceService.setDisconnected(
-      userId,
-      client.id,
-    );
+    setTimeout(() => {
+      const isRealDisconnect = this.presenceService.setDisconnected(
+        userId,
+        client.id,
+      );
 
-    if (isRealDisconnect) {
-      this.server?.emit('userStatusChanged', { userId, status: 'offline' });
-      console.log(`[Presence] User ${user.username} fully disconnected.`);
-      const activeMatch = this.gameService.findActiveGameByUserId(userId);
-      if (activeMatch && activeMatch.game.mode === 'online') {
-        this.gameService.startAbandonTimeout(
-          activeMatch.gameId,
-          userId,
-          this.server,
-        );
-      } else {
-        console.log(
-          `[Presence] Ignored old socket cleanup for user ${user.username}`,
-        );
+      if (isRealDisconnect == true) {
+        this.server?.emit('userStatusChanged', { userId, status: 'offline' });
+        console.log(`[Presence] User ${user.username} fully disconnected.`);
+        const activeMatch = this.gameService.findActiveGameByUserId(userId);
+        if (activeMatch && activeMatch.game.mode === 'online') {
+          this.gameService.startAbandonTimeout(
+            activeMatch.gameId,
+            userId,
+            this.server,
+          );
+          console.log(activeMatch.gameId, 'before emit opponentDisconnected');
+          this.server?.to(activeMatch.gameId).emit('opponentDisconnected');
+        } else {
+          console.log(
+            `[Presence] Ignored old socket cleanup for user ${user.username}`,
+          );
+        }
       }
-    }
+    }, 1000);
   }
 }

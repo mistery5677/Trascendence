@@ -23,5 +23,6 @@ import { StockfishModule } from 'src/stockfish/stockfish.module';
     MatchMakingService,
   ],
   controllers: [PresenceController],
+  exports: [PresenceService]
 })
 export class WebsocketsModule {}

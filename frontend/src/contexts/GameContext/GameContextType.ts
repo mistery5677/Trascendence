@@ -11,6 +11,13 @@ export type MatchStartOptions = {
 	level?: number;
 };
 
+export type MessageType = {
+	from: string;
+	message: string;
+	timeStamp: string;
+	avatarUrl?: string;
+};
+
 export type GameContextType = {
 	socket: Socket | null;
 	gameId: string | null;
@@ -28,6 +35,10 @@ export type GameContextType = {
 	myTimeLeft: number;
 	opponentTimeLeft: number;
 	handleTimeOut: () => void;
+
+	//Messages
+	messages: MessageType[];
+	setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
 
 	surrender: () => void;
 	proposeDraw: () => void;

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "../UserContext";
+import { toastWrapper } from "../../adapters/toastWrapper";
 
 type GlobalSocketContextType = {
 	socket: Socket | null;
@@ -38,6 +39,13 @@ export const GlobalSocketProvider = ({ children }: { children: React.ReactNode }
 			console.warn("Global Socket Disconnected");
 			setIsOnline(false);
 		});
+
+		const onHaveActiveGame = () => {
+			toastWrapper.success("Have an active Game ongoing, please go to play to continue");
+		};
+
+		socketInstance.on("haveActiveGame", onHaveActiveGame);
+
 		//! Can add here catch notifications ?? Or Other events
 		socketInstance.connect();
 		setSocket(socketInstance);
@@ -46,6 +54,7 @@ export const GlobalSocketProvider = ({ children }: { children: React.ReactNode }
 
 			socketInstance.off("connect");
 			socketInstance.off("disconnect");
+			socketInstance.off("haveActiveGame", onHaveActiveGame);
 
 			socketInstance.disconnect();
 		};

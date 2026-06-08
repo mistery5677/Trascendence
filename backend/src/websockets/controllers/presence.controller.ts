@@ -11,12 +11,9 @@ export class PresenceController {
 
   @Get('online-user')
   async allOnlineUsers() {
-    const connectedUsersStr = this.presenceService.getConnectedUsers();
+    const connectedUsers = this.presenceService.getConnectedUsers();
 
-    const connectedUserIdsNum = connectedUsersStr.map((id) => parseInt(id, 10));
-
-    const onlineUsersData =
-      await this.usersService.findByIds(connectedUserIdsNum);
+    const onlineUsersData = await this.usersService.findByIds(connectedUsers);
 
     return onlineUsersData;
   }
