@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
 import { StockfishService } from 'src/stockfish/stockfish.service';
+import { AchievementsService } from 'src/achievements/achievements.service';
 
 @WebSocketGateway({ cors: true })
 export class GameGateway {
@@ -17,6 +18,7 @@ export class GameGateway {
 
   constructor(
     private readonly gameService: GameService,
+    private readonly achievementsService: AchievementsService),
     private readonly stockfishAI: StockfishService,
   ) {}
 
@@ -40,6 +42,7 @@ export class GameGateway {
     );
     if (result) {
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+      this.checkAchievements(data.gameId, result.winnerId);
 
       if (game.mode === 'ai') {
         this.stockfishAI.stopEngine();
@@ -231,6 +234,7 @@ export class GameGateway {
     // Set that the game is over
     if (result) {
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+      this.checkAchievements(data.gameId, result.winnerId);
     }
   }
 
@@ -253,5 +257,31 @@ export class GameGateway {
       return true;
     }
     return false;
+  }
+
+  // Check if we already have that achievement
+  private async checkAchievements(gameId: string, winnerId?: number | null){
+    if (!winnerId) return;
+
+    try {
+      const newAchievement = await this.achievementsService.checkFirstWin(winnerId);
+
+      if (newAchievement){
+        this.server.to(gameId).emit('achievementUnlocked', {
+          winnerId: winnerId,
+          achievement: newAchievement
+        });
+      }
+    } catch (error){
+      console.error('Error to register the achievement: ', error);
+    }
+  }
+
+  // Request when we want to check our achievements
+  @SubscribeMessage('requestAchievements')
+  async handleRequestAchievements(@ConnectedSocket() client: Socket) {
+    const userId = client.data.user.userId;
+    const unlockedIds = await this.achievementsService.getUserUnlockedAchievements(userId);
+    client.emit('loadAchievements', unlockedIds);
   }
 }

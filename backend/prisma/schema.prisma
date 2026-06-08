@@ -44,6 +44,8 @@ model user {
 
     sentRequests     FriendRequest[] @relation("sentRequests")
     receivedRequests FriendRequest[] @relation("receivedRequests")
+
+    achievements    UserAchievement[]
 }
 
 model MatchHistory {
@@ -73,6 +75,15 @@ model FriendRequest {
   receiver    user     @relation("receivedRequests", fields: [receiverId], references: [id])
 
   @@unique([senderId, receiverId]) // Garants that you only have one friend request from the same person
+}
+
+model UserAchievement{
+    id              Int @id @default(autoincrement())
+    userId          Int
+    achievementId   String
+    unlockedAt      DateTime @default(now())
+    user            user @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@unique([userId, achievementId])
 }
 
 // ! Example of new data base with UserPreferences

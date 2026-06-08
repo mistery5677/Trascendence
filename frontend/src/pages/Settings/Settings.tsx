@@ -12,10 +12,11 @@ import {
 } from "../../api/users";
 import { toast } from "react-toastify";
 import { toastWrapper } from "../../adapters/toastWrapper";
-import { IconUser, IconDeviceLaptop, IconPalette } from "@tabler/icons-react";
+import { IconUser, IconDeviceLaptop, IconPalette, IconTrophy } from "@tabler/icons-react";
 import styles from "./style.module.css";
 import { BoardThemeButton, Profile } from "../../components/index";
 import { userNameValidation } from "../../hooks/userNameValidation";
+import { ProfileAchievements } from "./Achievements";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
@@ -25,7 +26,7 @@ function tabClass(isActive: boolean): string {
 	return "rounded-xl px-4 py-3 text-left font-light text-stone-300 transition-colors hover:bg-stone-800/70 hover:text-stone-100";
 }
 
-export type SettingsTab = "profile" | "account" | "board";
+export type SettingsTab = "profile" | "account" | "board" | "achievements";
 
 export type SettingsProps = {
 	tabOpt: SettingsTab;
@@ -244,7 +245,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 					</header>
 
 					<div className="overflow-hidden rounded-2xl border border-stone-700/80 bg-stone-700/50 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]">
-						<div className="grid grid-cols-1 lg:grid-cols-[220px_1fr]">
+						<div className="grid grid-cols-1 lg:grid-cols-[250px_1fr]">
 							<aside className="p-4 bg-stone-950/40">
 								<nav className="flex flex-col gap-2">
 									<button
@@ -272,6 +273,15 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<div className="flex flex-row gap-2">
 											<IconPalette stroke={2} />
 											Theme
+										</div>
+									</button>
+									<button
+										type="button"
+										onClick={() => setActiveTab("achievements")}
+										className={tabClass(activeTab === "achievements")}>
+										<div className="flex flex-row gap-2">
+											<IconTrophy stroke={2} />
+											Achievements
 										</div>
 									</button>
 								</nav>
@@ -477,6 +487,11 @@ export function Settings({ tabOpt }: SettingsProps) {
 											</BoardThemeButton>
 										</div>
 									</div>
+								)}
+								{activeTab === "achievements" && (
+									<>
+										<ProfileAchievements />
+									</>
 								)}
 							</section>
 						</div>
