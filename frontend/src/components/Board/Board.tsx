@@ -1,6 +1,6 @@
 import { Chessboard } from "react-chessboard";
 import { useAuth } from "../../contexts/UserContext";
-import { PromotionPicker } from "../PromotionPicker/PromotionPicker";
+import { PromotionPicker } from "./PromotionPicker";
 import { useBoardController } from "./boardController";
 
 export type PieceColor = "w" | "b";
@@ -46,7 +46,7 @@ export function Board({ onTurnChange }: BoardProps) {
 	} = useBoardController({
 		onTurnChange,
 		darkSquareBackground,
-		enableHelperMode: false,
+		enableHelperMode: true,
 	});
 
 	if (!isGameActive) return <Chessboard options={idleBoardOptions} />;
@@ -57,6 +57,7 @@ export function Board({ onTurnChange }: BoardProps) {
 			<PromotionPicker
 				open={pendingPromotion !== null}
 				color={pendingPromotion?.color ?? "w"}
+				square={pendingPromotion?.to ?? null}
 				onSelect={onPromotionSelect}
 				onCancel={onPromotionCancel}
 			/>

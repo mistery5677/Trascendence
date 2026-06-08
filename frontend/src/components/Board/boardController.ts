@@ -99,17 +99,6 @@ export function useBoardController({
 		return () => controller.abort();
 	}, [enableHelperMode, learnLevel, chessPosition, gameId, color, chessGame]);
 
-	const learnArrows =
-		enableHelperMode && helper.bestMove.length >= 4
-			? [
-					{
-						startSquare: helper.bestMove.slice(0, 2) as Square,
-						endSquare: helper.bestMove.slice(2, 4) as Square,
-						color: "rgb(0, 128, 0)",
-					},
-				]
-			: undefined;
-
 	useEffect(() => {
 		if (!enableHelperMode) return;
 		if (isMyLocalTurn) return;
