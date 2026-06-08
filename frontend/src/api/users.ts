@@ -172,4 +172,23 @@ export async function getUsers(username: string) {
 	return await res.json();
 }
 
+export async function getMyAchievements(): Promise<string[]> {
+    try {
+        const response = await fetch("/api/users/achievements", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
 
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error("Failed to load achievements :", error);
+        return []; 
+    }
+}

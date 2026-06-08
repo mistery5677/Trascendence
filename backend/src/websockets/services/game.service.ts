@@ -6,6 +6,7 @@ import { PresenceService } from './presence.service';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
+  winnerId?: number | null;
   reason:
     | 'CHECKMATE'
     | 'DRAW'
@@ -214,6 +215,7 @@ export class GameService {
     this.markAsFinished(gameId);
     return {
       winnerColor,
+      winnerId,
       reason,
     };
   }

@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { stringify } from 'querystring';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AchievementsService } from '../achievements/achievements.service';
 
 @Injectable()
 export class MatchesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private achievementsService: AchievementsService,) {}
 
   async saveMatchResult(
     playerWId: number,
@@ -19,7 +22,7 @@ export class MatchesService {
         result: winnerId ? `WINNER_ID_${winnerId}` : 'DRAW',
       },
     });
-
+  
     if (winnerId === null) {
       await Promise.all([
         this.prisma.user.update({
@@ -36,7 +39,7 @@ export class MatchesService {
 
     const loserId = winnerId === playerWId ? playerBId : playerWId;
 
-    await Promise.all([
+    const [updatedWinner] = await Promise.all([
       this.prisma.user.update({
         where: { id: winnerId },
         data: { wins: { increment: 1 }, elo: { increment: 8 } },
@@ -47,6 +50,11 @@ export class MatchesService {
         data: { losses: { increment: 1 }, elo: { decrement: 8 } },
       }),
     ]);
+    // Check the first win achievement 
+    await this.achievementsService.checkFirstWin(winnerId);
+    
+    // Check the grandmaster achievement
+    await this.achievementsService.checkGrandMaster(winnerId, updatedWinner.elo);
 
     return { message: 'Match saved', matchId: match.id };
   }
