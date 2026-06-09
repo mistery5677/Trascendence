@@ -27,8 +27,8 @@ COPY . .
 #   && make -C ./assets/Stockfish/src -j$(nproc) build \
 #   && install -m 0755 ./assets/Stockfish/src/stockfish /usr/bin/stockfish
 
-RUN chmod +x ./assets/Stockfish/stockfish \
-  && install -m 0755 ./assets/Stockfish/stockfish /usr/bin/stockfish
+RUN chmod +x ./assets/Stockfish/bin/stockfish \
+  && install -m 0755 ./assets/Stockfish/bin/stockfish /usr/bin/stockfish
 
 ENV STOCKFISH_PATH=/usr/bin/stockfish
 
