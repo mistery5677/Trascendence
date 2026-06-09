@@ -1,4 +1,3 @@
-
 import {
   ConnectedSocket,
   MessageBody,
@@ -59,12 +58,28 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { toUserId: string; message: string },
   ) {
-    const fromUserId = client.data.user.userId;
+    if (!client.data?.user) return;
 
-    this.server?.to(`user_${data.toUserId}`).emit('receivePrivateMessage', {
+    const fromUserId = client.data.user.userId;
+    const { username, avatarUrl } = client.data.user;
+
+    const messagePayload = {
       fromId: fromUserId,
+      fromName: username,
+      avatarUrl: avatarUrl,
       message: data.message,
-      timestamp: new Date().toLocaleTimeString(),
-    });
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    };
+
+    this.server
+      ?.to(`user_${data.toUserId}`)
+      .emit('receivePrivateMessage', messagePayload);
+
+    this.server
+      ?.to(`user_${fromUserId}`)
+      .emit('receivePrivateMessage', messagePayload);
   }
 }
