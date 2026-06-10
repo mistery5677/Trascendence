@@ -18,7 +18,7 @@ export class GameGateway {
 
   constructor(
     private readonly gameService: GameService,
-    private readonly achievementsService: AchievementsService),
+    private readonly achievementsService: AchievementsService,
     private readonly stockfishAI: StockfishService,
   ) {}
 

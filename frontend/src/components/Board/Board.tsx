@@ -46,7 +46,7 @@ export function Board({ onTurnChange }: BoardProps) {
 	} = useBoardController({
 		onTurnChange,
 		darkSquareBackground,
-		enableHelperMode: true,
+		enableHelperMode: false,
 	});
 
 	if (!isGameActive) return <Chessboard options={idleBoardOptions} />;

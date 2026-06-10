@@ -12,9 +12,10 @@ import { PresenceService } from 'src/websockets/services/presence.service';
 export class FriendRequestService {
   constructor(
     private prisma: PrismaService,
-    private achievementsService: AchievementsService),
+    private achievementsService: AchievementsService,
     private presenceService: PresenceService,
   ) {}
+  
 
   async sendRequest(senderId: number, targetUsername: string) {
     // Find the invited user
@@ -66,7 +67,6 @@ export class FriendRequestService {
       },
     });
   }
-
   // Get the pending requests
   async getPendingRequests(userId: number) {
     return await this.prisma.friendRequest.findMany({

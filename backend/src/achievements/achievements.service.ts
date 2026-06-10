@@ -100,7 +100,7 @@ export class AchievementsService {
     async checkGrandMaster(userId: number, currentElo: number) {
         try {
             // If the elo is lower we return null
-            if (currentElo < 816) return null; 
+            if (currentElo < 1800) return null; 
 
             // Check if you already have the achievement
             const alreadyHas = await this.prisma.userAchievement.findUnique({

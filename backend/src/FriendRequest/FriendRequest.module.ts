@@ -7,10 +7,8 @@ import { WebsocketsModule } from 'src/websockets/websockets.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports: [WebsocketsModule, PrismaModule],
+  imports: [WebsocketsModule, PrismaModule, AchievementsModule],
   controllers: [FriendRequestController],
   providers: [FriendRequestService, PrismaService],
-  imports: [AchievementsModule]
-  providers: [FriendRequestService],
 })
 export class FriendRequestModule {}
