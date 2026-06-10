@@ -5,14 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AchievementsService } from 'src/achievements/achievements.service';
 import { PresenceService } from 'src/websockets/services/presence.service';
 
 @Injectable()
 export class FriendRequestService {
   constructor(
     private prisma: PrismaService,
+    private achievementsService: AchievementsService,
     private presenceService: PresenceService,
   ) {}
+  
 
   async sendRequest(senderId: number, targetUsername: string) {
     // Find the invited user
@@ -64,7 +67,6 @@ export class FriendRequestService {
       },
     });
   }
-
   // Get the pending requests
   async getPendingRequests(userId: number) {
     return await this.prisma.friendRequest.findMany({
@@ -100,10 +102,16 @@ export class FriendRequestService {
     }
 
     // Update the status for 'ACCEPTED'
-    return await this.prisma.friendRequest.update({
+    const updatedRequest = await this.prisma.friendRequest.update({
       where: { id: request.id },
       data: { status: 'ACCEPTED' },
     });
+
+    // Update the achievements
+    await this.achievementsService.checkFirstFriend(receiverId);
+    await this.achievementsService.checkFirstFriend(senderId);
+
+    return updatedRequest;
   }
 
   // Decline friend request

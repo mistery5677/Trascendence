@@ -34,9 +34,11 @@ export function PlayerHeader({
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
 	const normalizedOpponentId = String(opponentId ?? "").toLowerCase();
 	const isBotOpponent = normalizedOpponentId.includes("bot");
+	const isAIOpponent = normalizedOpponentId.includes("ai") || normalizedOpponentId.includes("stockfish");
+	const isEngineOpponent = isBotOpponent || isAIOpponent;
 
 	useEffect(() => {
-		if (!opponentId || isBotOpponent) {
+		if (!opponentId || isEngineOpponent) {
 			setOpponentProfile(null);
 			return;
 		}
@@ -53,14 +55,15 @@ export function PlayerHeader({
 		return () => {
 			cancelled = true;
 		};
-	}, [opponentId, isBotOpponent]);
+	}, [opponentId, isEngineOpponent]);
 	let opponentDisplayName;
 	let opponentAvatarUrl;
 	if (isSearchingMatch) {
 		opponentDisplayName = "Searching for opponent...";
 		opponentAvatarUrl = "";
-	} else if (isBotOpponent) {
-		opponentDisplayName = "Uncle Carlsen (bot)";
+	} else if (isEngineOpponent) {
+		if (isBotOpponent) opponentDisplayName = "Uncle Carlsen (bot)";
+		else opponentDisplayName = "Uncle Carlsen (AI)";
 		opponentAvatarUrl = magnusImg;
 	} else {
 		opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";

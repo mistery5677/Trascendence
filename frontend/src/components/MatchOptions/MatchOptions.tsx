@@ -1,11 +1,21 @@
+import { DiscreteSlider } from "../DiscreteSlider/DiscreteSlider";
 import { MatchSidebarButton } from "../MatchSidebarButton/MatchSidebarButton";
 
 type MatchOptionsProps = {
 	selectedTime: string;
 	onSelectTime: (time: string) => void;
+	selectedLevel?: number;
+	onSelectLevel?: (value: number) => void;
+	showAILevel?: boolean;
 };
 
-export function MatchOptions({ selectedTime, onSelectTime }: MatchOptionsProps) {
+export function MatchOptions({
+	selectedTime,
+	onSelectTime,
+	selectedLevel = 5,
+	onSelectLevel,
+	showAILevel = false,
+}: MatchOptionsProps) {
 	return (
 		<>
 			<div>
@@ -22,6 +32,15 @@ export function MatchOptions({ selectedTime, onSelectTime }: MatchOptionsProps) 
 						</MatchSidebarButton>
 					))}
 				</div>
+				{showAILevel && (
+					<div className="w-full pt-4">
+						<div className="text-center text-xl font-extrabold">🤖 AI Level</div>
+						<DiscreteSlider
+							value={selectedLevel}
+							onChange={(value) => onSelectLevel?.(value)}
+						/>
+					</div>
+				)}
 			</div>
 		</>
 	);

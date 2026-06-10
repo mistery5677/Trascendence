@@ -8,9 +8,12 @@ import { ChatGateway } from './gateways/chat.gateway';
 import { PresenceGateway } from './gateways/presence.gateway';
 import { PresenceService } from './services/presence.service';
 import { MatchGateway } from './gateways/match.gateway';
+import { AchievementsService } from 'src/achievements/achievements.service';
 import { PresenceController } from './controllers/presence.controller';
+import { StockfishModule } from 'src/stockfish/stockfish.module';
+
 @Module({
-  imports: [MatchesModule, UsersModule],
+  imports: [MatchesModule, UsersModule, StockfishModule],
   providers: [
     GameService,
     GameGateway,
@@ -19,6 +22,7 @@ import { PresenceController } from './controllers/presence.controller';
     PresenceService,
     MatchGateway,
     MatchMakingService,
+    AchievementsService,
   ],
   controllers: [PresenceController],
   exports: [PresenceService]

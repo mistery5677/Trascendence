@@ -95,7 +95,7 @@ export class AuthService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       boardTheme: user.boardTheme,
-	  backgroundTheme: user.backgroundTheme,
+	    backgroundTheme: user.backgroundTheme,
       score: {
         elo: user.elo,
         wins: user.wins,

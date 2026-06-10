@@ -61,6 +61,39 @@ export class MatchGateway {
     });
   }
 
+  @SubscribeMessage('startAIGame')
+  handleStartAI(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { time: string; level?: number },
+  ) {
+    const gameId = `ai_${uuidv4()}`;
+
+    console.log('payload: ', payload.level ?? 1);
+
+    const newGame = this.gameService.createGame(
+      gameId,
+      'ai',
+      client.data.user.userId,
+      'stockfish',
+      payload.time ?? '5 min',
+      payload.level ?? 5,
+    );
+
+    client.join(gameId);
+
+    client.emit('gameState', {
+      gameId: gameId,
+      color: 'w',
+      opponentId: 'Uncle Carlsen (AI)',
+      fen: newGame.chess.fen(),
+      currentTurn: newGame.chess.turn(),
+      mode: 'ai',
+      level: payload.level ?? 5,
+      whiteTimeLeft: newGame.whiteTimeLeft,
+      blackTimeLeft: newGame.blackTimeLeft,
+    });
+  }
+
   @SubscribeMessage('checkActiveGame')
   handleCheckActiveGame(@ConnectedSocket() client: Socket) {
     const userId = client.data.user.userId;

@@ -8,13 +8,19 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
+import { StockfishService } from 'src/stockfish/stockfish.service';
+import { AchievementsService } from 'src/achievements/achievements.service';
 
 @WebSocketGateway({ cors: true })
 export class GameGateway {
   @WebSocketServer()
   server!: Server;
 
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly achievementsService: AchievementsService,
+    private readonly stockfishAI: StockfishService,
+  ) {}
 
   @SubscribeMessage('requestSurrender')
   handleSurrender(
@@ -36,6 +42,11 @@ export class GameGateway {
     );
     if (result) {
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+      this.checkAchievements(data.gameId, result.winnerId);
+
+      if (game.mode === 'ai') {
+        this.stockfishAI.stopEngine();
+      }
     }
   }
 
@@ -136,7 +147,7 @@ export class GameGateway {
   }
 
   @SubscribeMessage('move')
-  handleMove(
+  async handleMove(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { gameId: string; move: any },
   ) {
@@ -162,6 +173,23 @@ export class GameGateway {
 
     this.processGameState(data.gameId, validMove);
 
+    if (game.mode === 'ai' && !game.chess.isGameOver()) {
+      const move = await this.stockfishAI.getBestMove(
+        game.chess.fen(),
+        game.level,
+      );
+      console.log(move);
+
+      const validMove = this.gameService.makeMove(data.gameId, move);
+
+      if (validMove) {
+        const humanizedDelay =
+          Math.floor(Math.random() * (1000 - 1200 + 1)) + 1000;
+        setTimeout(() => {
+          this.processGameState(data.gameId, validMove);
+        }, humanizedDelay);
+      }
+    }
     if (game.mode === 'bot' && !game.chess.isGameOver()) {
       const humanizedDelay =
         Math.floor(Math.random() * (3500 - 1200 + 1)) + 1200;
@@ -206,6 +234,7 @@ export class GameGateway {
     // Set that the game is over
     if (result) {
       this.server.to(data.gameId).emit('gameOver', { gameOver: result });
+      this.checkAchievements(data.gameId, result.winnerId);
     }
   }
 
@@ -228,5 +257,31 @@ export class GameGateway {
       return true;
     }
     return false;
+  }
+
+  // Check if we already have that achievement
+  private async checkAchievements(gameId: string, winnerId?: number | null){
+    if (!winnerId) return;
+
+    try {
+      const newAchievement = await this.achievementsService.checkFirstWin(winnerId);
+
+      if (newAchievement){
+        this.server.to(gameId).emit('achievementUnlocked', {
+          winnerId: winnerId,
+          achievement: newAchievement
+        });
+      }
+    } catch (error){
+      console.error('Error to register the achievement: ', error);
+    }
+  }
+
+  // Request when we want to check our achievements
+  @SubscribeMessage('requestAchievements')
+  async handleRequestAchievements(@ConnectedSocket() client: Socket) {
+    const userId = client.data.user.userId;
+    const unlockedIds = await this.achievementsService.getUserUnlockedAchievements(userId);
+    client.emit('loadAchievements', unlockedIds);
   }
 }

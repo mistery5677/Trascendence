@@ -91,7 +91,7 @@ export function RightUser({
 				) : (
 					<img
 						src={opponentAvatarUrl}
-						className={`aspect-square w-[34%] md:w-[20%] shrink-0 rounded-full object-cover shadow-lg ring-2 transition-all duration-500 ${
+						className={`aspect-square w-[34%] md:w-[20%] shrink-0 rounded-full object-fit shadow-lg ring-2 transition-all duration-500 ${
 							color != null && currentTurn !== color
 								? "ring-emerald-300 shadow-emerald-700/20"
 								: "ring-slate-700 shadow-none border border-slate-600"

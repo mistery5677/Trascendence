@@ -21,10 +21,14 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'node:path';
 import { diskStorage } from 'multer';
+import { AchievementsService } from '../achievements/achievements.service';
 
 @Controller('/users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+      private readonly usersService: UsersService,
+      private readonly achievementsService: AchievementsService,
+  ) {}
 
   @Get()
   @Header('Cache-Control', 'no-store')
@@ -86,6 +90,17 @@ export class UsersController {
     const avatarUrl = `/assets/avatars/uploaded/${file.filename}`;
 
     return await this.usersService.updateAvatar(parseInt(userId), avatarUrl);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('achievements')
+  async getMyAchievements(@Req() req: any) {
+    const userId = req.user.userId;
+    
+    if (!userId) {
+      return [];
+    }
+    return await this.achievementsService.getUserUnlockedAchievements(parseInt(userId));
   }
 
   @UseGuards(AuthGuard)
