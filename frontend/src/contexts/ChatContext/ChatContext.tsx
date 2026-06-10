@@ -30,7 +30,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 			if (!activeChatUserId) return;
 
 			setPrivateChats((prev) => {
-				const chatRoomId = msg.senderId;
+				const chatRoomId = msg.recipientId;
 				const currentRoomMessage = prev[chatRoomId] || [];
 				return { ...prev, [chatRoomId]: [...currentRoomMessage, msg] };
 			});
@@ -50,7 +50,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	);
 };
 
-export const userChat = () => {
+export const useChat = () => {
 	const context = useContext(ChatContext);
 
 	if (!context) {
