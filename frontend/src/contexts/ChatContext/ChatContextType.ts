@@ -1,7 +1,8 @@
 export type PrivateMessage = {
-	senderId: string;
-	senderUsername: string;
-	senderAvatarUrl: string;
+	fromId: string;
+	toId: string;
+	fromUsername: string;
+	fromAvatarUrl: string;
 	message: string;
 	timestamp: string;
 };

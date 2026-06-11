@@ -58,20 +58,20 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { toUserId: string; message: string },
   ) {
+    console.log('Here on chat Gateway', data.toUserId, data.message);
+
     if (!client.data?.user) return;
 
     const fromUserId = client.data.user.userId;
     const { username, avatarUrl } = client.data.user;
 
     const messagePayload = {
-      fromId: fromUserId,
-      fromName: username,
+      fromId: String(fromUserId),
+      toId: String(data.toUserId),
+      fromUsername: username,
       avatarUrl: avatarUrl,
       message: data.message,
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      timestamp: new Date().toISOString(),
     };
 
     this.server

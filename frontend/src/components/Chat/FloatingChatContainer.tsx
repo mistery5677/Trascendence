@@ -63,7 +63,6 @@ function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => v
 
 function ActiveChatBox({ activeChat }: { activeChat: any }) {
 	const { privateChats, sendPrivateMessage, setActiveChatUserId } = useChat();
-	// const [message, setMessages] = useState<any[]>([]);
 	const [input, setInput] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -72,8 +71,8 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 		return () => setActiveChatUserId(null);
 	}, [activeChat.id, setActiveChatUserId]);
 
-	const chatMessages = privateChats[activeChat.id] || [];
-
+	const chatMessages = privateChats[String(activeChat.id)] || [];
+	console.log("ActiveChatBox", privateChats[String(activeChat.id)], activeChat.id);
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [chatMessages]);
@@ -100,7 +99,7 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 					<p className="text-[10px] text-stone-600 text-center mt-4 italic">No messages yet...</p>
 				) : (
 					chatMessages.map((msg, index) => {
-						const isFriend = msg.senderId === activeChat.id;
+						const isFriend = String(msg.fromId) === String(activeChat.id);
 						return (
 							<div
 								key={index}
@@ -111,7 +110,7 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 								}`}>
 								<div className="flex items-center justify-between gap-2 text-[9px] text-stone-400 font-medium">
 									<span className={!isFriend ? "text-emerald-400" : "text-stone-300"}>
-										{!isFriend ? "You" : msg.senderUsername || activeChat.username}
+										{!isFriend ? "You" : msg.fromUsername || activeChat.username}
 									</span>
 									<span>
 										{msg.timestamp

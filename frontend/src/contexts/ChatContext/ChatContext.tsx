@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ChatContextType, PrivateMessage } from "./ChatContextType";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
+import { useAuth } from "../UserContext";
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -8,11 +9,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const { socket } = useGlobalSocket();
 	const [privateChats, setPrivateChats] = useState<Record<string, PrivateMessage[]>>({});
 	const [activeChatUserId, setActiveChatUserId] = useState<string | null>(null);
+	const { state } = useAuth();
+	const myUserId = state.user?.id;
 
-	const sendPrivateMessage = (recipientId: string, text: string) => {
+	const sendPrivateMessage = (toUserId: string, message: string) => {
 		if (!socket) return;
 
-		socket.emit("sendPrivateMessage", { recipientId, text });
+		socket.emit("sendPrivateMessage", { toUserId, message });
 	};
 
 	useEffect(() => {
@@ -20,28 +23,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
 		const onReceiveMessage = (msg: PrivateMessage) => {
 			setPrivateChats((prev) => {
-				const chatRoomId = msg.senderId;
-				const currentRoomMessage = prev[chatRoomId] || [];
-				return { ...prev, [chatRoomId]: [...currentRoomMessage, msg] };
-			});
-		};
-
-		const onMessageSent = (msg: PrivateMessage) => {
-			if (!activeChatUserId) return;
-
-			setPrivateChats((prev) => {
-				const chatRoomId = msg.recipientId;
-				const currentRoomMessage = prev[chatRoomId] || [];
-				return { ...prev, [chatRoomId]: [...currentRoomMessage, msg] };
+				const amITheSender = String(msg.fromId) === String(myUserId);
+				const chatPartnerId = amITheSender ? String(msg.toId) : String(msg.fromId);
+				const currentRoomMessage = prev[chatPartnerId] || [];
+				console.log(chatPartnerId);
+				return { ...prev, [chatPartnerId]: [...currentRoomMessage, msg] };
 			});
 		};
 		socket.on("receivePrivateMessage", onReceiveMessage);
-		socket.on("privateMessageSent", onMessageSent);
 		return () => {
 			socket.off("receivePrivateMessage", onReceiveMessage);
-			socket.off("privateMessageSent", onMessageSent);
 		};
-	}, [socket, activeChatUserId]);
+	}, [socket, myUserId]);
 
 	return (
 		<ChatContext.Provider value={{ privateChats, sendPrivateMessage, activeChatUserId, setActiveChatUserId }}>
