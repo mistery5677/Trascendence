@@ -10,31 +10,46 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const [privateChats, setPrivateChats] = useState<Record<string, PrivateMessage[]>>({});
 	const [activeChatUserId, setActiveChatUserId] = useState<string | null>(null);
 	const { state } = useAuth();
-	const myUserId = state.user?.id;
 
 	const sendPrivateMessage = (toUserId: string, message: string) => {
 		if (!socket) return;
-
-		socket.emit("sendPrivateMessage", { toUserId, message });
+		socket.emit("sendPrivateMessage", { toUserId: String(toUserId), message: message.trim() });
 	};
 
 	useEffect(() => {
 		if (!socket) return;
 
 		const onReceiveMessage = (msg: PrivateMessage) => {
+			const currentUserId = state.user?.id ? String(state.user.id) : null;
+			if (!currentUserId) return;
+
+			const msgFromId = String(msg.fromId);
+			const msgToId = String(msg.toId);
+
+			const amITheSender = msgFromId === currentUserId;
+			const chatPartnerId = amITheSender ? msgToId : msgFromId;
+
 			setPrivateChats((prev) => {
-				const amITheSender = String(msg.fromId) === String(myUserId);
-				const chatPartnerId = amITheSender ? String(msg.toId) : String(msg.fromId);
-				const currentRoomMessage = prev[chatPartnerId] || [];
-				console.log(chatPartnerId);
-				return { ...prev, [chatPartnerId]: [...currentRoomMessage, msg] };
+				const previousMessages = prev[chatPartnerId] ? [...prev[chatPartnerId]] : [];
+				const isDuplicate = previousMessages.some(
+					(m) => m.timestamp === msg.timestamp && m.message === msg.message && m.fromId === msgFromId,
+				);
+
+				if (isDuplicate) return prev;
+
+				return {
+					...prev,
+					[chatPartnerId]: [...previousMessages, msg],
+				};
 			});
 		};
+
 		socket.on("receivePrivateMessage", onReceiveMessage);
+
 		return () => {
 			socket.off("receivePrivateMessage", onReceiveMessage);
 		};
-	}, [socket, myUserId]);
+	}, [socket, state.user?.id]);
 
 	return (
 		<ChatContext.Provider value={{ privateChats, sendPrivateMessage, activeChatUserId, setActiveChatUserId }}>

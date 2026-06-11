@@ -53,24 +53,29 @@ export class ChatGateway {
   }
 
   //(PRIVATE MESSAGES)
+
   @SubscribeMessage('sendPrivateMessage')
   handlePrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { toUserId: string; message: string },
   ) {
-    console.log('Here on chat Gateway', data.toUserId, data.message);
-
     if (!client.data?.user) return;
+    if (!data.toUserId || !data.message?.trim()) {
+      client.emit('error', { message: 'Invalid recipient or message' });
+      return;
+    }
 
     const fromUserId = client.data.user.userId;
     const { username, avatarUrl } = client.data.user;
+
+    if (String(fromUserId) === String(data.toUserId)) return;
 
     const messagePayload = {
       fromId: String(fromUserId),
       toId: String(data.toUserId),
       fromUsername: username,
-      avatarUrl: avatarUrl,
-      message: data.message,
+      fromAvatarUrl: avatarUrl,
+      message: data.message.trim(),
       timestamp: new Date().toISOString(),
     };
 
