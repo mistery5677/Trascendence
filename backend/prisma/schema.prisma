@@ -29,7 +29,7 @@ model user {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    boardTheme Int @default(1)
+    boardTheme      Int @default(1)
     backgroundTheme Int @default(1)
 
     // Profile statistics
@@ -45,7 +45,10 @@ model user {
     sentRequests     FriendRequest[] @relation("sentRequests")
     receivedRequests FriendRequest[] @relation("receivedRequests")
 
-    achievements    UserAchievement[]
+    achievements UserAchievement[]
+
+    sentMessages     PrivateMessage[] @relation("SentMessages")
+    receivedMessages PrivateMessage[] @relation("ReceivedMessages")
 }
 
 model MatchHistory {
@@ -65,24 +68,39 @@ model MatchHistory {
 }
 
 model FriendRequest {
-  id          Int      @id @default(autoincrement())
-  senderId    Int
-  receiverId  Int
-  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
-  createdAt   DateTime @default(now()) // Maybe this is not needed
+    id         Int      @id @default(autoincrement())
+    senderId   Int
+    receiverId Int
+    status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+    createdAt  DateTime @default(now()) // Maybe this is not needed
 
-  sender      user     @relation("sentRequests", fields: [senderId], references: [id])
-  receiver    user     @relation("receivedRequests", fields: [receiverId], references: [id])
+    sender   user @relation("sentRequests", fields: [senderId], references: [id])
+    receiver user @relation("receivedRequests", fields: [receiverId], references: [id])
 
-  @@unique([senderId, receiverId]) // Garants that you only have one friend request from the same person
+    @@unique([senderId, receiverId]) // Garants that you only have one friend request from the same person
 }
 
-model UserAchievement{
-    id              Int @id @default(autoincrement())
-    userId          Int
-    achievementId   String
-    unlockedAt      DateTime @default(now())
-    user            user @relation(fields: [userId], references: [id], onDelete: Cascade)
+model UserAchievement {
+    id            Int      @id @default(autoincrement())
+    userId        Int
+    achievementId String
+    unlockedAt    DateTime @default(now())
+    user          user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     @@unique([userId, achievementId])
 }
 
+model PrivateMessage {
+    id        Int      @id @default(autoincrement())
+    message   String
+    createdAt DateTime @default(now())
+
+    fromId   Int
+    fromUser user @relation("SentMessages", fields: [fromId], references: [id], onDelete: Cascade)
+
+    toId   Int
+    toUser user @relation("ReceivedMessages", fields: [toId], references: [id], onDelete: Cascade)
+
+    @@index([fromId, toId])
+    @@index([toId, fromId])
+}

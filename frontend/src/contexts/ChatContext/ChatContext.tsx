@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ChatContextType, PrivateMessage } from "./ChatContextType";
 import { useGlobalSocket } from "../GlobalSocketContext/GlobalSocketContext";
 import { useAuth } from "../UserContext";
+import { getChatHistory } from "../../api/privateChat";
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -10,11 +11,47 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const [privateChats, setPrivateChats] = useState<Record<string, PrivateMessage[]>>({});
 	const [activeChatUserId, setActiveChatUserId] = useState<string | null>(null);
 	const { state } = useAuth();
+	const [loadingChats, setLoadingChats] = useState<Record<string, boolean>>({});
+	const chatFetchStatus = useRef<Record<string, "idle" | "loading" | "loaded">>({});
 
 	const sendPrivateMessage = (toUserId: string, message: string) => {
 		if (!socket) return;
 		socket.emit("sendPrivateMessage", { toUserId: String(toUserId), message: message.trim() });
 	};
+
+	const loadChatHistory = useCallback(
+		async (friendId: string) => {
+			const idKey = String(friendId);
+			const currentStatus = chatFetchStatus.current[idKey] || "idle";
+
+			if (currentStatus === "loading" || currentStatus === "loaded") {
+				return;
+			}
+
+			if (privateChats[idKey] && privateChats[idKey].length > 0) return;
+
+			if (loadingChats[idKey]) return;
+
+			setLoadingChats((prev) => ({ ...prev, [idKey]: true }));
+
+			chatFetchStatus.current[idKey] = "loading";
+			try {
+				const history = await getChatHistory(idKey);
+
+				setPrivateChats((prev) => ({
+					...prev,
+					[idKey]: history,
+				}));
+				chatFetchStatus.current[idKey] = "loaded";
+			} catch (error) {
+				console.error("Error loading history:", error);
+				chatFetchStatus.current[idKey] = "loaded";
+			} finally {
+				setLoadingChats((prev) => ({ ...prev, [idKey]: false }));
+			}
+		},
+		[privateChats, loadingChats],
+	);
 
 	useEffect(() => {
 		if (!socket) return;
@@ -52,7 +89,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	}, [socket, state.user?.id]);
 
 	return (
-		<ChatContext.Provider value={{ privateChats, sendPrivateMessage, activeChatUserId, setActiveChatUserId }}>
+		<ChatContext.Provider
+			value={{ privateChats, sendPrivateMessage, activeChatUserId, setActiveChatUserId, loadChatHistory }}>
 			{children}
 		</ChatContext.Provider>
 	);

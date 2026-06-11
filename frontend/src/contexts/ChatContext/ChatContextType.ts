@@ -12,4 +12,5 @@ export type ChatContextType = {
 	sendPrivateMessage: (recipientId: string, text: string) => void;
 	activeChatUserId: string | null;
 	setActiveChatUserId: (userId: string | null) => void;
+	loadChatHistory: (friendId: string) => Promise<void>;
 };

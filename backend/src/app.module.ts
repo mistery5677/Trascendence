@@ -13,7 +13,7 @@ import { StockfishService } from './stockfish/stockfish.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-	PrismaModule,
+    PrismaModule,
     UsersModule,
     AuthModule,
     MatchesModule,

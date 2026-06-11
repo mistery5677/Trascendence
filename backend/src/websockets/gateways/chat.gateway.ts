@@ -10,12 +10,16 @@ import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 import { WsMiddleware } from '../middleware/ws.middleware';
 import { GameService } from '../services/game.service';
+import { ChatService } from '../services/chat.service';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway {
   @WebSocketServer() server?: Server;
 
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly chatService: ChatService,
+  ) {}
 
   // (ROOM CHAT)
   @SubscribeMessage('sendRoomMessage')
@@ -55,36 +59,48 @@ export class ChatGateway {
   //(PRIVATE MESSAGES)
 
   @SubscribeMessage('sendPrivateMessage')
-  handlePrivateMessage(
+  async handlePrivateMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { toUserId: string; message: string },
   ) {
     if (!client.data?.user) return;
-    if (!data.toUserId || !data.message?.trim()) {
+
+    const fromUserId = Number(client.data.user.userId);
+    const toUserId = Number(data.toUserId);
+    const cleanMessage = data.message?.trim();
+
+    if (!Number.isInteger(toUserId) || !cleanMessage) {
       client.emit('error', { message: 'Invalid recipient or message' });
       return;
     }
 
-    const fromUserId = client.data.user.userId;
-    const { username, avatarUrl } = client.data.user;
+    if (fromUserId === toUserId) return;
+    try {
+      const savedMsg = await this.chatService.saveMessage(
+        fromUserId,
+        toUserId,
+        cleanMessage,
+      );
 
-    if (String(fromUserId) === String(data.toUserId)) return;
+      const messagePayload = {
+        fromId: String(fromUserId),
+        toId: String(data.toUserId),
+        fromUsername: savedMsg.fromUser.username,
+        fromAvatarUrl: savedMsg.fromUser.avatarUrl,
+        message: data.message.trim(),
+        timestamp: new Date().toISOString(),
+      };
 
-    const messagePayload = {
-      fromId: String(fromUserId),
-      toId: String(data.toUserId),
-      fromUsername: username,
-      fromAvatarUrl: avatarUrl,
-      message: data.message.trim(),
-      timestamp: new Date().toISOString(),
-    };
+      this.server
+        ?.to(`user_${data.toUserId}`)
+        .emit('receivePrivateMessage', messagePayload);
 
-    this.server
-      ?.to(`user_${data.toUserId}`)
-      .emit('receivePrivateMessage', messagePayload);
-
-    this.server
-      ?.to(`user_${fromUserId}`)
-      .emit('receivePrivateMessage', messagePayload);
+      this.server
+        ?.to(`user_${fromUserId}`)
+        .emit('receivePrivateMessage', messagePayload);
+    } catch (error) {
+      console.error('Error on dataPersistence of the message:', error);
+      client.emit('error', { message: "Couldn't send the message" });
+    }
   }
 }

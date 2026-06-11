@@ -62,14 +62,24 @@ function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => v
 }
 
 function ActiveChatBox({ activeChat }: { activeChat: any }) {
-	const { privateChats, sendPrivateMessage, setActiveChatUserId } = useChat();
+	const { privateChats, sendPrivateMessage, setActiveChatUserId, loadChatHistory } = useChat();
 	const [input, setInput] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
-		setActiveChatUserId(activeChat.id);
-		return () => setActiveChatUserId(null);
-	}, [activeChat.id, setActiveChatUserId]);
+		let isMounted = true;
+
+		if (activeChat?.id) {
+			setActiveChatUserId(activeChat.id);
+			if (isMounted) {
+				loadChatHistory(activeChat.id);
+			}
+		}
+		return () => {
+			isMounted = false;
+			setActiveChatUserId(null);
+		};
+	}, [activeChat?.id, setActiveChatUserId, loadChatHistory]);
 
 	const chatMessages = privateChats[String(activeChat.id)] || [];
 	console.log("ActiveChatBox", privateChats[String(activeChat.id)], activeChat.id);
