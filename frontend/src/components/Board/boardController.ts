@@ -52,6 +52,19 @@ export function useBoardController({
 		return chessGame.fen();
 	});
 
+	const canDragPiece = useCallback(
+		(args: any) => {
+			if (currentTurn !== color) return false;
+
+			const pieceString = args?.piece?.pieceType;
+
+			if (typeof pieceString !== "string") return false;
+
+			return pieceString.startsWith(color || "");
+		},
+		[color, currentTurn],
+	);
+
 	const [helper, setHelper] = useState({
 		bestMove: "",
 		bestLine: "",
@@ -248,6 +261,7 @@ export function useBoardController({
 	const chessboardOptions = {
 		position: chessPosition,
 		onPieceDrop,
+		canDragPiece,
 		allowDragging: Boolean(gameId),
 		id: "play-vs-random",
 		boardOrientation: color === "b" ? ("black" as const) : ("white" as const),
