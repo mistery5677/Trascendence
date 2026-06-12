@@ -14,7 +14,16 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Get(':friendId')
+  @Get('active_chats')
+  @UseGuards(AuthGuard)
+  async getActiveChats(@Req() req: any) {
+    const rawUserId = req.user.userId;
+    const myUserId = Number(rawUserId);
+
+    return this.chatService.getActiveChats(myUserId);
+  }
+
+  @Get('getHistory/:friendId')
   @UseGuards(AuthGuard)
   async getHistory(
     @Param('friendId', ParseIntPipe) friendId: number,

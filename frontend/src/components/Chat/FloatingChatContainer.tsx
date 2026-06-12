@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { acceptFriendRequest, getFriendsList } from "../../api/friendRequest";
-import { SendToBack } from "lucide-react";
+import { getFriendsList } from "../../api/friendRequest";
 import { useNavigate } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext/ChatContext";
+import { getActiveChats } from "../../api/privateChat";
+import { Friends } from "../../pages";
+import { useAuth } from "../../contexts/UserContext";
 
 function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => void }) {
 	const [friends, setFriends] = useState<any[]>([]);
@@ -161,6 +163,57 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 	);
 }
 
+function ShowActiveChats({ onSelectFriend }: { onSelectFriend: (friend: any) => void }) {
+	const [activeChats, setActiveChats] = useState<any[]>([]);
+	const { state } = useAuth();
+
+	useEffect(() => {
+		const fetchActiveChats = async () => {
+			try {
+				const data = await getActiveChats();
+				setActiveChats(data);
+			} catch (error) {
+				console.error("Failed to fetch activeChats: ", error);
+			}
+		};
+		fetchActiveChats();
+	}, []);
+
+	return (
+		<div className="w-full h-full overflow-y-auto p-1">
+			{activeChats.length === 0 ? (
+				<p className="text-xs text-stone-400 text-center">No active chats.</p>
+			) : (
+				<div>
+					{activeChats.map((activeChat) => (
+						<div
+							key={activeChat.id}
+							onClick={() => onSelectFriend(activeChat)}
+							className="flex items-center gap-2 text-xs p-1.5 bg-stone-700 hover:bg-stone-650 rounded text-stone-200 mb-1">
+							<img
+								src={activeChat.avatarUrl}
+								alt={activeChat.username}
+								className="w-6 h-6 rounded-full object-cover bg-stone-600"
+							/>
+							<div className="flex-1 min-w-0">
+								<p className="font-semibold truncate">{activeChat.username}</p>
+								<div className="flex items-baseline gap-1 text-[10px] text-stone-400 min-w-0">
+									<span className="font-medium shrink-0">
+										{activeChat.lastMessage?.fromId === state.user?.id
+											? "You: "
+											: activeChat.username + ": "}
+									</span>
+									<span className="text-emerald-400 truncate">{activeChat.lastMessage?.message}</span>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function FloatingChatContainer() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [showFriends, setShowFriends] = useState(false);
@@ -211,7 +264,7 @@ export function FloatingChatContainer() {
 						) : activeChat ? (
 							<ActiveChatBox activeChat={activeChat} />
 						) : (
-							<p className="text-xs text-stone-400 text-center">No active chats.</p>
+							<ShowActiveChats onSelectFriend={handleSelectFriend} />
 						)}
 					</div>
 				</div>

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { IncomingMessage } from 'http';
-import { from } from 'rxjs';
+import { from, timestamp } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -38,5 +38,52 @@ export class ChatService {
       take: limit,
       include: { fromUser: { select: { username: true, avatarUrl: true } } },
     });
+  }
+
+  async getActiveChats(userId: number) {
+    const messages = await this.prismaService.privateMessage.findMany({
+      where: {
+        OR: [{ fromId: userId }, { toId: userId }],
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        fromUser: {
+          select: { id: true, username: true, avatarUrl: true },
+        },
+        toUser: {
+          select: { id: true, username: true, avatarUrl: true },
+        },
+      },
+    });
+
+    const chatMap = new Map();
+
+    for (const msg of messages) {
+      const isSender = msg.fromId === userId;
+      const partner = isSender ? msg.toUser : msg.fromUser;
+
+      if (!partner) continue;
+
+      const partnerId = String(partner.id);
+
+      if (!chatMap.has(partnerId)) {
+        chatMap.set(partnerId, {
+          id: partner.id,
+          username: partner.username,
+          avatarUrl: partner.avatarUrl,
+          lastMessage: {
+            message: msg.message,
+            timestamp: msg.createdAt.toISOString(),
+            fromId: String(msg.fromId),
+            toId: String(msg.toId),
+          },
+          timestamp: msg.createdAt.toISOString(),
+        });
+      }
+    }
+
+    return Array.from(chatMap.values());
   }
 }
