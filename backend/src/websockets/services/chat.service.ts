@@ -25,7 +25,7 @@ export class ChatService {
   }
 
   async getChatHistory(userIdA: number, userIdB: number, limit = 50) {
-    return this.prismaService.privateMessage.findMany({
+    const history = await this.prismaService.privateMessage.findMany({
       where: {
         OR: [
           { fromId: userIdA, toId: userIdB },
@@ -33,11 +33,13 @@ export class ChatService {
         ],
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc',
       },
       take: limit,
       include: { fromUser: { select: { username: true, avatarUrl: true } } },
     });
+
+	return history.reverse()
   }
 
   async getActiveChats(userId: number) {

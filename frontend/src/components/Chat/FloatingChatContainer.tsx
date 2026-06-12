@@ -69,25 +69,28 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
-		let isMounted = true;
-
 		if (activeChat?.id) {
 			setActiveChatUserId(activeChat.id);
-			if (isMounted) {
-				loadChatHistory(activeChat.id);
-			}
+			console.log("Before load Chat History", activeChat.id);
+			loadChatHistory(activeChat.id);
 		}
 		return () => {
-			isMounted = false;
 			setActiveChatUserId(null);
 		};
 	}, [activeChat?.id, setActiveChatUserId, loadChatHistory]);
 
-	const chatMessages = privateChats[String(activeChat.id)] || [];
-	console.log("ActiveChatBox", privateChats[String(activeChat.id)], activeChat.id);
+	// const chatMessages = privateChats[String(activeChat.id)] || [];
+	const chatMessages = Array.isArray(privateChats[String(activeChat?.id)]) ? privateChats[String(activeChat.id)] : [];
+
+	console.log("ActiveChatBox", chatMessages.length, activeChat.id);
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [chatMessages]);
+		if (chatMessages.length > 0) {
+			const timer = setTimeout(() => {
+				messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+			}, 50);
+			return () => clearTimeout(timer);
+		}
+	}, [chatMessages.length]);
 
 	const handleSend = () => {
 		if (!input.trim()) return;

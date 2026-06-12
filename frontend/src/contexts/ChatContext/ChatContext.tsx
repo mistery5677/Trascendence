@@ -25,6 +25,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 			const currentStatus = chatFetchStatus.current[idKey] || "idle";
 
 			if (currentStatus === "loading" || currentStatus === "loaded") {
+				console.log("CurrentStatus ???")
 				return;
 			}
 
