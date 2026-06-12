@@ -1,10 +1,34 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getFriendsList } from "../../api/friendRequest";
 import { useNavigate } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext/ChatContext";
 import { getActiveChats } from "../../api/privateChat";
-import { Friends } from "../../pages";
 import { useAuth } from "../../contexts/UserContext";
+
+interface ChatListItemProps {
+	avatarUrl: string;
+	username: string;
+	onClick: () => void;
+	children?: React.ReactNode;
+}
+
+function ChatListItem({ avatarUrl, username, onClick, children }: ChatListItemProps) {
+	return (
+		<div
+			onClick={onClick}
+			className="flex items-center gap-2 text-xs p-1.5 bg-stone-700 hover:bg-stone-650 rounded text-stone-200 mb-1 cursor-pointer transition-colors duration-150">
+			<img
+				src={avatarUrl}
+				alt={username}
+				className="w-6 h-6 rounded-full object-cover bg-stone-600 shrink-0"
+			/>
+			<div className="flex-1 min-w-0">
+				<p className="font-semibold truncate">{username}</p>
+				{children}
+			</div>
+		</div>
+	);
+}
 
 function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => void }) {
 	const [friends, setFriends] = useState<any[]>([]);
@@ -42,20 +66,13 @@ function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => v
 			) : (
 				<div>
 					{friends.map((friend) => (
-						<div
+						<ChatListItem
 							key={friend.id}
-							onClick={() => onSelectFriend(friend)}
-							className="flex items-center gap-2 text-xs p-1.5 bg-stone-700 hover:bg-stone-650 rounded text-stone-200 mb-1">
-							<img
-								src={friend.avatarUrl}
-								alt={friend.username}
-								className="w-6 h-6 rounded-full object-cover bg-stone-600"
-							/>
-							<div className="flex-1 min-w-0">
-								<p className="font-semibold truncate">{friend.username}</p>
-								<p className="text-[10px] text-emerald-400">ELO: {friend.elo}</p>
-							</div>
-						</div>
+							avatarUrl={friend.avatarUrl}
+							username={friend.username}
+							onClick={() => onSelectFriend(friend)}>
+							<p className="text-[10px] text-emerald-400">ELO: {friend.elo}</p>
+						</ChatListItem>
 					))}
 				</div>
 			)}
@@ -79,8 +96,7 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 		};
 	}, [activeChat?.id, setActiveChatUserId, loadChatHistory]);
 
-	// const chatMessages = privateChats[String(activeChat.id)] || [];
-	const chatMessages = Array.isArray(privateChats[String(activeChat?.id)]) ? privateChats[String(activeChat.id)] : [];
+	const chatMessages = privateChats[String(activeChat.id)] || [];
 
 	console.log("ActiveChatBox", chatMessages.length, activeChat.id);
 	useEffect(() => {
@@ -184,32 +200,27 @@ function ShowActiveChats({ onSelectFriend }: { onSelectFriend: (friend: any) => 
 
 	return (
 		<div className="w-full h-full overflow-y-auto p-1">
+			<h3 className="text-xs font-bold text-stone-400 mb-2 tracking-wider">Active Chats List</h3>
+
 			{activeChats.length === 0 ? (
 				<p className="text-xs text-stone-400 text-center">No active chats.</p>
 			) : (
 				<div>
 					{activeChats.map((activeChat) => (
-						<div
+						<ChatListItem
 							key={activeChat.id}
-							onClick={() => onSelectFriend(activeChat)}
-							className="flex items-center gap-2 text-xs p-1.5 bg-stone-700 hover:bg-stone-650 rounded text-stone-200 mb-1">
-							<img
-								src={activeChat.avatarUrl}
-								alt={activeChat.username}
-								className="w-6 h-6 rounded-full object-cover bg-stone-600"
-							/>
-							<div className="flex-1 min-w-0">
-								<p className="font-semibold truncate">{activeChat.username}</p>
-								<div className="flex items-baseline gap-1 text-[10px] text-stone-400 min-w-0">
-									<span className="font-medium shrink-0">
-										{activeChat.lastMessage?.fromId === state.user?.id
-											? "You: "
-											: activeChat.username + ": "}
-									</span>
-									<span className="text-emerald-400 truncate">{activeChat.lastMessage?.message}</span>
-								</div>
+							avatarUrl={activeChat.avatarUrl}
+							username={activeChat.username}
+							onClick={() => onSelectFriend(activeChat)}>
+							<div className="flex items-baseline gap-1 text-[10px] text-stone-400 min-w-0">
+								<span className="font-medium shrink-0">
+									{activeChat.lastMessage?.fromId === state.user?.id
+										? "You: "
+										: activeChat.username + ": "}
+								</span>
+								<span className="text-emerald-400 truncate">{activeChat.lastMessage?.message}</span>
 							</div>
-						</div>
+						</ChatListItem>
 					))}
 				</div>
 			)}
@@ -228,40 +239,55 @@ export function FloatingChatContainer() {
 	};
 
 	return (
-		<div className="fixed bottom-4 z-50 right-4">
+		<div className="fixed bottom-2 right-2 md:bottom-4 md:right-4 z-50">
 			{!isOpen && (
 				<button
 					onClick={() => setIsOpen(true)}
-					className="flex h-14 w-14 cursor-pointer items-center justify-center">
+					className="flex h-12 w-12 md:h-14 md:w-14 cursor-pointer items-center justify-center bg-stone-800 hover:bg-stone-700 rounded-full shadow-2xl text-xl transition-transform hover:scale-110 active:scale-95">
 					💬
 				</button>
 			)}
-			{/* Header */}
+
 			{isOpen && (
-				<div className=" bg-stone-800 w-48 h-48 text-white flex flex-col justify-between rounded-lg shadow-lg overflow-hidden">
-					<div className="flex items-center justify-between bg-stone-800 p-2 border-b border-stone-600">
+				<div
+					className="bg-stone-800 text-white flex flex-col justify-between rounded-lg shadow-2xl overflow-hidden border border-stone-750 transition-all duration-200
+                    w-[calc(100vw-16px)] h-[75vh] max-h-[500px]
+                    md:w-[22vw] md:h-[45vh] md:min-w-[320px] md:max-w-[400px] md:min-h-[400px] md:max-h-[600px]
+                ">
+					{/* Header */}
+					<div className="flex items-center justify-between bg-stone-800 p-2.5 border-b border-stone-600 shrink-0">
 						<span className="text-xs font-bold text-white uppercase tracking-wide">Chat</span>
-						{!showFriends ? (
+						<div className="flex items-center gap-3">
+							{!showFriends && !activeChat ? (
+								<button
+									onClick={() => setShowFriends(true)}
+									className="text-stone-400 hover:text-emerald-400 font-bold text-xs cursor-pointer transition-colors">
+									New Chat +
+								</button>
+							) : (
+								<button
+									onClick={() => {
+										setShowFriends(false);
+										setActiveChat(null);
+									}}
+									className="text-stone-400 hover:text-white font-medium text-[11px] cursor-pointer transition-colors">
+									⬅ Back
+								</button>
+							)}
 							<button
-								onClick={() => setShowFriends(true)}
-								className="text-stone-400 hover:text-black font-bold text-xs cursor-pointer">
-								New Chat +
+								onClick={() => {
+									setIsOpen(false);
+									setActiveChat(null);
+									setShowFriends(false);
+								}}
+								className="text-stone-400 hover:text-rose-400 font-bold text-xs cursor-pointer transition-colors pl-1">
+								✖
 							</button>
-						) : (
-							<button
-								onClick={() => setShowFriends(false)}
-								className="text-stone-400 hover:text-white font-medium text-[11px] cursor-pointer">
-								⬅ Back
-							</button>
-						)}
-						<button
-							onClick={() => setIsOpen(false)}
-							className="text-stone-400 hover:text-black font-bold text-xs cursor-pointer">
-							✖
-						</button>
+						</div>
 					</div>
+
 					{/* Body */}
-					<div className="flex-1 flex items-center justify-center">
+					<div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-stone-900/40">
 						{showFriends ? (
 							<ShowFriendList onSelectFriend={handleSelectFriend} />
 						) : activeChat ? (
