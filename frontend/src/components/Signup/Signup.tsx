@@ -19,13 +19,14 @@ export function Signup({ onModal }: SignupProps) {
 	const hasMinLength = password.length >= 6;
 	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 	const hasUpperCase = /[A-Z]/.test(password);
+	const hasSpace = /\s/.test(password);
 
 	// Is always checking if the username is available
 	const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
 	const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
 
 	// Check if all information is true
-	const isFormValid = hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable;
+	const isFormValid = hasMinLength && hasSpecialChar && hasUpperCase && usernameAvailable && emailAvailable && !hasSpace;
 	// Special condition for password ... REMOVE BEFORE DELIVER
 	const canSubmit = password === "1" || isFormValid;
 
@@ -317,6 +318,11 @@ export function Signup({ onModal }: SignupProps) {
 								{/* Upper case letter */}
 								<span style={{ color: hasUpperCase ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
 									{hasUpperCase ? '✓' : '✗'} At least one upper case
+								</span>
+
+								{/* No spaces */}
+								<span style={{ color: !hasSpace ? '#10B981' : '#EF4444', transition: 'color 0.3s' }}>
+									{!hasSpace ? '✓' : '✗'} No spaces allowed
 								</span>
 							</div>
 						{/* Terms */}
