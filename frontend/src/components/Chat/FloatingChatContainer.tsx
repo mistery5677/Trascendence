@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext/ChatContext";
 import { getActiveChats } from "../../api/privateChat";
 import { useAuth } from "../../contexts/UserContext";
+import { BellIcon } from "lucide-react";
+import { ChatBubbleLeftIcon, ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
 
 interface ChatListItemProps {
 	avatarUrl: string;
@@ -233,6 +235,13 @@ export function FloatingChatContainer() {
 	const [showFriends, setShowFriends] = useState(false);
 	const [activeChat, setActiveChat] = useState<any | null>(null);
 	const { state } = useAuth();
+	const { newMessage, setNewMessage } = useChat();
+
+	useEffect(() => {
+		if (isOpen) {
+			setNewMessage(false);
+		}
+	}, [isOpen, setNewMessage]);
 
 	const handleSelectFriend = (friend: any) => {
 		setActiveChat(friend);
@@ -244,18 +253,22 @@ export function FloatingChatContainer() {
 	return (
 		<div className="fixed bottom-2 right-2 md:bottom-4 md:right-4 z-50">
 			{!isOpen && (
-				<button
-					onClick={() => setIsOpen(true)}
-					className="flex h-12 w-12 md:h-14 md:w-14 cursor-pointer items-center justify-center bg-stone-800 hover:bg-stone-700 rounded-full shadow-2xl text-xl transition-transform hover:scale-110 active:scale-95">
-					💬
-				</button>
+				<div>
+					<button
+						onClick={() => setIsOpen(true)}
+						className="flex h-12 w-12 md:h-14 md:w-14 cursor-pointer items-center justify-center bg-stone-800 hover:bg-stone-700 rounded-full shadow-2xl text-xl transition-transform hover:scale-110 active:scale-95">
+						<ChatBubbleOvalLeftEllipsisIcon
+							className={`size-6 ${!newMessage ? "text-white" : "text-button-green"} `}
+						/>
+					</button>
+				</div>
 			)}
 
 			{isOpen && (
 				<div
 					className="bg-stone-800 text-white flex flex-col justify-between rounded-lg shadow-2xl overflow-hidden border border-stone-750 transition-all duration-200
-                    w-[calc(100vw-16px)] h-[75vh] max-h-[500px]
-                    md:w-[22vw] md:h-[45vh] md:min-w-[320px] md:max-w-[400px] md:min-h-[400px] md:max-h-[600px]
+				w-[calc(100vw-16px)] h-[75vh] max-h-[500px]
+				md:w-[22vw] md:h-[45vh] md:min-w-[320px] md:max-w-[400px] md:min-h-[400px] md:max-h-[600px]
                 ">
 					{/* Header */}
 					<div className="flex items-center justify-between bg-stone-800 p-2.5 border-b border-stone-600 shrink-0">
@@ -288,7 +301,6 @@ export function FloatingChatContainer() {
 							</button>
 						</div>
 					</div>
-
 					{/* Body */}
 					<div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-stone-900/40">
 						{showFriends ? (

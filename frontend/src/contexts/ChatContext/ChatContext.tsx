@@ -12,6 +12,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const [activeChatUserId, setActiveChatUserId] = useState<string | null>(null);
 	const { state } = useAuth();
 	const [loadingChats, setLoadingChats] = useState<Record<string, boolean>>({});
+	const [newMessage, setNewMessage] = useState<boolean>(false);
 	const chatFetchStatus = useRef<Record<string, "idle" | "loading" | "loaded">>({});
 
 	const sendPrivateMessage = (toUserId: string, message: string) => {
@@ -24,10 +25,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 			const idKey = String(friendId);
 			const currentStatus = chatFetchStatus.current[idKey] || "idle";
 
-			if (currentStatus === "loading" || currentStatus === "loaded") {
-				console.log("CurrentStatus ???")
-				return;
-			}
+			if (currentStatus === "loading" || currentStatus === "loaded") return;
 
 			if (privateChats[idKey] && privateChats[idKey].length > 0) return;
 
@@ -67,6 +65,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 			const amITheSender = msgFromId === currentUserId;
 			const chatPartnerId = amITheSender ? msgToId : msgFromId;
 
+			if (!amITheSender) {
+				setNewMessage(true);
+			}
+
 			setPrivateChats((prev) => {
 				const previousMessages = prev[chatPartnerId] ? [...prev[chatPartnerId]] : [];
 				const isDuplicate = previousMessages.some(
@@ -91,7 +93,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
 	return (
 		<ChatContext.Provider
-			value={{ privateChats, sendPrivateMessage, activeChatUserId, setActiveChatUserId, loadChatHistory }}>
+			value={{
+				privateChats,
+				sendPrivateMessage,
+				activeChatUserId,
+				setActiveChatUserId,
+				loadChatHistory,
+				newMessage,
+				setNewMessage,
+			}}>
 			{children}
 		</ChatContext.Provider>
 	);

@@ -13,4 +13,6 @@ export type ChatContextType = {
 	activeChatUserId: string | null;
 	setActiveChatUserId: (userId: string | null) => void;
 	loadChatHistory: (friendId: string) => Promise<void>;
+	newMessage: boolean;
+	setNewMessage: React.Dispatch<React.SetStateAction<boolean>>;
 };
