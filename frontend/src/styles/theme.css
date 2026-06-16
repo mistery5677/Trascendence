@@ -25,6 +25,11 @@
 	--color-bottom-settings: #68a14a;
 	--color-bottom-settings-hover: #9ecf5d;
 	--color-button-green: #6aa349;
+	--color-button-green-hover: #9ecf5d;
 	--color-button-stone: #383734;
 	--color-sidebar-bg: #262521;
+	--color-custom-brown: #262521;
+	--color-custom-red: #eb372c;
+	--color-custom-red-hover: #ff4d3f;
+	--color-popup-border-green: #1b533d;
 }

@@ -42,8 +42,7 @@ export function MatchSidebar() {
 				</div>
 			</header>
 			{/* Middle Section */}
-			<section className={`flex-1 flex flex-col min-h-0 ${menu.isOpen ? "flex" : "hidden"}`}>
-				{/* {menu.currentTab === "chat" && <Chat classname="h-full flex-1" />} */}
+			<section className={`flex-1 flex flex-col min-h-0 overflow-y-auto scroll ${menu.isOpen ? "flex" : "hidden"}`}>
 				<div className={menu.currentTab === "chat" ? "block h-full flex-1" : "hidden"}>
 					<Chat classname="h-full flex-1" />
 				</div>
