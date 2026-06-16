@@ -232,11 +232,14 @@ export function FloatingChatContainer() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [showFriends, setShowFriends] = useState(false);
 	const [activeChat, setActiveChat] = useState<any | null>(null);
+	const { state } = useAuth();
 
 	const handleSelectFriend = (friend: any) => {
 		setActiveChat(friend);
 		setShowFriends(false);
 	};
+
+	if (!state.user) return;
 
 	return (
 		<div className="fixed bottom-2 right-2 md:bottom-4 md:right-4 z-50">
