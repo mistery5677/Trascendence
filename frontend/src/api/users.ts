@@ -1,3 +1,4 @@
+import type { UserStatus } from "../components/UserStatusBandage/UserStatusBandage";
 import type { PlayerData } from "./PlayerDataType";
 
 // Change the password
@@ -173,22 +174,34 @@ export async function getUsers(username: string) {
 }
 
 export async function getMyAchievements(): Promise<string[]> {
-    try {
-        const response = await fetch("/api/users/achievements", {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
+	try {
+		const response = await fetch("/api/users/achievements", {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
 
+		if (!response.ok) {
+			throw new Error(`Error HTTP: ${response.status}`);
+		}
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Failed to load achievements :", error);
+		return [];
+	}
+}
 
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.error("Failed to load achievements :", error);
-        return []; 
-    }
+export async function getUserStatus(userId: number): Promise<UserStatus> {
+	try {
+		const response = await fetch(`/api/presence/${userId}`, {
+			method: "GET",
+			headers: { "Content-Type": "application/json" },
+		});
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Failed get User Status :", error);
+		return "offline";
+	}
 }

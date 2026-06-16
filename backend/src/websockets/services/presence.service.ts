@@ -48,8 +48,4 @@ export class PresenceService {
       .map(([userId, _]) => userId);
   }
 }
-//! All connected, with also playing list
-//   getConnectedUsers(): string[] {
-//   return Array.from(this.activeSockets.keys());
-// }
-// }
+

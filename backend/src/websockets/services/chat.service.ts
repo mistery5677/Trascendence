@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { from, timestamp } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PresenceService } from './presence.service';
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly presenceService: PresenceService,
+  ) {}
 
   async saveMessage(fromUserId: number, toUserId: number, message: string) {
     const recipientExists = await this.prismaService.user.findUnique({
@@ -39,7 +43,7 @@ export class ChatService {
       include: { fromUser: { select: { username: true, avatarUrl: true } } },
     });
 
-	return history.reverse()
+    return history.reverse();
   }
 
   async getActiveChats(userId: number) {
@@ -70,9 +74,12 @@ export class ChatService {
 
       const partnerId = String(partner.id);
 
+      const status = this.presenceService.getStatus(partner.id);
+
       if (!chatMap.has(partnerId)) {
         chatMap.set(partnerId, {
-          id: partner.id,
+          id: partnerId,
+          status: status,
           username: partner.username,
           avatarUrl: partner.avatarUrl,
           lastMessage: {

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { PresenceService } from '../services/presence.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -16,5 +16,10 @@ export class PresenceController {
     const onlineUsersData = await this.usersService.findByIds(connectedUsers);
 
     return onlineUsersData;
+  }
+
+  @Get(':id')
+  async getUserStatus(@Param('friendId', ParseIntPipe) UserId: number) {
+    return this.presenceService.getStatus(UserId);
   }
 }
