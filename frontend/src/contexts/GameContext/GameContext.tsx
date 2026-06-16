@@ -26,8 +26,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const hasUser = !!authState.user;
 	//Timer variables
 	//TODO: Make the timer choose by the room mode created
-	const [myTimeLeft, setMyTimeLeft] = useState<number>(10);
-	const [opponentTimeLeft, setOpponentTimeLeft] = useState<number>(10);
+	const [whiteTimeLeft, setWhiteTimeLeft] = useState<number>(10);
+	const [blackTimeLeft, setBlackTimeLeft] = useState<number>(10);
 
 	if (!authState.user) return null;
 
@@ -112,31 +112,29 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	useEffect(() => {
-		// If there is no game, it means that is over
 		if (!gameId || gameOver || !color) return;
 
-		const isMyTurn = currentTurn === color;
-
 		const interval = setInterval(() => {
-			if (isMyTurn) {
-				setMyTimeLeft((prev) => {
+			if (currentTurn === "w") {
+				setWhiteTimeLeft((prev) => {
 					if (prev <= 1) {
 						clearInterval(interval);
-						handleTimeOut(); // Timed out
+						if (color === "w") handleTimeOut();
 						return 0;
 					}
 					return prev - 1;
 				});
 			} else {
-				setOpponentTimeLeft((prev) => {
+				setBlackTimeLeft((prev) => {
 					if (prev <= 1) {
 						clearInterval(interval);
+						if (color === "b") handleTimeOut();
 						return 0;
 					}
 					return prev - 1;
 				});
 			}
-		}, 1000); // 1 second
+		}, 1000);
 
 		return () => clearInterval(interval);
 	}, [gameId, currentTurn, color, gameOver]);
@@ -162,13 +160,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 
 			// Read the timer came from the server
-			if (data.color === "w") {
-				setMyTimeLeft(data.whiteTimeLeft ?? 10);
-				setOpponentTimeLeft(data.blackTimeLeft ?? 10);
-			} else {
-				setMyTimeLeft(data.blackTimeLeft ?? 10);
-				setOpponentTimeLeft(data.whiteTimeLeft ?? 10);
-			}
+			setWhiteTimeLeft(data.whiteTimeLeft ?? 10);
+			setBlackTimeLeft(data.blackTimeLeft ?? 10);
 		};
 
 		const onNoActiveGame = () => {
@@ -178,15 +171,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		const onMove = (data: any) => {
 			setFen(data.fen);
 			setCurrentTurn(data.currentTurn);
-			if (color) {
-				if (color === "w") {
-					setMyTimeLeft(data.whiteTimeLeft ?? myTimeLeft);
-					setOpponentTimeLeft(data.blackTimeLeft ?? opponentTimeLeft);
-				} else {
-					setMyTimeLeft(data.blackTimeLeft ?? myTimeLeft);
-					setOpponentTimeLeft(data.whiteTimeLeft ?? opponentTimeLeft);
-				}
-			}
+			setWhiteTimeLeft(data.whiteTimeLeft ?? whiteTimeLeft);
+			setBlackTimeLeft(data.blackTimeLeft ?? blackTimeLeft);
 		};
 
 		const onGameOver = (data: any) => {
@@ -198,8 +184,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setGameId(null);
 			gameIdRef.current = null;
 			setOpponentId(null);
-			setMyTimeLeft(10);
-			setOpponentTimeLeft(10);
+			setWhiteTimeLeft(10);
+			setBlackTimeLeft(10);
 		};
 
 		const onActiveGameNotFound = () => {
@@ -312,8 +298,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				setMessages,
 
 				// Timer variables
-				myTimeLeft,
-				opponentTimeLeft,
+				whiteTimeLeft,
+				blackTimeLeft,
 				handleTimeOut,
 			}}>
 			{children}

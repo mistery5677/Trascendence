@@ -1,36 +1,20 @@
 import { useEffect, useState } from "react";
 import { LeftUser } from "../index";
-import type { PieceColor } from "../Board/Board";
 import type { AuthState } from "../../contexts/UserContext/authTypes";
 import type { PlayerData } from "../../api/PlayerDataType";
 import { getOpponentData } from "../../api/users";
 import { RightUser } from "../RightUser/RightUser";
 import magnusImg from "../../assets/magnus-carlsen.jpg";
+import { useGame } from "../../contexts/GameContext/GameContext";
 
 type PlayerHeaderProps = {
-	currentTurn: PieceColor;
-	color: "w" | "b" | null;
 	state: AuthState;
 	className?: string | undefined;
-	opponentId?: string | null;
-	isSearchingMatch?: boolean;
-
-	myTimeLeft: number;
-	opponentTimeLeft: number;
-	onTimeOut: (loserColor: "w" | "b") => void; // Warns who lost the game
+	onTimeOut: (loserColor: "w" | "b") => void;
 };
 
-export function PlayerHeader({
-	currentTurn,
-	color,
-	state,
-	opponentId,
-	isSearchingMatch = false,
-	className = "",
-	myTimeLeft,
-	opponentTimeLeft,
-	onTimeOut,
-}: PlayerHeaderProps) {
+export function PlayerHeader({ state, onTimeOut, className = "" }: PlayerHeaderProps) {
+	const { currentTurn, color, opponentId, isSearchingMatch, whiteTimeLeft, blackTimeLeft } = useGame();
 	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
 	const normalizedOpponentId = String(opponentId ?? "").toLowerCase();
 	const isBotOpponent = normalizedOpponentId.includes("bot");
@@ -80,7 +64,7 @@ export function PlayerHeader({
 				color={color}
 				currentTurn={currentTurn}
 				state={state}
-				myTimeLeft={myTimeLeft}
+				myTimeLeft={color === "w" ? whiteTimeLeft : blackTimeLeft}
 				isMyTurn={isMyTurn}
 				onTimeOut={onTimeOut}
 			/>
@@ -106,7 +90,7 @@ export function PlayerHeader({
 				currentTurn={currentTurn}
 				onTimeOut={onTimeOut}
 				opponentDisplayName={opponentDisplayName}
-				opponentTimeLeft={opponentTimeLeft}
+				opponentTimeLeft={color === "w" ? blackTimeLeft : whiteTimeLeft}
 				isOpponentTurn={isOpponentTurn}
 				opponentAvatarUrl={opponentAvatarUrl}
 				isSearchingMatch={isSearchingMatch}

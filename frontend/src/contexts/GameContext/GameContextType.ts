@@ -32,8 +32,8 @@ export type GameContextType = {
 	rematchProposal: boolean;
 
 	// Timer variables
-	myTimeLeft: number;
-	opponentTimeLeft: number;
+	whiteTimeLeft: number;
+	blackTimeLeft: number;
 	handleTimeOut: () => void;
 
 	//Messages
