@@ -110,7 +110,7 @@ export function PlayOptions() {
 	};
 
 	return (
-		<div className="flex w-full flex-col items-center justify-center gap-3 pt-0">
+		<div className="flex w-full flex-col items-center justify-center gap-3 pt-0 scroll pb-3 sm:gap-6 sm:pt-3">
 			{PLAY_MODES.map((mode) => (
 				<PlayOptionsCard
 					key={mode}

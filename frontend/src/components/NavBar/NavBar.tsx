@@ -1,5 +1,5 @@
 import { IconUser } from "@tabler/icons-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
 	Disclosure,
 	DisclosureButton,
@@ -12,7 +12,6 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/UserContext";
 import { useEffect, useState } from "react";
-
 const navigation = [
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
