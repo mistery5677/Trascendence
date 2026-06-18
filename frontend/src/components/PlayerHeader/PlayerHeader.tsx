@@ -109,6 +109,7 @@ export function PlayerHeader({
 				opponentTimeLeft={opponentTimeLeft}
 				isOpponentTurn={isOpponentTurn}
 				opponentAvatarUrl={opponentAvatarUrl}
+				opponentElo={opponentProfile?.elo ?? null}
 				isSearchingMatch={isSearchingMatch}
 			/>
 		</div>

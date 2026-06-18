@@ -50,6 +50,14 @@ export function NavBar({ onModal }: NavBarProps) {
 		}
 	};
 
+	const handleLoginClick = () => {
+		if (state.user) {
+			navigate("/play");
+		} else {
+			onModal("login");
+		}
+	};
+
 	const avatarSrc = state.user?.avatarUrl ? `${state.user.avatarUrl}?t=${avatarUrlKey}` : undefined; // -> /api/assets/avatars/default1.png
 	const isLoggedIn = !!state.user;
 
@@ -122,12 +130,12 @@ export function NavBar({ onModal }: NavBarProps) {
 									</button>
 								</div>
 
-								<a
+								<button
 									type="button"
-									href="/play"
+									onClick={handleLoginClick}
 									className="block rounded-2xl border border-button-green bg-button-green px-6 py-2 text-sm tracking-wide text-white font-extrabold shadow-button-green transition-all duration-200 hover:from-lime-200 hover:to-emerald-200 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-200/90 focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900">
 									Play
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>

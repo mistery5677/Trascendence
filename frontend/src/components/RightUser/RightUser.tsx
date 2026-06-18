@@ -1,4 +1,6 @@
 import { Timer } from "../Timer/Timer";
+import frame from "../../assets/title.png";
+import { TitleFrame } from "../TitleFrame/TitleFrame";
 
 type RightUserProps = {
 	color: "w" | "b" | null;
@@ -8,6 +10,7 @@ type RightUserProps = {
 	opponentTimeLeft: number;
 	isOpponentTurn: boolean;
 	opponentAvatarUrl: string | undefined;
+	opponentElo: number | null; // Added to match the LeftUser's dynamic ELO tooltip
 	isSearchingMatch?: boolean;
 };
 
@@ -19,9 +22,12 @@ export function RightUser({
 	opponentTimeLeft,
 	isOpponentTurn,
 	opponentAvatarUrl,
+	opponentElo,
 	isSearchingMatch = false,
 }: RightUserProps) {
 	const showSearchingState = isSearchingMatch;
+
+	console.log("RightUser Rendered with props:", { opponentElo, opponentDisplayName });
 
 	return (
 		<>
@@ -35,8 +41,9 @@ export function RightUser({
 				}`}>
 				{/* timer + name & rank */}
 				<div className="flex flex-col items-end gap-[1%] flex-1 min-w-0 justify-end md:flex-row-reverse md:items-center md:gap-[4%]">
-					<div className="flex flex-col justify-center items-end flex-1 min-w-0">
-						<div className="group relative w-full overflow-visible text-right">
+					<div className="flex flex-col justify-center items-end flex-1 min-w-0 w-full">
+						{/* GROUP 1: Username Tooltip Group */}
+						<div className="group relative w-full overflow-visible text-right right-2 sm:right-2">
 							<div
 								className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full ml-auto text-right text-[clamp(0.72rem,1vw,2.5rem)] font-extrabold transition-colors duration-500 ${
 									showSearchingState
@@ -48,22 +55,34 @@ export function RightUser({
 								{showSearchingState ? "Searching..." : opponentDisplayName}
 							</div>
 							{!showSearchingState && (
-								<div className="pointer-events-none absolute bottom-full right-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5">
+								<div className="pointer-events-none absolute bottom-full right-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap z-50">
 									{opponentDisplayName}
 								</div>
 							)}
 						</div>
-						<div
-							className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full ml-auto text-right text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
-								showSearchingState
-									? "text-emerald-300"
-									: color != null && currentTurn !== color
+
+						{/* GROUP 2: ELO Title Frame & Tooltip Group */}
+						<div className="group relative w-full overflow-visible text-right right-2 sm:-right-2">
+							<div
+								className={`w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full ml-auto flex justify-end text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
+									showSearchingState
 										? "text-emerald-300"
-										: "text-slate-500"
-							}`}>
-							{showSearchingState ? "MATCHMAKING" : "BEGINNER"}
+										: color != null && currentTurn !== color
+											? "text-emerald-300"
+											: "text-slate-500"
+								}`}>
+								<TitleFrame frame={frame}>{showSearchingState ? "MATCHMAKING" : "BEGINNER"}</TitleFrame>
+							</div>
+
+							{!showSearchingState && (
+								<div className="pointer-events-none absolute bottom-full right-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap z-50">
+									{opponentElo ? opponentElo : "N/A"}
+								</div>
+							)}
 						</div>
 					</div>
+
+					{/* Timer Section */}
 					<div className="shrink-0">
 						{showSearchingState ? (
 							<div className="flex aspect-square w-[34%] md:w-[20%] items-center justify-center rounded-full border border-emerald-300/30 bg-stone-950/60 shadow-lg">
@@ -81,6 +100,7 @@ export function RightUser({
 						)}
 					</div>
 				</div>
+
 				{/* avatar */}
 				{showSearchingState ? (
 					<div className="flex aspect-square w-[34%] md:w-[20%] shrink-0 items-center justify-center rounded-full border border-emerald-300/30 bg-linear-to-br from-stone-950 to-stone-800 shadow-lg">
