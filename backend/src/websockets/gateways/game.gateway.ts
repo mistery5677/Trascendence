@@ -174,21 +174,29 @@ export class GameGateway {
     this.processGameState(data.gameId, validMove);
 
     if (game.mode === 'ai' && !game.chess.isGameOver()) {
-      const move = await this.stockfishAI.getBestMove(
+      const aiMove = await this.stockfishAI.getBestMove(
         game.chess.fen(),
         game.level,
       );
-      console.log(move);
 
-      const validMove = this.gameService.makeMove(data.gameId, move);
+      const humanizedDelay =
+        Math.floor(Math.random() * (3200 - 1000 + 1)) + 1000;
 
-      if (validMove) {
-        const humanizedDelay =
-          Math.floor(Math.random() * (1000 - 1200 + 1)) + 1000;
-        setTimeout(() => {
-          this.processGameState(data.gameId, validMove);
-        }, humanizedDelay);
-      }
+      setTimeout(() => {
+        const activeGame = this.gameService.getGame(data.gameId);
+        if (
+          !activeGame ||
+          activeGame.chess.isGameOver() ||
+          activeGame.chess.turn() !== 'b'
+        ) {
+          return;
+        }
+
+        const validAiMove = this.gameService.makeMove(data.gameId, aiMove);
+        if (validAiMove) {
+          this.processGameState(data.gameId, validAiMove);
+        }
+      }, humanizedDelay);
     }
     if (game.mode === 'bot' && !game.chess.isGameOver()) {
       const humanizedDelay =
@@ -260,19 +268,20 @@ export class GameGateway {
   }
 
   // Check if we already have that achievement
-  private async checkAchievements(gameId: string, winnerId?: number | null){
+  private async checkAchievements(gameId: string, winnerId?: number | null) {
     if (!winnerId) return;
 
     try {
-      const newAchievement = await this.achievementsService.checkFirstWin(winnerId);
+      const newAchievement =
+        await this.achievementsService.checkFirstWin(winnerId);
 
-      if (newAchievement){
+      if (newAchievement) {
         this.server.to(gameId).emit('achievementUnlocked', {
           winnerId: winnerId,
-          achievement: newAchievement
+          achievement: newAchievement,
         });
       }
-    } catch (error){
+    } catch (error) {
       console.error('Error to register the achievement: ', error);
     }
   }
@@ -281,7 +290,8 @@ export class GameGateway {
   @SubscribeMessage('requestAchievements')
   async handleRequestAchievements(@ConnectedSocket() client: Socket) {
     const userId = client.data.user.userId;
-    const unlockedIds = await this.achievementsService.getUserUnlockedAchievements(userId);
+    const unlockedIds =
+      await this.achievementsService.getUserUnlockedAchievements(userId);
     client.emit('loadAchievements', unlockedIds);
   }
 }

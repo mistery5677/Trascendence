@@ -23,7 +23,7 @@ export function Play() {
 	const { state } = useAuth();
 	const [currentTurn, setCurrentTurn] = useState<PieceColor>("w");
 
-	const { color, opponentId, isSearchingMatch, myTimeLeft = 0, opponentTimeLeft = 0, handleTimeOut } = useGame();
+	const { color, opponentId, isSearchingMatch, whiteTimeLeft = 0, blackTimeLeft = 0, handleTimeOut } = useGame();
 
 	const handleTurnChange = (newTurn: PieceColor) => {
 		setCurrentTurn(newTurn);
@@ -47,13 +47,7 @@ export function Play() {
 					<div className="flex w-full flex-col gap-2 xl:h-[calc(100dvh-7rem)] xl:min-h-0 xl:max-w-[calc((100dvh-7rem)*0.75)] 2xl:max-w-[calc((100dvh-7rem)*0.80)]">
 						<div className="w-full xl:basis-[15%] 2xl:basis-[15%] xl:min-h-0">
 							<PlayerHeader
-								currentTurn={currentTurn}
-								color={color}
 								state={state}
-								opponentId={opponentId}
-								isSearchingMatch={isSearchingMatch}
-								myTimeLeft={myTimeLeft}
-								opponentTimeLeft={opponentTimeLeft}
 								onTimeOut={(loserColor) => {
 									if (color === loserColor && handleTimeOut) {
 										handleTimeOut();

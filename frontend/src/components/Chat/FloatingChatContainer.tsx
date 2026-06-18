@@ -4,26 +4,35 @@ import { useNavigate } from "react-router-dom";
 import { useChat } from "../../contexts/ChatContext/ChatContext";
 import { getActiveChats } from "../../api/privateChat";
 import { useAuth } from "../../contexts/UserContext";
-import { BellIcon } from "lucide-react";
-import { ChatBubbleLeftIcon, ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
+import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
+import { UserStatusBadge, type UserStatus } from "../UserStatusBandage/UserStatusBandage";
 
 interface ChatListItemProps {
 	avatarUrl: string;
 	username: string;
+	status: UserStatus;
 	onClick: () => void;
 	children?: React.ReactNode;
 }
 
-function ChatListItem({ avatarUrl, username, onClick, children }: ChatListItemProps) {
+function ChatListItem({ avatarUrl, username, status, onClick, children }: ChatListItemProps) {
+	console.log(status);
 	return (
 		<div
 			onClick={onClick}
 			className="flex items-center gap-2 text-xs p-1.5 bg-stone-700 hover:bg-stone-650 rounded text-stone-200 mb-1 cursor-pointer transition-colors duration-150">
-			<img
-				src={avatarUrl}
-				alt={username}
-				className="w-6 h-6 rounded-full object-cover bg-stone-600 shrink-0"
-			/>
+			<div className="relative shrink-0">
+				<img
+					src={avatarUrl}
+					alt={username}
+					className="w-6 h-6 rounded-full object-cover bg-stone-600 shrink-0"
+				/>
+				<UserStatusBadge
+					status={status}
+					size="sm"
+				/>
+			</div>
+
 			<div className="flex-1 min-w-0">
 				<p className="font-semibold truncate">{username}</p>
 				{children}
@@ -50,7 +59,6 @@ function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => v
 		};
 		fetchFriend();
 	}, []);
-
 	return (
 		<div className="w-full h-full overflow-y-auto p-1">
 			<h3 className="text-xs font-bold text-stone-400 mb-2 tracking-wider">Friend List</h3>
@@ -72,6 +80,7 @@ function ShowFriendList({ onSelectFriend }: { onSelectFriend: (friend: any) => v
 							key={friend.id}
 							avatarUrl={friend.avatarUrl}
 							username={friend.username}
+							status={friend.status}
 							onClick={() => onSelectFriend(friend)}>
 							<p className="text-[10px] text-emerald-400">ELO: {friend.elo}</p>
 						</ChatListItem>
@@ -90,9 +99,9 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 	useEffect(() => {
 		if (activeChat?.id) {
 			setActiveChatUserId(activeChat.id);
-			console.log("Before load Chat History", activeChat.id);
 			loadChatHistory(activeChat.id);
 		}
+
 		return () => {
 			setActiveChatUserId(null);
 		};
@@ -100,7 +109,6 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 
 	const chatMessages = privateChats[String(activeChat.id)] || [];
 
-	console.log("ActiveChatBox", chatMessages.length, activeChat.id);
 	useEffect(() => {
 		if (chatMessages.length > 0) {
 			const timer = setTimeout(() => {
@@ -125,6 +133,22 @@ function ActiveChatBox({ activeChat }: { activeChat: any }) {
 
 	return (
 		<div className="flex flex-col h-full w-full bg-stone-950/95 justify-between overflow-hidden">
+			<div className="flex items-center gap-2.5 bg-stone-900 px-3 py-2 border-b border-stone-800 shrink-0">
+				<div className="relative shrink-0">
+					<img
+						src={activeChat.avatarUrl || ""}
+						alt={activeChat.username}
+						className="w-7 h-7 rounded-full object-cover bg-stone-700 border border-stone-700 shrink-0"
+					/>
+					<UserStatusBadge
+						status={activeChat.status}
+						size="sm"
+					/>
+				</div>
+				<div className="flex flex-col min-w-0">
+					<span className="text-xs font-bold text-stone-100 truncate">{activeChat.username}</span>
+				</div>
+			</div>
 			<div className="flex-1 overflow-y-auto p-2 space-y-2 flex flex-col">
 				<p className="text-[10px] text-stone-500 text-center my-1">Connected with {activeChat.username}</p>
 
@@ -212,6 +236,7 @@ function ShowActiveChats({ onSelectFriend }: { onSelectFriend: (friend: any) => 
 						<ChatListItem
 							key={activeChat.id}
 							avatarUrl={activeChat.avatarUrl}
+							status={activeChat.status}
 							username={activeChat.username}
 							onClick={() => onSelectFriend(activeChat)}>
 							<div className="flex items-baseline gap-1 text-[10px] text-stone-400 min-w-0">
