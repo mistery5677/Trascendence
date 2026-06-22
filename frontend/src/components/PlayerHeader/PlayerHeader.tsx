@@ -93,6 +93,7 @@ export function PlayerHeader({ state, onTimeOut, className = "" }: PlayerHeaderP
 				opponentTimeLeft={color === "w" ? blackTimeLeft : whiteTimeLeft}
 				isOpponentTurn={isOpponentTurn}
 				opponentAvatarUrl={opponentAvatarUrl}
+				opponentElo={opponentProfile?.elo ?? null}
 				isSearchingMatch={isSearchingMatch}
 			/>
 		</div>

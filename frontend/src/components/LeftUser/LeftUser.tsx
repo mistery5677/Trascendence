@@ -1,5 +1,9 @@
+import { useState } from "react";
 import type { User } from "../../contexts/UserContext/authTypes";
+import { displayElo } from "../../utils/displayElo";
 import { Timer } from "../Timer/Timer";
+import frame from "../../assets/title.png";
+import { TitleFrame } from "../TitleFrame/TitleFrame";
 
 type LeftUserProps = {
 	color: "w" | "b" | null;
@@ -11,6 +15,8 @@ type LeftUserProps = {
 };
 
 export function LeftUser({ color, currentTurn, state, myTimeLeft, isMyTurn, onTimeOut }: LeftUserProps) {
+	const [showNumber, setShowNumber] = useState(false);
+
 	return (
 		<>
 			{/* left user */}
@@ -31,25 +37,49 @@ export function LeftUser({ color, currentTurn, state, myTimeLeft, isMyTurn, onTi
 				/>
 				{/* name & rank + timer */}
 				<div className="max-w-[80%] md:flex items-center flex-nowrap gap-[4%] flex-1 min-w-0">
-					<div className="flex flex-col justify-center items-start flex-1 min-w-0">
-						<div className="group relative w-full overflow-visible text-left">
+					<div className="flex flex-col justify-center items-start flex-1 min-w-0 w-full">
+						{/* GROUP 1: Username Tooltip Group */}
+						<div className="group relative w-full overflow-visible text-left left-2 sm:left-2">
+							{/* Username Display Text */}
 							<div
 								className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.72rem,1vw,2.5rem)] font-extrabold transition-colors duration-500 ${
 									color != null && currentTurn === color ? "text-stone-100" : "text-slate-400"
 								}`}>
 								{state.user ? state.user?.username : "Player 1"}
 							</div>
-							<div className="pointer-events-none absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5">
+
+							{/* Tooltip for Username */}
+							<div className="z-50 absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap pointer-events-none">
 								{state.user ? state.user?.username : "Player 1"}
 							</div>
 						</div>
-						<div
-							className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
-								color != null && currentTurn === color ? "text-emerald-300" : "text-slate-500"
-							}`}>
-							GRANDMASTER
+
+						{/* GROUP 2: ELO Tooltip Group */}
+						<div className="group relative w-full overflow-visible text-left left-2 sm:-left-2">
+							{/* <img
+								src={frame}
+								alt="Chess frame"
+								className="absolute inset-0 w-full h-full object-contain"
+							/> */}
+							{/* ELO Display Text */}
+							<div
+								className={`w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
+									color != null && currentTurn === color ? "text-emerald-300" : "text-slate-500"
+								}`}>
+								{/* <TitleFrame frame={frame}>{displayElo(state.user?.score?.elo as number | null)}</TitleFrame> */}
+								<TitleFrame frame={frame}>GRANDMASTER</TitleFrame>
+								{/* GRANDMASTER */}
+								{/* {displayElo(state.user?.score?.elo as number | null)} */}
+							</div>
+
+							{/* Tooltip for ELO Number */}
+							<div className="z-50 absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap pointer-events-none">
+								{state.user?.score?.elo ? state.user?.score.elo : "N/A"}
+							</div>
 						</div>
 					</div>
+
+					{/* Timer Section */}
 					<div className="shrink-0">
 						<Timer
 							timeLeftInSeconds={myTimeLeft}

@@ -63,6 +63,13 @@ export function MainRouter() {
 								/>
 							)}
 
+							{!state.user && activeModal === "login" && (
+								<Route
+									path={RouterPaths.PLAY}
+									element={<Login onModal={setActiveModal} />}
+								/>
+							)}
+
 							{/* Path for the rules*/}
 							<Route
 								path={RouterPaths.RULES}
