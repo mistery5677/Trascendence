@@ -8,14 +8,12 @@ export function NotificationBell() {
 
 	const toggleDropdown = () => {
 		if (isOpen) {
-			// Al cerrar voluntariamente usando el botón, marcamos como leídas
 			markAllAsRead();
 		}
 		setIsOpen(!isOpen);
 	};
 
 	const handleCloseDropdown = () => {
-		// Al hacer clic fuera en el overlay invisible, marcamos como leídas y cerramos
 		markAllAsRead();
 		setIsOpen(false);
 	};
@@ -25,7 +23,6 @@ export function NotificationBell() {
 			<button
 				type="button"
 				onClick={toggleDropdown}
-				// Añadimos z-50 cuando esté abierto para quedar sobre el overlay y alternar correctamente
 				className={`relative rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.03] active:scale-95 ${
 					isOpen
 						? "text-emerald-200 bg-emerald-400/10 z-50"
