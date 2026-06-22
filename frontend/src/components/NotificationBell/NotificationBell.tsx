@@ -7,14 +7,10 @@ export function NotificationBell() {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const toggleDropdown = () => {
-		if (isOpen) {
-			markAllAsRead();
-		}
 		setIsOpen(!isOpen);
 	};
 
 	const handleCloseDropdown = () => {
-		markAllAsRead();
 		setIsOpen(false);
 	};
 
@@ -54,6 +50,14 @@ export function NotificationBell() {
 								<span className="text-xs bg-lime-500/20 text-lime-300 px-2 py-0.5 rounded-full">
 									{unreadCount} new
 								</span>
+							)}
+							{unreadCount > 0 && (
+								<button
+									type="button"
+									onClick={markAllAsRead}
+									className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 hover:underline transition-all focus:outline-none">
+									Mark all as read
+								</button>
 							)}
 						</div>
 

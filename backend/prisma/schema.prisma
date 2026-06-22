@@ -14,6 +14,22 @@ datasource db {
     provider = "postgresql"
 }
 
+model Notification {
+    id        String   @id @default(uuid())
+    title     String
+    message   String
+    type      String
+    read      Boolean  @default(false)
+    payload   Json?
+    createdAt DateTime @default(now())
+
+    // Relation with user
+    userId Int
+    user   user @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
 // Class for the user 
 // We use 'model' to e store the information in a table
 model user {
@@ -49,6 +65,8 @@ model user {
 
     sentMessages     PrivateMessage[] @relation("SentMessages")
     receivedMessages PrivateMessage[] @relation("ReceivedMessages")
+
+    notification Notification[] @relation("UserNotifications")
 }
 
 model MatchHistory {
