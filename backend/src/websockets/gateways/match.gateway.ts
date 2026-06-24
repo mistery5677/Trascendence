@@ -135,4 +135,14 @@ export class MatchGateway {
       client.emit(`noActiveGame`);
     }
   }
+
+  @SubscribeMessage('listActiveGames')
+  handleListActiveGames(
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.emit(
+      'activeGames',
+      this.gameService.getActiveGames(),
+    );
+  }
 }

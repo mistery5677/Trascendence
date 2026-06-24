@@ -357,4 +357,21 @@ export class GameService {
       );
     }
   }
+
+  getActiveGames(): {
+    gameId: string;
+    playerW: string;
+    playerB: string;
+  }[] {
+    return [...this.games.entries()]
+      .filter(([_, game]) => {
+        return !game.isFinished && game.mode === 'online';
+      })
+      .map(([gameId, game]) => ({
+        gameId,
+        playerW: game.playerW,
+        playerB: game.playerB,
+      }));
+  }
 }
+
