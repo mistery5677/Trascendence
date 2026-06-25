@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNotifications } from "../../contexts/NotificationContext/NotificationContext";
 import { BellIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { markNotificationAsRead } from "../../api/users";
 
 export function NotificationBell() {
-	const { unreadCount, notifications, markAllAsRead } = useNotifications();
+	const { unreadCount, notifications, markOneAsRead, markAllAsRead } = useNotifications();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
 
@@ -18,7 +19,11 @@ export function NotificationBell() {
 		setIsOpen(false);
 	};
 
-	const handleNotificationClick = (notification: any) => {
+	const handleNotificationClick = async (notification: any) => {
+		if (!notification.read) {
+			await markOneAsRead(notification.id);
+		}
+
 		if (notification.type === "friendRequest") {
 			navigate("/friends");
 			handleCloseDropdown();
@@ -42,7 +47,6 @@ export function NotificationBell() {
 			document.removeEventListener("mousedown", handleOutsideClick);
 		};
 	}, [isOpen]);
-
 
 	return (
 		<div

@@ -88,4 +88,25 @@ export class NotificationService {
       data: { read: true },
     });
   }
+
+  async markAsRead(userId: number, notificationId: string) {
+    if (!userId || typeof userId !== 'number' || Number.isNaN(userId)) {
+      throw new BadRequestException(
+        'Invalid or missing User ID for updating notifications.',
+      );
+    }
+    if (!notificationId || typeof notificationId !== 'string') {
+      throw new BadRequestException(
+        'Invalid or missing notificationId for updating notifications.',
+      );
+    }
+
+    return this.prisma.notification.updateMany({
+      where: {
+        id: notificationId,
+        read: false,
+      },
+      data: { read: true },
+    });
+  }
 }

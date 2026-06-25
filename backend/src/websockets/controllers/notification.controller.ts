@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Patch,
   Req,
   UseGuards,
@@ -32,5 +34,21 @@ export class NotificationController {
     }
 
     return await this.notificationService.markAllAsRead(userId);
+  }
+
+  @Patch('read/:notificationId')
+  async readNotification(
+    @Req() req: any,
+    @Param('notificationId') notificationId: string,
+  ) {
+    const userId = Number(req.user.userId);
+    if (!userId || Number.isNaN(userId)) {
+      throw new BadRequestException('User session is invalid or unauthorized');
+    }
+    if (!notificationId || Number.isNaN(notificationId)) {
+      throw new BadRequestException('NotificationId is invalid or missing');
+    }
+
+    return await this.notificationService.markAsRead(userId, notificationId);
   }
 }

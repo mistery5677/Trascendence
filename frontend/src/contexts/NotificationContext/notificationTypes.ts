@@ -11,6 +11,7 @@ export type NotificationType = {
 export type NotificationContextType = {
 	notifications: NotificationType[];
 	unreadCount: number;
-	markAllAsRead: () => void;
+	markOneAsRead: (notificationId: string) => Promise<void>;
+	markAllAsRead: () => Promise<void>;
 	clearNotifications: () => void;
 };

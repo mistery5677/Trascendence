@@ -225,7 +225,7 @@ export async function getMyNotifications(): Promise<any[]> {
 	}
 }
 
-export async function markNotificationsAsReadBackend(): Promise<boolean> {
+export async function markAllNotificationsAsRead(): Promise<boolean> {
 	try {
 		const response = await fetch("/api/notification/read-all", {
 			method: "PATCH",
@@ -241,6 +241,20 @@ export async function markNotificationsAsReadBackend(): Promise<boolean> {
 		return data;
 	} catch (error) {
 		console.error("Failed to mark notifications as read on backend:", error);
+		return false;
+	}
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<boolean> {
+	try {
+		const response = await fetch(`/api/notification/read/${notificationId}`, {
+			method: "PATCH",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+		});
+		return response.ok;
+	} catch (error) {
+		console.error("Failed to mark notification as read:", error);
 		return false;
 	}
 }
