@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNotifications } from "../../contexts/NotificationContext/NotificationContext";
 import { BellIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 export function NotificationBell() {
 	const { unreadCount, notifications, markAllAsRead } = useNotifications();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const navigate = useNavigate();
 
 	const toggleDropdown = () => {
 		setIsOpen(!isOpen);
@@ -12,6 +14,15 @@ export function NotificationBell() {
 
 	const handleCloseDropdown = () => {
 		setIsOpen(false);
+	};
+
+	const handleNotificationClick = (notification: any) => {
+		if (notification.type === "friendRequest") {
+			navigate("/friends"); // 👈 Cambia esto por tu ruta real
+			handleCloseDropdown();
+		} else if (notification.type === "system") {
+		} else if (notification.type === "matchInvite") {
+		}
 	};
 
 	return (
@@ -71,6 +82,7 @@ export function NotificationBell() {
 								notifications.map((notification) => (
 									<div
 										key={notification.id}
+										onClick={() => handleNotificationClick(notification)}
 										className={`p-2 rounded-lg transition-colors duration-150 border-l-2 ${
 											notification.read
 												? "bg-stone-800/20 hover:bg-stone-800/50 border-stone-700"
