@@ -18,7 +18,7 @@ export function NotificationBell() {
 
 	const handleNotificationClick = (notification: any) => {
 		if (notification.type === "friendRequest") {
-			navigate("/friends"); // 👈 Cambia esto por tu ruta real
+			navigate("/friends");
 			handleCloseDropdown();
 		} else if (notification.type === "system") {
 		} else if (notification.type === "matchInvite") {
