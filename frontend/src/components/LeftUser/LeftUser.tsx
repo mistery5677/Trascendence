@@ -1,96 +1,135 @@
-import { useState } from "react";
-import type { User } from "../../contexts/UserContext/authTypes";
 import { displayElo } from "../../utils/displayElo";
 import { Timer } from "../Timer/Timer";
-import frame from "../../assets/title.png";
-import { TitleFrame } from "../TitleFrame/TitleFrame";
+import { useGame } from "../../contexts/GameContext/GameContext";
+import type { User } from "../../contexts/UserContext/authTypes";
 
 type LeftUserProps = {
-	color: "w" | "b" | null;
-	currentTurn: "w" | "b";
 	state: { user: User | null; isLoading: boolean };
-	myTimeLeft: number;
-	isMyTurn: boolean;
 	onTimeOut: (loserColor: "w" | "b") => void;
 };
 
-export function LeftUser({ color, currentTurn, state, myTimeLeft, isMyTurn, onTimeOut }: LeftUserProps) {
-	const [showNumber, setShowNumber] = useState(false);
+export function LeftUser({ state, onTimeOut }: LeftUserProps) {
+	const { currentTurn, color, whiteTimeLeft, blackTimeLeft } = useGame();
+
+	// Internal values based on game context
+	const isActiveTurn = color != null && currentTurn === color;
+	const myTimeLeft = color === "w" ? whiteTimeLeft : blackTimeLeft;
+
+	const username = state.user ? state.user.username : "Player 1";
+	const eloRating = state.user?.score?.elo;
 
 	return (
-		<>
-			{/* left user */}
-			<div
-				className={`flex w-full min-w-0 items-center gap-[3%] rounded-2xl p-[3%] transition-all duration-500 justify-self-start ${
-					color != null && currentTurn === color
-						? "bg-emerald-500/14 ring-1 ring-emerald-300/35 scale-[.90] hover:scale-[1.05]"
-						: "opacity-65 scale-100"
+		<div
+			className={`relative flex w-full min-w-0 items-center gap-[4%] p-[3%] 
+                bg-linear-to-r from-stone-900/40 via-sidebar-bg/90 to-sidebar-bg/40
+                backdrop-blur-md rounded-sm border-y border-r transition-all duration-500 select-none group
+                hover:scale-[1.03] hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.6)]
+                ${
+					isActiveTurn
+						? "border-emerald-500/40 border-l-2 border-l-emerald-400 bg-emerald-500/50  shadow-[0_10px_30px_-15px_rgba(16,185,129,0.15)]"
+						: "border-stone-800 border-l-2 border-l-stone-700 opacity-70"
 				}`}>
-				{/* avatar */}
+			{/* Left Accent: Threat/Status Stripes */}
+			<div
+				aria-hidden="true"
+				className={`flex flex-col gap-0.75 shrink-0 transition-all duration-500 ${isActiveTurn ? "opacity-100" : "opacity-40"}`}>
+				<div
+					className={`w-1 h-3 transform -skew-x-12 transition-colors duration-500 ${isActiveTurn ? "bg-emerald-400" : "bg-stone-500"}`}
+				/>
+				<div
+					className={`w-1 h-1 transform -skew-x-12 transition-colors duration-500 ${isActiveTurn ? "bg-emerald-400/40" : "bg-stone-500/20"}`}
+				/>
+			</div>
+
+			{/* Avatar Section - Restored to exact original scale (w-[34%]) */}
+			<div className="relative shrink-0 w-[34%] md:w-[22%] aspect-square flex items-center justify-center p-1.5">
+				{/* The Circular photo */}
 				<img
 					src={state.user?.avatarUrl}
-					className={`aspect-square w-[34%] md:w-[20%] shrink-0 rounded-full object-fit shadow-lg ring-2 transition-all duration-500 ${
-						color != null && currentTurn === color
-							? "ring-emerald-300 shadow-emerald-700/20"
-							: "ring-slate-700 shadow-none border border-slate-600"
-					}`}
+					alt="User Avatar"
+					className={`w-full h-full object-fit rounded-full ring-2 transition-all duration-500
+                        ${isActiveTurn ? "ring-emerald-400 shadow-lg shadow-emerald-500/20" : "ring-stone-700"}`}
 				/>
-				{/* name & rank + timer */}
-				<div className="max-w-[80%] md:flex items-center flex-nowrap gap-[4%] flex-1 min-w-0">
-					<div className="flex flex-col justify-center items-start flex-1 min-w-0 w-full">
-						{/* GROUP 1: Username Tooltip Group */}
-						<div className="group relative w-full overflow-visible text-left left-2 sm:left-2">
-							{/* Username Display Text */}
-							<div
-								className={`truncate w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.72rem,1vw,2.5rem)] font-extrabold transition-colors duration-500 ${
-									color != null && currentTurn === color ? "text-stone-100" : "text-slate-400"
-								}`}>
-								{state.user ? state.user?.username : "Player 1"}
-							</div>
 
-							{/* Tooltip for Username */}
-							<div className="z-50 absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap pointer-events-none">
-								{state.user ? state.user?.username : "Player 1"}
-							</div>
-						</div>
+				{/* Asymmetric Cyber-Brackets framing the avatar housing boundary */}
+				<div
+					aria-hidden="true"
+					className={`absolute -top-px -left-px w-2 h-2 border-t border-l transition-colors duration-500 ${isActiveTurn ? "border-emerald-400" : "border-stone-600"}`}
+				/>
+				<div
+					aria-hidden="true"
+					className={`absolute -bottom-px -right-px w-2 h-2 border-b border-r transition-colors duration-500 ${isActiveTurn ? "border-emerald-400" : "border-stone-600"}`}
+				/>
+			</div>
 
-						{/* GROUP 2: ELO Tooltip Group */}
-						<div className="group relative w-full overflow-visible text-left left-2 sm:-left-2">
-							{/* <img
-								src={frame}
-								alt="Chess frame"
-								className="absolute inset-0 w-full h-full object-contain"
-							/> */}
-							{/* ELO Display Text */}
-							<div
-								className={`w-full max-w-[11ch] sm:max-w-[14ch] md:max-w-full text-[clamp(0.58rem,0.72vw,1rem)] font-semibold tracking-wide transition-colors duration-500 ${
-									color != null && currentTurn === color ? "text-emerald-300" : "text-slate-500"
-								}`}>
-								{/* <TitleFrame frame={frame}>{displayElo(state.user?.score?.elo as number | null)}</TitleFrame> */}
-								<TitleFrame frame={frame}>GRANDMASTER</TitleFrame>
-								{/* GRANDMASTER */}
-								{/* {displayElo(state.user?.score?.elo as number | null)} */}
-							</div>
+			{/* Core Info & Timer Block */}
+			<div className="flex-1 min-w-0 md:flex items-center justify-between gap-[4%]">
+				{/* Text Block (Metadata ELO + Username) */}
+				<div className="flex flex-col min-w-0 flex-1">
+					{/* Metadata ELO Rating Layer */}
+					<div className="group/elo relative w-max overflow-visible text-left">
+						<span
+							className={`text-[9px] font-mono font-bold tracking-[0.25em] uppercase transition-colors duration-500 leading-none block mb-1
+                            ${isActiveTurn ? "text-emerald-400/90" : "text-stone-500"}`}>
+							{eloRating ? `ELO // ${eloRating}` : "ELO // N/A"}
+						</span>
 
-							{/* Tooltip for ELO Number */}
-							<div className="z-50 absolute bottom-full left-0 mb-2 rounded-md border border-emerald-300/35 bg-stone-900/95 px-2 py-1 text-[15px] font-semibold tracking-wide text-emerald-200 opacity-0 shadow-lg transition-all duration-150 group-hover:opacity-100 group-hover:-translate-y-0.5 whitespace-nowrap pointer-events-none">
-								{state.user?.score?.elo ? state.user?.score.elo : "N/A"}
-							</div>
+						{/* Hover Tooltip for Elo Details */}
+						<div className="z-50 absolute bottom-full left-0 mb-1.5 rounded-sm border border-emerald-500/35 bg-stone-950 px-2 py-0.5 text-[11px] font-mono tracking-wider text-emerald-300 opacity-0 shadow-xl transition-all duration-150 group-hover/elo:opacity-100 group-hover/elo:-translate-y-0.5 whitespace-nowrap pointer-events-none">
+							{eloRating ? `${eloRating} Points` : "No Rank Data"}
 						</div>
 					</div>
 
-					{/* Timer Section */}
-					<div className="shrink-0">
-						<Timer
-							timeLeftInSeconds={myTimeLeft}
-							isRunning={isMyTurn}
-							onTimeUp={() => {
-								if (color) onTimeOut(color);
-							}}
-						/>
+					{/* Username Layer */}
+					<div className="group/name relative w-full overflow-visible text-left">
+						<h2
+							className={`text-[clamp(0.72rem,1vw,2.5rem)] font-black tracking-widest uppercase transition-colors duration-500 leading-none truncate max-w-[11ch] sm:max-w-[14ch] md:max-w-full
+                            ${isActiveTurn ? "text-stone-100" : "text-stone-400"}`}>
+							{username}
+						</h2>
+
+						{/* Full Username Tooltip if truncated */}
+						<div className="z-50 absolute bottom-full left-0 mb-1.5 rounded-sm border border-emerald-500/35 bg-stone-950 px-2 py-0.5 text-[11px] font-mono tracking-wider text-emerald-300 opacity-0 shadow-xl transition-all duration-150 group-hover/name:opacity-100 group-hover/name:-translate-y-0.5 whitespace-nowrap pointer-events-none">
+							{username}
+						</div>
 					</div>
+
+					{/* Title Tier Subtext */}
+					<span
+						className={`text-[10px] font-bold tracking-wider mt-1 transition-colors duration-500 opacity-80
+                        ${isActiveTurn ? "text-emerald-300/70" : "text-stone-500"}`}>
+						{state.user ? displayElo(state.user.score?.elo as number) : "NO RANK"}
+					</span>
+				</div>
+
+				{/* Timer Section */}
+				<div
+					className={`shrink-0 mt-2 md:mt-0 transition-opacity duration-500 ${isActiveTurn ? "opacity-100" : "opacity-60"}`}>
+					<Timer
+						timeLeftInSeconds={myTimeLeft}
+						isRunning={isActiveTurn}
+						onTimeUp={() => {
+							if (color) onTimeOut(color);
+						}}
+					/>
 				</div>
 			</div>
-		</>
+
+			{/* Precision Wire Decal (Right Sub-Border) */}
+			<div
+				aria-hidden="true"
+				className={`absolute right-0 top-0 bottom-0 w-0.75 transition-all duration-500 bg-linear-to-b
+                    ${
+						isActiveTurn
+							? "from-emerald-400/60 via-transparent to-emerald-400/20"
+							: "from-stone-700/40 via-transparent to-stone-800/20"
+					}`}
+			/>
+
+			{/* Sub-surface Glowing Underline Tracker */}
+			<div
+				className={`absolute bottom-0 left-12 right-6 h-px bg-linear-to-r from-emerald-400/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+			/>
+		</div>
 	);
 }

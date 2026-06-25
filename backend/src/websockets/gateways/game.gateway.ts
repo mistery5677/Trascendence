@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GameService } from '../services/game.service';
+import { GameInstance, GameService } from '../services/game.service';
 import { v4 as uuidv4 } from 'uuid';
 import { StockfishService } from 'src/stockfish/stockfish.service';
 import { AchievementsService } from 'src/achievements/achievements.service';
@@ -115,6 +115,12 @@ export class GameGateway {
     @MessageBody() data: { gameId: string; response: boolean },
   ) {
     const game = this.gameService.getGame(data.gameId);
+    console.log(
+      'Responding to rematch proposal:',
+      data.response,
+      'for gameId:',
+      data.gameId,
+    );
     if (!game) return;
 
     const userId = client.data.user.userId;
@@ -126,11 +132,14 @@ export class GameGateway {
     if (data.response) {
       const newGameId = uuidv4();
 
-      const newGame = this.gameService.createGame(
+      let newGame: GameInstance | undefined;
+
+      newGame = this.gameService.createGame(
         newGameId,
-        'online',
-        game.playerB,
-        game.playerW,
+        game.mode,
+        game.mode === 'online' ? game.playerB : game.playerW,
+        game.mode === 'online' ? game.playerW : game.playerB,
+        game.timeStamp,
       );
       if (newGame) {
         this.server

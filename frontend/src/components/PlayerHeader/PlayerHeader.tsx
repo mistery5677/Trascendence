@@ -1,11 +1,6 @@
-import { useEffect, useState } from "react";
 import { LeftUser } from "../index";
 import type { AuthState } from "../../contexts/UserContext/authTypes";
-import type { PlayerData } from "../../api/PlayerDataType";
-import { getOpponentData } from "../../api/users";
 import { RightUser } from "../RightUser/RightUser";
-import magnusImg from "../../assets/magnus-carlsen.jpg";
-import { useGame } from "../../contexts/GameContext/GameContext";
 
 type PlayerHeaderProps = {
 	state: AuthState;
@@ -14,58 +9,11 @@ type PlayerHeaderProps = {
 };
 
 export function PlayerHeader({ state, onTimeOut, className = "" }: PlayerHeaderProps) {
-	const { currentTurn, color, opponentId, isSearchingMatch, whiteTimeLeft, blackTimeLeft } = useGame();
-	const [opponentProfile, setOpponentProfile] = useState<PlayerData | null>(null);
-	const normalizedOpponentId = String(opponentId ?? "").toLowerCase();
-	const isBotOpponent = normalizedOpponentId.includes("bot");
-	const isAIOpponent = normalizedOpponentId.includes("ai") || normalizedOpponentId.includes("stockfish");
-	const isEngineOpponent = isBotOpponent || isAIOpponent;
-
-	useEffect(() => {
-		if (!opponentId || isEngineOpponent) {
-			setOpponentProfile(null);
-			return;
-		}
-
-		let cancelled = false;
-		getOpponentData(opponentId)
-			.then((data) => {
-				if (!cancelled) setOpponentProfile(data);
-			})
-			.catch(() => {
-				if (!cancelled) setOpponentProfile(null);
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [opponentId, isEngineOpponent]);
-	let opponentDisplayName;
-	let opponentAvatarUrl;
-	if (isSearchingMatch) {
-		opponentDisplayName = "Searching for opponent...";
-		opponentAvatarUrl = "";
-	} else if (isEngineOpponent) {
-		if (isBotOpponent) opponentDisplayName = "Uncle Carlsen (bot)";
-		else opponentDisplayName = "Uncle Carlsen (AI)";
-		opponentAvatarUrl = magnusImg;
-	} else {
-		opponentDisplayName = opponentProfile?.username ?? opponentId ?? "Opponent";
-		opponentAvatarUrl = opponentProfile?.avatarUrl ? opponentProfile?.avatarUrl : undefined;
-	}
-
-	const isMyTurn = color != null && currentTurn === color;
-	const isOpponentTurn = color != null && currentTurn !== color;
-
 	return (
 		<div
-			className={`grid w-full grid-cols-[1fr_auto_1fr] items-center gap-[2%] rounded-2xl border border-emerald-300/15 bg-stone-900/70 p-[2.5%] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
+			className={`max-h-full grid w-full  grid-cols-[1fr_auto_1fr] items-center gap-[2%] rounded-2xl border border-emerald-300/15 bg-stone-900/70 p-[2.5%] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm ${className}`}>
 			<LeftUser
-				color={color}
-				currentTurn={currentTurn}
 				state={state}
-				myTimeLeft={color === "w" ? whiteTimeLeft : blackTimeLeft}
-				isMyTurn={isMyTurn}
 				onTimeOut={onTimeOut}
 			/>
 
@@ -85,17 +33,7 @@ export function PlayerHeader({ state, onTimeOut, className = "" }: PlayerHeaderP
 				</div>
 			</div>
 
-			<RightUser
-				color={color}
-				currentTurn={currentTurn}
-				onTimeOut={onTimeOut}
-				opponentDisplayName={opponentDisplayName}
-				opponentTimeLeft={color === "w" ? blackTimeLeft : whiteTimeLeft}
-				isOpponentTurn={isOpponentTurn}
-				opponentAvatarUrl={opponentAvatarUrl}
-				opponentElo={opponentProfile?.elo ?? null}
-				isSearchingMatch={isSearchingMatch}
-			/>
+			<RightUser onTimeOut={onTimeOut} />
 		</div>
 	);
 }
