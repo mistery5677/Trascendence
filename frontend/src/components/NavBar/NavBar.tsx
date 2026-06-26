@@ -12,6 +12,7 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../contexts/UserContext";
 import { useEffect, useState } from "react";
+import { NotificationBell } from "../NotificationBell/NotificationBell";
 const navigation = [
 	{ name: "Login", href: "/login", current: false },
 	{ name: "Register", href: "/signup", current: false },
@@ -140,17 +141,7 @@ export function NavBar({ onModal }: NavBarProps) {
 						</div>
 					</div>
 					<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-						<button
-							type="button"
-							className="relative rounded-xl p-2 text-stone-300 hover:text-emerald-200 hover:bg-emerald-400/10 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200 hover:scale-[1.03] active:scale-95">
-							<span className="absolute -inset-1.5" />
-							<span className="sr-only">View notifications</span>
-							<BellIcon
-								aria-hidden="true"
-								className="size-6"
-							/>
-							<span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-lime-300" />
-						</button>
+						{state.user && <NotificationBell />}
 
 						{/* Profile dropdown or Button */}
 						{state.user ? (

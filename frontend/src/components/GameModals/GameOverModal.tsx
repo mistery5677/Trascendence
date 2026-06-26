@@ -14,8 +14,10 @@ export function GameOverModal() {
 	}, [gameOver]);
 
 	useEffect(() => {
-		if (!rematchProposal || !isWaitingForRematchProposal) return;
+		console.log("rematchProposal changed:", rematchProposal, isWaitingForRematchProposal);
+		if (!rematchProposal && !isWaitingForRematchProposal) return;
 
+		console.log("Auto-accepting rematch proposal");
 		handleRematchResponse(true);
 		setIsWaitingForRematchProposal(false);
 	}, [rematchProposal, isWaitingForRematchProposal, handleRematchResponse]);

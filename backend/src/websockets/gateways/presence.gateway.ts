@@ -12,6 +12,7 @@ import { WsMiddleware } from '../middleware/ws.middleware';
 import { MatchMakingService } from '../services/matchmaking.service';
 import { GameService } from '../services/game.service';
 import { UsersService } from 'src/users/users.service';
+import { NotificationService } from '../services/notification.service';
 
 @WebSocketGateway({ cors: true })
 export class PresenceGateway
@@ -24,10 +25,15 @@ export class PresenceGateway
     private readonly matchMakingService: MatchMakingService,
     private readonly gameService: GameService,
     private readonly userService: UsersService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   afterInit() {
     this.server?.use(WsMiddleware(this.jwtService, this.userService));
+
+    if (this.server) {
+      this.notificationService.setServer(this.server);
+    }
   }
 
   handleConnection(client: Socket) {

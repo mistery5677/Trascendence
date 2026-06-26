@@ -24,7 +24,7 @@ interface ChatMessage {
   timeStamp: string;
 }
 
-interface GameInstance {
+export interface GameInstance {
   chess: Chess;
   mode: 'online' | 'bot' | 'ai';
   level: number | undefined;
@@ -34,6 +34,7 @@ interface GameInstance {
   disconnectTimeout?: NodeJS.Timeout;
 
   // Timer variables
+  timeStamp: '3 min' | '5 min' | '10 min'; // Time when the game started
   whiteTimeLeft: number;
   blackTimeLeft: number;
   lastMoveTimestamp: number; // Time of the last move
@@ -75,6 +76,7 @@ export class GameService {
       playerB: playerBId,
 
       // Start the timer
+      timeStamp: timeControl as '3 min' | '5 min' | '10 min',
       whiteTimeLeft: this.getTimeControlInSeconds(timeControl),
       blackTimeLeft: this.getTimeControlInSeconds(timeControl),
       lastMoveTimestamp: Date.now(),

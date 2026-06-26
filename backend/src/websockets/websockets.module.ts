@@ -13,6 +13,8 @@ import { PresenceController } from './controllers/presence.controller';
 import { StockfishModule } from 'src/stockfish/stockfish.module';
 import { ChatService } from './services/chat.service';
 import { ChatController } from './controllers/chat.controller';
+import { NotificationService } from './services/notification.service';
+import { NotificationController } from './controllers/notification.controller';
 
 @Module({
   imports: [MatchesModule, UsersModule, StockfishModule],
@@ -26,8 +28,9 @@ import { ChatController } from './controllers/chat.controller';
     MatchMakingService,
     AchievementsService,
     ChatService,
+    NotificationService,
   ],
-  controllers: [PresenceController, ChatController],
-  exports: [PresenceService],
+  controllers: [PresenceController, ChatController, NotificationController],
+  exports: [PresenceService, NotificationService],
 })
 export class WebsocketsModule {}

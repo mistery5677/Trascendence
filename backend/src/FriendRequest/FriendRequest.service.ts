@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { PresenceService } from 'src/websockets/services/presence.service';
+import { NotificationService } from 'src/websockets/services/notification.service';
 
 @Injectable()
 export class FriendRequestService {
@@ -14,8 +15,8 @@ export class FriendRequestService {
     private prisma: PrismaService,
     private achievementsService: AchievementsService,
     private presenceService: PresenceService,
+    private notificationService: NotificationService,
   ) {}
-  
 
   async sendRequest(senderId: number, targetUsername: string) {
     // Find the invited user
@@ -59,13 +60,28 @@ export class FriendRequestService {
       }
     }
 
-    return await this.prisma.friendRequest.create({
+    const newRequest = await this.prisma.friendRequest.create({
       data: {
         senderId: senderId,
         receiverId: receiver.id,
         status: 'PENDING',
       },
     });
+    const sender = await this.prisma.user.findUnique({
+      where: { id: senderId },
+      select: { username: true },
+    });
+
+    if (sender) {
+      this.notificationService.sendNotification(receiver.id, {
+        title: 'Friend Request',
+        message: `${sender.username} sent you a Friend Request.`,
+        type: 'friendRequest',
+        payload: { senderId: senderId },
+      });
+    }
+
+    return newRequest;
   }
   // Get the pending requests
   async getPendingRequests(userId: number) {
