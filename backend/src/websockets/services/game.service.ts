@@ -362,6 +362,7 @@ export class GameService {
     gameId: string;
     playerW: string;
     playerB: string;
+    mode: "online" | "bot" | "ai";
   }[] {
     return [...this.games.entries()]
       .filter(([_, game]) => {
@@ -371,6 +372,7 @@ export class GameService {
         gameId,
         playerW: game.playerW,
         playerB: game.playerB,
+        mode: game.mode,
       }));
   }
 }
