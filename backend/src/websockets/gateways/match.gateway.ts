@@ -137,12 +137,11 @@ export class MatchGateway {
   }
 
   @SubscribeMessage('listActiveGames')
-  handleListActiveGames(
+  async handleListActiveGames(
     @ConnectedSocket() client: Socket,
   ) {
-    client.emit(
-      'activeGames',
-      this.gameService.getActiveGames(),
-    );
+    const games = await this.gameService.getActiveGames();
+
+    client.emit('activeGames', games);
   }
 }

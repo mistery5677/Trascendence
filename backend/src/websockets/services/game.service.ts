@@ -3,6 +3,8 @@ import { Chess } from 'chess.js';
 import { MatchesService } from 'src/matches/matches.service';
 import { v4 as uuidv4 } from 'uuid';
 import { PresenceService } from './presence.service';
+import { UsersService } from 'src/users/users.service';
+import { Result } from 'pg';
 
 interface GameOverResult {
   winnerColor: 'w' | 'b' | null;
@@ -41,6 +43,19 @@ export interface GameInstance {
   chatHistory: ChatMessage[];
 }
 
+  // For use in activeGames
+  type ActiveGame = {
+    gameId: string;
+
+    playerWId: string;
+    playerBId: string;
+
+    playerWName: string,
+    playerBName: string,
+
+    mode: "online" | "bot" | "ai";
+  };
+
 @Injectable()
 export class GameService {
   private games = new Map<string, GameInstance>();
@@ -48,6 +63,7 @@ export class GameService {
   constructor(
     private readonly matchesService: MatchesService,
     private readonly presenceService: PresenceService,
+    private readonly usersService: UsersService,
   ) {}
 
   private getTimeControlInSeconds(timeControl: string): number {
@@ -360,22 +376,43 @@ export class GameService {
     }
   }
 
-  getActiveGames(): {
-    gameId: string;
-    playerW: string;
-    playerB: string;
-    mode: "online" | "bot" | "ai";
-  }[] {
-    return [...this.games.entries()]
-      .filter(([_, game]) => {
-        return !game.isFinished && game.mode === 'online';
-      })
-      .map(([gameId, game]) => ({
-        gameId,
-        playerW: game.playerW,
-        playerB: game.playerB,
-        mode: game.mode,
-      }));
+  async getActiveGames(): Promise<ActiveGame[]> {
+    const activeGames = [...this.games.entries()]
+      .filter(([_, game]) => !game.isFinished);
+
+      const result: ActiveGame[] = [];
+      for (const [gameId, game] of activeGames) {
+        let whitePlayerName = "Unknown";
+        let blackPlayerName = "Unknown";
+
+        const whitePlayer = await this.usersService.findOneById(parseInt(game.playerW));
+        whitePlayerName = whitePlayer?.username ?? "Unknown";
+
+        if (game.mode === "online") {
+          const blackPlayer = await this.usersService.findOneById(parseInt(game.playerB));
+          blackPlayerName = blackPlayer?.username ?? "Unknown";
+        }
+        else if (game.mode === "bot") {
+          blackPlayerName = "Uncle Carlsen (bot)";
+        }
+        else if (game.mode === "ai") {
+          blackPlayerName = "Uncle Carlsen (AI)";
+        const blackPlayer = blackPlayerName;
+        }
+        result.push({
+            gameId,
+
+            playerWId: game.playerW,
+            playerBId: game.playerB,
+
+            playerWName: whitePlayerName,
+            playerBName: blackPlayerName,
+
+            mode: game.mode,
+        });
+    }
+
+    return result;
   }
 }
 
