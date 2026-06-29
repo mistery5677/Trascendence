@@ -6,8 +6,13 @@
 
 // Way to create a new class: https://www.postgresql.org/docs/7.0/query27768.htm
 
+//generator client {
+//    provider = "prisma-client-js"
+//}
+
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client" 
 }
 
 datasource db {
