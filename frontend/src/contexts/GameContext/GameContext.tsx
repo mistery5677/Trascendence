@@ -236,7 +236,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 
 		const onDrawProposed = () => setDrawProposal(true);
-		console.log("DASDADADASDS\n");
 		const onRematchProposed = () => setRematchProposal(true);
 		const onDrawRejected = () => {
 			toastWrapper.warn("The draw proposal was rejected.");

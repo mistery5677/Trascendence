@@ -165,6 +165,12 @@ export class UsersService {
         backgroundTheme: true,
         draws: true,
         updatedAt: true,
+        totalGames: true,
+        bestWinStreak: true,
+        currentWinStreak: true,
+        averageEloGain: true,
+        averageEloLoss: true,
+        bestElo: true,
       },
     });
   }

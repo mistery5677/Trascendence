@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useGame } from "../../contexts/GameContext/GameContext";
 
 export function GameOverModal() {
-	const { gameOver, color, proposeRematch, rematchProposal, handleRematchResponse } = useGame();
+	const { gameOver, color, proposeRematch, rematchProposal, handleRematchResponse, opponentId } = useGame();
 	const [isDismissed, setIsDismissed] = useState(false);
 	const [isWaitingForRematchProposal, setIsWaitingForRematchProposal] = useState(false);
 
@@ -26,7 +26,6 @@ export function GameOverModal() {
 
 	const isWinner = gameOver.winnerColor === color;
 	const isDraw = gameOver.winnerColor === null;
-	console.log(gameOver.winnerColor);
 
 	const handlePlayAgain = () => {
 		if (rematchProposal) {
@@ -56,9 +55,11 @@ export function GameOverModal() {
 				<p className="max-w-[32ch] text-[clamp(0.95rem,2.5vw,1.125rem)] text-slate-400">
 					{isDraw
 						? "A tough battle with no clear winner."
-						: isWinner
+						: isWinner && opponentId !== "bot" && opponentId !== "ai"
 							? "You crushed the opponent! +8 ELO"
-							: "Better luck next time. -8 ELO"}
+							: opponentId === "bot" || opponentId === "ai"
+								? "Good job! You played against the AI."
+								: "The opponent outplayed you. -8 ELO"}
 				</p>
 
 				<span className="text-[clamp(0.7rem,1.8vw,0.8rem)] font-mono uppercase tracking-[0.25em] text-emerald-500/50">

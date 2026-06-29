@@ -69,15 +69,16 @@ export class FriendRequestService {
     });
     const sender = await this.prisma.user.findUnique({
       where: { id: senderId },
-      select: { username: true },
+      select: { username: true, avatarUrl: true },
     });
+
 
     if (sender) {
       this.notificationService.sendNotification(receiver.id, {
         title: 'Friend Request',
-        message: `${sender.username} sent you a Friend Request.`,
+        message: `sent you a Friend Request.`,
         type: 'friendRequest',
-        payload: { senderId: senderId },
+        payload: { senderId: senderId, senderAvatarUrl: sender.avatarUrl, senderUsername: sender.username },
       });
     }
 

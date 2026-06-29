@@ -101,6 +101,12 @@ export class AuthService {
         wins: user.wins,
         losses: user.losses,
         draws: user.draws,
+        totalGames: user.totalGames,
+        bestWinStreak: user.bestWinStreak,
+        currentWinStreak: user.currentWinStreak,
+        averageEloGain: user.averageEloGain,
+        averageEloLoss: user.averageEloLoss,
+        bestElo: user.bestElo,
       },
     };
   }

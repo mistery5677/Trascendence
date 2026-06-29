@@ -7,7 +7,8 @@ import { AchievementsService } from '../achievements/achievements.service';
 export class MatchesService {
   constructor(
     private prisma: PrismaService,
-    private achievementsService: AchievementsService,) {}
+    private achievementsService: AchievementsService,
+  ) {}
 
   async saveMatchResult(
     playerWId: number,
@@ -22,7 +23,17 @@ export class MatchesService {
         result: winnerId ? `WINNER_ID_${winnerId}` : 'DRAW',
       },
     });
-  
+
+    // Update the total games played for both players
+    await this.prisma.user.update({
+      where: { id: playerBId },
+      data: { totalGames: { increment: 1 } },
+    });
+    await this.prisma.user.update({
+      where: { id: playerWId },
+      data: { totalGames: { increment: 1 } },
+    });
+
     if (winnerId === null) {
       await Promise.all([
         this.prisma.user.update({
@@ -44,17 +55,34 @@ export class MatchesService {
         where: { id: winnerId },
         data: { wins: { increment: 1 }, elo: { increment: 8 } },
       }),
-
       this.prisma.user.update({
         where: { id: loserId },
         data: { losses: { increment: 1 }, elo: { decrement: 8 } },
       }),
     ]);
-    // Check the first win achievement 
+
+    if (updatedWinner.elo > updatedWinner.bestElo) {
+      console.log(
+        'Updating bestElo for user',
+        winnerId,
+        'from',
+        updatedWinner.bestElo,
+        'to',
+        updatedWinner.elo,
+      );
+      await this.prisma.user.update({
+        where: { id: winnerId },
+        data: { bestElo: updatedWinner.elo },
+      });
+    }
+    // Check the first win achievement
     await this.achievementsService.checkFirstWin(winnerId);
-    
+
     // Check the grandmaster achievement
-    await this.achievementsService.checkGrandMaster(winnerId, updatedWinner.elo);
+    await this.achievementsService.checkGrandMaster(
+      winnerId,
+      updatedWinner.elo,
+    );
 
     return { message: 'Match saved', matchId: match.id };
   }
