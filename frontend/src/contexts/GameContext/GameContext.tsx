@@ -190,7 +190,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setLastFinishedGameId(gameIdRef.current);
 			setIsSearchingMatch(false);
 			setGameOver(data.gameOver);
-			setGameId(null);
 			setWhiteTimeLeft(data.gameOver.whiteTimeLeft ?? 10);
 			setBlackTimeLeft(data.gameOver.blackTimeLeft ?? 10);
 		};
