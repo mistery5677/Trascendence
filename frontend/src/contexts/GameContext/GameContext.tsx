@@ -111,6 +111,17 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 		socket.emit("startAIGame", options);
 	};
 
+	const resetGameContextToDefault = () => {
+		setGameOver(null);
+		setFen("start");
+		setCurrentTurn("w");
+		setGameId(null);
+		gameIdRef.current = null;
+		setOpponentId(null);
+		setWhiteTimeLeft(10);
+		setBlackTimeLeft(10);
+	};
+
 	useEffect(() => {
 		if (!gameId || gameOver || !color) return;
 
@@ -179,13 +190,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 			setLastFinishedGameId(gameIdRef.current);
 			setIsSearchingMatch(false);
 			setGameOver(data.gameOver);
-			setFen("start");
-			setCurrentTurn("w");
-			setGameId(null);
-			gameIdRef.current = null;
-			setOpponentId(null);
-			setWhiteTimeLeft(10);
-			setBlackTimeLeft(10);
+			setWhiteTimeLeft(data.gameOver.whiteTimeLeft ?? 10);
+			setBlackTimeLeft(data.gameOver.blackTimeLeft ?? 10);
 		};
 
 		const onActiveGameNotFound = () => {
@@ -296,7 +302,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				isSearchingMatch,
 				messages,
 				setMessages,
-
+				resetGameContextToDefault,
 				// Timer variables
 				whiteTimeLeft,
 				blackTimeLeft,
