@@ -43,6 +43,7 @@ export type GameContextType = {
 	surrender: () => void;
 	proposeDraw: () => void;
 	proposeRematch: () => void;
+	resetGameContextToDefault: () => void;
 	startOnlineGame: (options: MatchStartOptions) => void;
 	startBotGame: (options: MatchStartOptions) => void;
 	startAIGame: (options: MatchStartOptions) => void;

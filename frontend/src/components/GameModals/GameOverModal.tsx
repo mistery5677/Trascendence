@@ -2,19 +2,44 @@ import { useEffect, useState } from "react";
 import { useGame } from "../../contexts/GameContext/GameContext";
 
 export function GameOverModal() {
-	const { gameOver, color, proposeRematch, rematchProposal, handleRematchResponse, opponentId } = useGame();
+	const {
+		gameOver,
+		color,
+		proposeRematch,
+		rematchProposal,
+		handleRematchResponse,
+		opponentId,
+		resetGameContextToDefault,
+	} = useGame();
 	const [isDismissed, setIsDismissed] = useState(false);
 	const [isWaitingForRematchProposal, setIsWaitingForRematchProposal] = useState(false);
+
+	const getMatchMessage = () => {
+		if (isDraw) return "A tough battle with no clear winner.";
+
+		const isAi = opponentId === "bot" || opponentId === "ai";
+
+		if (isWinner) {
+			return isAi ? "Good job! You played against the AI." : "You crushed the opponent! +8 ELO";
+		}
+
+		return isAi ? "The AI outplayed you." : "The opponent outplayed you. -8 ELO";
+	};
+	const handleNavigation = (url: string) => {
+		if (resetGameContextToDefault) {
+			resetGameContextToDefault();
+		}
+		window.location.href = url;
+	};
 
 	useEffect(() => {
 		if (gameOver) {
 			setIsDismissed(false);
 			setIsWaitingForRematchProposal(false);
 		}
-	}, [gameOver]);
+	}, [gameOver, resetGameContextToDefault]);
 
 	useEffect(() => {
-		console.log("rematchProposal changed:", rematchProposal, isWaitingForRematchProposal);
 		if (!rematchProposal && !isWaitingForRematchProposal) return;
 
 		console.log("Auto-accepting rematch proposal");
@@ -52,15 +77,7 @@ export function GameOverModal() {
 					{isDraw ? "DRAW" : isWinner ? "VICTORY!" : "DEFEAT"}
 				</h2>
 
-				<p className="max-w-[32ch] text-[clamp(0.95rem,2.5vw,1.125rem)] text-slate-400">
-					{isDraw
-						? "A tough battle with no clear winner."
-						: isWinner && opponentId !== "bot" && opponentId !== "ai"
-							? "You crushed the opponent! +8 ELO"
-							: opponentId === "bot" || opponentId === "ai"
-								? "Good job! You played against the AI."
-								: "The opponent outplayed you. -8 ELO"}
-				</p>
+				<p className="max-w-[32ch] text-[clamp(0.95rem,2.5vw,1.125rem)] text-slate-400">{getMatchMessage()}</p>
 
 				<span className="text-[clamp(0.7rem,1.8vw,0.8rem)] font-mono uppercase tracking-[0.25em] text-emerald-500/50">
 					Reason: {gameOver.reason}
@@ -73,15 +90,16 @@ export function GameOverModal() {
 						Play Again
 					</button>
 					<button
-						onClick={() => (window.location.href = "/play")}
+						onClick={() => handleNavigation("/play")}
 						className="w-full rounded-xl bg-button-green px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-slate-950 transition-all hover:bg-button-green-hover sm:flex-1">
 						New Match
 					</button>
-					<a
-						href="/settings"
+					<button
+						type="button"
+						onClick={() => handleNavigation("/settings")}
 						className="w-full rounded-xl border border-slate-600 bg-button-stone px-[clamp(1rem,2.5vw,1.5rem)] py-[clamp(0.75rem,2vw,1rem)] text-[clamp(0.9rem,2vw,1rem)] font-bold text-white transition-all hover:bg-stone-700 sm:flex-1">
 						View Stats
-					</a>
+					</button>
 				</div>
 			</div>
 		</div>
