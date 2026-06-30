@@ -4,9 +4,10 @@ import { useEffect, useState, type JSX } from "react";
 import { getMatchHistory, getHistoryByUsername } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useParams } from "react-router-dom";
+import type { Match } from "../../types/match";
 
 export function HistoryPage() {
-	const [history, setHistory] = useState<any[]>([]);
+	const [history, setHistory] = useState<Match[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	// The username that we want to find the match history
@@ -129,42 +130,26 @@ export function HistoryPage() {
 											</td>
 										</tr>
 									) : (
-										history.map((match) => {
-											const isTargetPlayerA = match.playerA.username === targetUsername;
-											const opponentName = isTargetPlayerA
-												? match.playerB.username
-												: match.playerA.username;
-											const playedAs = isTargetPlayerA ? "White" : "Black";
-
-											const targetUserId = isTargetPlayerA ? match.playerAId : match.playerBId; // We need to check who won
-
-											let resultText = "DRAW"; // The match result to return
+										history.map((match, index) => {
 											let resultColor = "text-slate-400";
 
-											if (match.result.startsWith("WINNER_ID_")) {
-												const winnerId = parseInt(match.result.replace("WINNER_ID_", ""));
-
-												// If the winner ID is equal to the target, its victory as result
-												if (winnerId === targetUserId) {
-													resultText = "VICTORY";
-													resultColor = "text-emerald-400";
-												} else {
-													resultText = "DEFEAT";
-													resultColor = "text-red-400";
-												}
+											if (match.result === "WIN") {
+												resultColor = "text-emerald-400";
+											} else {
+												resultColor = "text-red-400";
 											}
 
 											const dateStr = new Date(match.createdAt).toLocaleDateString();
 
 											return (
 												<tr
-													key={match.id}
+													key={match.gameId || index}
 													className="border-t border-stone-800 hover:bg-stone-800/40 transition-colors">
-													<td className="p-4 font-bold text-stone-200">{opponentName}</td>
+													<td className="p-4 font-bold text-stone-200">{match.opponent}</td>
 													<td className="p-4 text-stone-400">{dateStr}</td>
-													<td className="p-4 text-stone-400">{playedAs}</td>
+													<td className="p-4 text-stone-400">{match.playedAs}</td>
 													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
-														{resultText}
+														{match.result}
 													</td>
 												</tr>
 											);

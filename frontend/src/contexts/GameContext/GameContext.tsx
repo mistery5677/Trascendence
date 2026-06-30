@@ -31,6 +31,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
 	if (!authState.user) return null;
 
+	const inviteToPlay = (friendId: number) => {
+		if (socket) {
+			socket.emit("inviteToPlay", { friendId });
+			console.log("invite to Play");
+		}
+	};
+
 	const surrender = () => {
 		if (socket && gameId) {
 			socket.emit("requestSurrender", { gameId });
@@ -303,6 +310,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				messages,
 				setMessages,
 				resetGameContextToDefault,
+				inviteToPlay,
 				// Timer variables
 				whiteTimeLeft,
 				blackTimeLeft,

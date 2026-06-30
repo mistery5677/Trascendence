@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { stringify } from 'querystring';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AchievementsService } from '../achievements/achievements.service';
+import { getUserMatchHistory } from './dto/getMatchHistory.dto';
 
 @Injectable()
 export class MatchesService {
@@ -15,7 +16,6 @@ export class MatchesService {
     playerBId: number,
     winnerId: number | null,
   ) {
-	
     // Save the information in the Match History
     const match = await this.prisma.matchHistory.create({
       data: {
@@ -110,7 +110,9 @@ export class MatchesService {
   }
 
   // Get the match history of the username
-  async getUserMatchHistoryByUsername(username: string) {
+  async getUserMatchHistoryByUsername(
+    username: string,
+  ): Promise<getUserMatchHistory[] | null> {
     const user = await this.prisma.user.findUnique({
       where: { username: username },
     });
@@ -119,6 +121,38 @@ export class MatchesService {
       throw new NotFoundException("User doesn't exist");
     }
 
-    return await this.getUserMatchHistory(user.id);
+    const rawMatches = await this.getUserMatchHistory(user.id);
+
+    return rawMatches.map((match) => {
+      const isPlayerA = match.playerAId === user.id;
+      const opponent = isPlayerA
+        ? match.playerB.username
+        : match.playerA.username;
+
+      let result: 'WIN' | 'LOSS' | 'DRAW';
+
+      const playedAs: 'WHITE' | 'BLACK' = isPlayerA ? 'WHITE' : 'BLACK';
+
+      if (match.result === 'DRAW') {
+        result = 'DRAW';
+      } else {
+        // Parseamos la cadena "WINNER_ID_15" para extraer solo el número 15
+        const extractedWinnerId = parseInt(
+          match.result.replace('WINNER_ID_', ''),
+          10,
+        );
+
+        // Si el ID extraído es igual al ID de este usuario, ganó. Si no, perdió.
+        result = extractedWinnerId === user.id ? 'WIN' : 'LOSS';
+      }
+
+      return {
+        gameId: match.id,
+        createdAt: match.createdAt,
+        opponent: opponent,
+        result: result,
+        playedAs: playedAs,
+      };
+    });
   }
 }

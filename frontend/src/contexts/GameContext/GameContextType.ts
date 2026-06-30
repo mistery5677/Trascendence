@@ -35,6 +35,7 @@ export type GameContextType = {
 	whiteTimeLeft: number;
 	blackTimeLeft: number;
 	handleTimeOut: () => void;
+	inviteToPlay: (friendId: number) => void;
 
 	//Messages
 	messages: MessageType[];

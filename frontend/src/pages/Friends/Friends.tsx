@@ -13,6 +13,7 @@ import { toastWrapper } from "../../adapters/toastWrapper";
 import { getUsers } from "../../api/users"; // Adjust path if needed
 import { Link } from "react-router-dom";
 import { UserStatusBadge } from "../../components/UserStatusBandage/UserStatusBandage";
+import { useGame } from "../../contexts/GameContext/GameContext";
 
 type Friends = "list" | "requests" | "add";
 
@@ -24,6 +25,7 @@ export function Friends() {
 	const [friends, setFriends] = useState<any[]>([]);
 	const [requests, setRequests] = useState<any[]>([]);
 	const [searchUsername, setSearchUsername] = useState("");
+	// const { inviteToPlay } = useGame();
 
 	// New state for dialog
 	const [confirmDialog, setConfirmDialog] = useState<{
@@ -184,49 +186,47 @@ export function Friends() {
 								You don't have any friends yet. Go to 'Add Friend' to find some rivals!
 							</p>
 						) : (
-							friends.map((friend, index) => {
-								return (
-									<div
-										key={index}
-										className="flex gap-5 items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl transition-all duration-200 hover:border-emerald-400/45 hover:bg-stone-900/70">
-										<div className="flex items-center gap-2 sm:gap-4">
-											<div className="relative h-12 w-12 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center text-xl">
-												<img
-													className="rounded-full"
-													src={friend.avatarUrl}
-													alt="Avatar Photo"
-												/>
-												<UserStatusBadge status={friend.status} />
-											</div>
-											<div>
-												{/* Redirects to user match history */}
-												<Link
-													to={`/history/${friend.username}`}
-													className="hover:text-emerald-400 hover:underline transition-colors"
-													title={`View ${friend.username}'s Match History`}>
-													<p className="font-bold text-lg text-stone-200">
-														{friend.username}
-													</p>
-												</Link>
-												<p className="text-sm whitespace-nowrap  text-emerald-400">
-													ELO: {friend.elo}
-												</p>
-											</div>
+							friends.map((friend, index) => (
+								<div
+									key={index}
+									className="flex gap-5 items-center justify-between rounded-2xl border border-white/10 bg-stone-900/55 p-4 shadow-[0_12px_24px_-16px_rgba(15,23,42,0.95)] backdrop-blur-xl transition-all duration-200 hover:border-emerald-400/45 hover:bg-stone-900/70">
+									<div className="flex items-center gap-2 sm:gap-4">
+										<div className="relative h-12 w-12 rounded-full border border-white/10 bg-stone-800/80 flex items-center justify-center text-xl">
+											<img
+												className="rounded-full"
+												src={friend.avatarUrl}
+												alt="Avatar Photo"
+											/>
+											<UserStatusBadge status={friend.status} />
 										</div>
-										<div className="flex gap-3">
-											<button className="rounded-full border border-emerald-200/25 bg-linear-to-b from-button-green to-emerald-700 font-extrabold px-5 py-2 text-sm sm:text-base  tracking-wide text-white shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-green-button hover:via-emerald-700 hover:to-emerald-800 active:translate-y-0">
-												Play ⚔️
-											</button>
-											<button
-												onClick={() => handleRemoveFriend(friend.id, friend.username)}
-												className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
-												title="Remove Friend">
-												<span>❌</span>
-											</button>
+										<div>
+											{/* Redirects to user match history */}
+											<Link
+												to={`/history/${friend.username}`}
+												className="hover:text-emerald-400 hover:underline transition-colors"
+												title={`View ${friend.username}'s Match History`}>
+												<p className="font-bold text-lg text-stone-200">{friend.username}</p>
+											</Link>
+											<p className="text-sm whitespace-nowrap  text-emerald-400">
+												ELO: {friend.elo}
+											</p>
 										</div>
 									</div>
-								);
-							})
+									<div className="flex gap-3">
+										<button
+											// onClick={() => inviteToPlay(friend.id)}
+											className="rounded-full border border-emerald-200/25 bg-linear-to-b from-button-green to-emerald-700 font-extrabold px-5 py-2 text-sm sm:text-base  tracking-wide text-white shadow-[0_10px_24px_-14px_rgba(16,185,129,0.95)] transition-all duration-200 hover:-translate-y-0.5 hover:from-green-button hover:via-emerald-700 hover:to-emerald-800 active:translate-y-0">
+											Play ⚔️
+										</button>
+										<button
+											onClick={() => handleRemoveFriend(friend.id, friend.username)}
+											className="rounded-full border border-stone-600/70 bg-stone-800/65 px-3 py-1.5 text-xs sm:text-sm font-medium text-stone-300 backdrop-blur-sm transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300"
+											title="Remove Friend">
+											<span>❌</span>
+										</button>
+									</div>
+								</div>
+							))
 						)}
 					</div>
 				)}
