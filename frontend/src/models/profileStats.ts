@@ -1,5 +1,6 @@
 // Profile Stats View Model
 export type ProfileStatsVM = {
+	userId: number;
 	totalGames?: number;
 	wins?: number;
 	losses?: number;

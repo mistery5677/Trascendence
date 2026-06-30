@@ -77,8 +77,6 @@ model Score {
     totalGames       Int @default(0)
     bestWinStreak    Int @default(0)
     currentWinStreak Int @default(0)
-    averageEloGain   Int @default(0)
-    averageEloLoss   Int @default(0)
     bestElo          Int @default(800)
 
     userId Int  @unique

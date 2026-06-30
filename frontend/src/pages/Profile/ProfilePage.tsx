@@ -4,50 +4,66 @@ import { useAuth } from "../../contexts/UserContext";
 import { ProfileTabs, ProfileHeader, ProfileOverview, MatchHistory, ProfileStats } from "../../components";
 import { userToProfileStats } from "../../mappers/userToProfileStats";
 import type { ProfileStatsVM } from "../../models/profileStats";
-
-const BACKGROUND_THEMES: Record<number, string> = {
-	1: "Chess",
-	2: "Cats",
-	3: "Sky",
-	4: "Penguin",
-	5: "Standard",
-};
+import type { Match } from "../../types/match";
+import { getHistoryByUsername, getMatchHistory } from "../../api/matches";
+import { getPublicProfile } from "../../api/users";
+import type { PublicProfile } from "../../types";
 
 export function ProfilePage() {
+	
+	const [history, setHistory] = useState<Match[]>([]);
+	const [loading, setLoading] = useState(true);
 	const { username } = useParams<{ username: string }>();
+	const [user, setUser] = useState<PublicProfile | null>(null);
 
 	const { state } = useAuth(); // Get the logged user
 	const myUsername = state?.user?.username;
 
-	const user = state?.user; // Get the logged user
+	// const user = state?.user; // Get the logged user
 
-	console.log("ProfilePage: Best elo:", user?.score?.bestElo);
+	const targetUserName = username || "admin"; // Default to "admin" if no username is provided
 
 	useEffect(() => {
 		document.title = "Profile | 42 Transcendence";
-	}, []);
 
-	const boardThemeName = (themeId: 1 | 2 | 3 | undefined) => {
-		switch (themeId) {
-			case 1:
-				return "Forest";
-			case 2:
-				return "Classic";
-			case 3:
-				return "Midnight";
-			default:
-				return "Unknown";
-		}
-	};
+		const fetchHistory = async () => {
+			if (!targetUserName) {
+				setLoading(false);
+				return;
+			}
+			setLoading(true); // Loading system
+			try {
+				let data;
+				if (username) {
+					data = await getHistoryByUsername(targetUserName);
+					console.log("Fetched history for user:", data);
+				} else {
+					data = await getMatchHistory();
+				}
+				setHistory(data);
+			} catch (error) {
+				console.error("Failed to load the history of the player: ", error);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-	const userThemeId = state.user?.backgroundTheme || 1;
-	const selectedBackground = BACKGROUND_THEMES[userThemeId] || "Chess";
+		const fetchUserData = async () => {
+			try {
+				const data = await getPublicProfile(targetUserName);
+				setUser(data);
+			} catch (error) {
+				console.error("Failed to load the user data: ", error);
+			}
+		};
+
+		fetchHistory();
+		fetchUserData();
+	}, [username, myUsername, targetUserName]);
 
 	const [tab, setTab] = useState<"overview" | "history" | "stats">("overview");
 
 	const profileStats: ProfileStatsVM = userToProfileStats(user);
-
-	console.log("ProfilePage: Profile stats:", profileStats);
 
 	return (
 		<>
@@ -57,11 +73,7 @@ export function ProfilePage() {
 				<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
 
 				<div className="relative mx-auto w-full lg:w-[60%] rounded-3xl border border-stone-200/20 bg-stone-200/10 p-8 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
-					<ProfileHeader
-						user={user}
-						boardThemeName={boardThemeName}
-						backgroundName={selectedBackground}
-					/>
+					<ProfileHeader user={user} />
 					<ProfileTabs
 						activeTab={tab}
 						onChange={setTab}
@@ -70,68 +82,16 @@ export function ProfilePage() {
 						<div>
 							<ProfileOverview
 								stats={profileStats}
-								recentMatches={[
-									{
-										id: "1",
-										opponent: "Alice",
-										result: "win",
-										eloChange: 18,
-										date: "Yesterday",
-									},
-									{
-										id: "2",
-										opponent: "Bob",
-										result: "draw",
-										eloChange: 0,
-										date: "2 days ago",
-									},
-									{
-										id: "3",
-										opponent: "Charlie",
-										result: "loss",
-										eloChange: -22,
-										date: "1 week ago",
-									},
-								]}
+								recentMatches={history.slice(0, 3)}
 							/>
 						</div>
 					)}
 
-					{tab === "history" && (
-						<MatchHistory
-							matches={[
-								{
-									id: "1",
-									opponent: "Alice",
-									result: "win",
-									eloChange: 18,
-									date: "Yesterday",
-									mode: "Ranked",
-									score: "3-1",
-								},
-								{
-									id: "2",
-									opponent: "Bob",
-									result: "draw",
-									eloChange: 0,
-									date: "2 days ago",
-									mode: "Ranked",
-									score: "1-3",
-								},
-								{
-									id: "3",
-									opponent: "Charlie",
-									result: "loss",
-									eloChange: -12,
-									date: "1 week ago",
-								},
-							]}
-						/>
-					)}
+					{tab === "history" && <MatchHistory matches={history} />}
 
 					{tab === "stats" && (
 						<div>
-							<ProfileStats stats={{ totalGames: 0, wins: 0, losses: 0, winRate: 0 }} />
+							<ProfileStats stats={profileStats} history={history} />
 						</div>
 					)}
 				</div>

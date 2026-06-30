@@ -4,9 +4,10 @@ import { useEffect, useState, type JSX } from "react";
 import { getMatchHistory, getHistoryByUsername } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useParams } from "react-router-dom";
+import type { Match } from "../../types";
 
 export function HistoryPage() {
-	const [history, setHistory] = useState<any[]>([]);
+	const [history, setHistory] = useState<Match[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	// The username that we want to find the match history
@@ -130,41 +131,28 @@ export function HistoryPage() {
 										</tr>
 									) : (
 										history.map((match) => {
-											const isTargetPlayerA = match.playerA.username === targetUsername;
-											const opponentName = isTargetPlayerA
-												? match.playerB.username
-												: match.playerA.username;
-											const playedAs = isTargetPlayerA ? "White" : "Black";
-
-											const targetUserId = isTargetPlayerA ? match.playerAId : match.playerBId; // We need to check who won
-
-											let resultText = "DRAW"; // The match result to return
-											let resultColor = "text-slate-400";
-
-											if (match.result.startsWith("WINNER_ID_")) {
-												const winnerId = parseInt(match.result.replace("WINNER_ID_", ""));
-
-												// If the winner ID is equal to the target, its victory as result
-												if (winnerId === targetUserId) {
-													resultText = "VICTORY";
-													resultColor = "text-emerald-400";
-												} else {
-													resultText = "DEFEAT";
-													resultColor = "text-red-400";
-												}
+											let hoverResultColor = "text-slate-400";
+											let resultColor = "text-[#D6A756]";
+											if (match.result === "WIN") {
+												resultColor = "text-[#7FB077]";
+												hoverResultColor = "text-emerald-400";
+											} else if (match.result === "LOSS") {
+												resultColor = "text-[#E1707A]";
+												hoverResultColor = "text-red-100";
 											}
 
 											const dateStr = new Date(match.createdAt).toLocaleDateString();
 
 											return (
 												<tr
-													key={match.id}
+													key={match.gameId}
 													className="border-t border-stone-800 hover:bg-stone-800/40 transition-colors">
-													<td className="p-4 font-bold text-stone-200">{opponentName}</td>
+													<td className="p-4 font-bold text-stone-200">{match.opponent}</td>
 													<td className="p-4 text-stone-400">{dateStr}</td>
-													<td className="p-4 text-stone-400">{playedAs}</td>
-													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
-														{resultText}
+													<td className="p-4 text-stone-400">{match.playedAs}</td>
+													<td
+														className={`p-4 font-black tracking-wider hover:${hoverResultColor} ${resultColor}`}>
+														{match.result}
 													</td>
 												</tr>
 											);

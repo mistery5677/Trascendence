@@ -1,4 +1,5 @@
 import type { UserStatus } from "../components/UserStatusBandage/UserStatusBandage";
+import type { PublicProfile } from "../types";
 import type { PlayerData } from "./PlayerDataType";
 
 // Change the password
@@ -14,7 +15,6 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 
 // Updates the profile image
 export async function updateAvatar(picture: File) {
-	// TODO:Change backend requires formData to work,
 	const formData = new FormData();
 	formData.append("file", picture);
 
@@ -171,6 +171,20 @@ export async function getUsers(username: string) {
 	const res = await fetch(`/api/users/search?username=${encodeURIComponent(username)}`);
 	if (!res.ok) throw new Error("Failed to fetch users");
 	return await res.json();
+}
+
+export async function getPublicProfile(username: string): Promise<PublicProfile | null> {
+	const res = await fetch(`/api/users/profile/${username}`, {
+		method: "GET",
+		headers: { "Content-Type": "application/json" },
+	});
+	if (!res.ok) {
+		throw new Error("Failed to fetch public profile.");
+	}
+
+	const profile: PublicProfile = await res.json();
+
+	return profile;
 }
 
 export async function getMyAchievements(): Promise<string[]> {

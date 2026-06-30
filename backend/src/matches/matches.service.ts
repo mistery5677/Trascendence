@@ -15,7 +15,6 @@ export class MatchesService {
     playerBId: number,
     winnerId: number | null,
   ) {
-	
     // Save the information in the Match History
     const match = await this.prisma.matchHistory.create({
       data: {
@@ -119,6 +118,34 @@ export class MatchesService {
       throw new NotFoundException("User doesn't exist");
     }
 
-    return await this.getUserMatchHistory(user.id);
+    const rawMatches = await this.getUserMatchHistory(user.id);
+
+    return rawMatches.map((match) => {
+      const isPlayerA = match.playerAId === user.id;
+      const opponent = isPlayerA
+        ? match.playerB.username
+        : match.playerA.username;
+
+      let result: 'WIN' | 'LOSS' | 'DRAW';
+
+      if (match.result === 'DRAW') {
+        result = 'DRAW';
+      } else {
+        const extractedWinnerId = parseInt(
+          match.result.replace('WINNER_ID_', ''),
+          10,
+        );
+        result = extractedWinnerId === user.id ? 'WIN' : 'LOSS';
+      }
+      const playedAs: 'WHITE' | 'BLACK' = isPlayerA ? 'WHITE' : 'BLACK';
+
+      return {
+        id: match.id,
+        date: match.createdAt,
+        playedAs: playedAs,
+        opponent: opponent,
+        result: result,
+      };
+    });
   }
 }

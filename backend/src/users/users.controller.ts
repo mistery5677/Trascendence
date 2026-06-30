@@ -193,6 +193,8 @@ export class UsersController {
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      boardTheme: user.boardTheme,
+      backgroundTheme: user.backgroundTheme,
       score: user.score!,
     };
   }

@@ -1,48 +1,56 @@
 import { useAuth } from "../../contexts/UserContext";
-import { TitleFrame } from "../../components/TitleFrame/TitleFrame";
-import { displayElo } from "../../utils/displayElo";
 import { Trophy, Swords, Equal } from "lucide-react";
-import { ProfileHeader } from "../../components";
-
-const BACKGROUND_THEMES: Record<number, string> = {
-	1: "Chess",
-	2: "Cats",
-	3: "Sky",
-	4: "Penguin",
-	5: "Standard",
-};
+import { ProfileHeader, ProfileOverview } from "../../components";
+import type { ProfileStatsVM } from "../../models/profileStats";
+import { userToProfileStats } from "../../mappers/userToProfileStats";
+import type { Match, PublicProfile } from "../../types";
+import { useEffect, useState } from "react";
+import { getPublicProfile } from "../../api/users";
+import { getHistoryByUsername } from "../../api/matches";
 
 export function Profile() {
 	const { state } = useAuth();
 	const user = state.user;
 
-	const boardThemeName = (themeId: 1 | 2 | 3 | undefined) => {
-		switch (themeId) {
-			case 1:
-				return "Forest";
-			case 2:
-				return "Classic";
-			case 3:
-				return "Midnight";
-			default:
-				return "Unknown";
-		}
-	};
+	const [publicProfile, setPublicProfile] = useState<PublicProfile | null>(null);
+	const [history, setHistory] = useState<Match[]>([]);
 
-	const userThemeId = state.user?.backgroundTheme || 1;
-	const selectedBackground = BACKGROUND_THEMES[userThemeId] || "Chess";
+	useEffect(() => {
+		const fetchPublicProfile = async () => {
+			if (user) {
+				try {
+					const data = await getPublicProfile(user.username);
+					setPublicProfile(data);
+				} catch (error) {
+					console.error("Failed to load the public profile: ", error);
+				}
+			}
+		};
+
+		const fetchHistory = async () => {
+			if (user) {
+				try {
+					const data = await getHistoryByUsername(user.username);
+					setHistory(data);
+				} catch (error) {
+					console.error("Failed to load the match history: ", error);
+				}
+			}
+		};
+
+		fetchPublicProfile();
+		fetchHistory();
+	}, [user]);
+
+	const profileStats: ProfileStatsVM = userToProfileStats(publicProfile);
 
 	return (
 		<main className="w-full max-w-5xl mx-auto px-4 py-12 text-stone-100">
 			{/* Premium Header Summary Card */}
-			<ProfileHeader
-				user={user}
-				boardThemeName={boardThemeName}
-				backgroundName={selectedBackground}
-			/>
+			<ProfileHeader user={user} />
 
 			{/* Premium Dynamic Statistics Grid */}
-			<section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
+			{/* <section className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
 				<div
 					className="bg-stone-900/20 hover:bg-stone-900/40 p-5 border border-emerald-500/10 hover:border-emerald-500/20 transition-all duration-300 flex flex-col gap-2 shadow-sm group items-center"
 					style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px))" }}>
@@ -96,7 +104,13 @@ export function Profile() {
 						{user?.score?.elo || 1000}
 					</p>
 				</div>
-			</section>
+			</section> */}
+			<div className="mt-8">
+				<ProfileOverview
+					stats={profileStats}
+					recentMatches={history.slice(0, 3)}
+				/>
+			</div>
 		</main>
 	);
 }

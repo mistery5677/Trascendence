@@ -1,22 +1,14 @@
 import type { ProfileStatsVM } from "../../models/profileStats";
+import type { Match } from "../../types";
+import { getDailyAvgLosses, getDailyAvgWins } from "../../utils/getAvgMatchResult";
 
 type Props = {
 	stats: ProfileStatsVM;
-	// stats: {
-	// 	totalGames: number;
-	// 	wins: number;
-	// 	losses: number;
-	// 	draws: number;
-	// 	winRate: number;
-	// 	bestWinStreak?: number; // bestWinStreak is the longest consecutive wins, not the total number of wins
-	// 	currentStreak?: number; // currentStreak is the number of consecutive wins or losses, not the total number of wins or losses
-	// 	averageEloGain?: number; // averageEloGain is the average ELO gained per game, not the total ELO gained
-	// 	averageEloLoss?: number; // averageEloLoss is  the average ELO lost per game, not the total ELO lost
-	// };
+	history: Match[];
 };
 
-export function ProfileStats({ stats }: Props) {
-	const netElo = (stats.averageEloGain ?? 0) - (stats.averageEloLoss ?? 0);
+export function ProfileStats({ stats, history }: Props) {
+	const netElo = (getDailyAvgWins(history) ?? 0) - (getDailyAvgLosses(history) ?? 0);
 
 	const summary =
 		(stats.winRate ?? 0) > 60
@@ -87,7 +79,9 @@ export function ProfileStats({ stats }: Props) {
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div className="bg-stone-900/40 border border-white/10 rounded-xl p-5 backdrop-blur-md">
 					<div className="flex items-center justify-between mb-3">
-						<h3 className="text-white font-bold">ELO Performance</h3>
+						<h3 className="text-white font-bold">
+							ELO Performance <span className="text-xl">{netElo >= 0 ? "▲" : "▼"}</span>
+						</h3>
 						<span
 							className={`font-mono text-xs font-semibold tabular-nums px-2 py-0.5 rounded-full ${
 								netElo >= 0 ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10"
@@ -101,14 +95,14 @@ export function ProfileStats({ stats }: Props) {
 						<div className="flex justify-between items-center text-stone-300">
 							<span>Avg Gain</span>
 							<span className="text-emerald-400 font-mono font-semibold tabular-nums">
-								+{stats.averageEloGain ?? 0}
+								+{getDailyAvgWins(history) ?? 0}
 							</span>
 						</div>
 
 						<div className="flex justify-between items-center text-stone-300">
 							<span>Avg Loss</span>
 							<span className="text-red-400 font-mono font-semibold tabular-nums">
-								-{stats.averageEloLoss ?? 0}
+								-{getDailyAvgLosses(history) ?? 0}
 							</span>
 						</div>
 					</div>

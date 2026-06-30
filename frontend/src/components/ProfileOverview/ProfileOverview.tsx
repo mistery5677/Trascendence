@@ -1,22 +1,5 @@
 import type { ProfileStatsVM } from "../../models/profileStats";
-
-type Match = {
-	id: string;
-	opponent: string;
-	result: "win" | "loss" | "draw";
-	eloChange: number;
-	date: string;
-};
-
-// type Stats = {
-// 	games: number; // total number of games played
-// 	wins: number;
-// 	losses: number;
-// 	draws: number;
-// 	winRate: number;
-// 	bestElo?: number;
-// 	currentStreak?: number;
-// };
+import type { Match } from "../../types";
 
 type Props = {
 	stats: ProfileStatsVM;
@@ -69,12 +52,12 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 							)}
 							{[...formStrip].reverse().map((m) => (
 								<span
-									key={m.id}
-									title={`${m.result.toUpperCase()} vs ${m.opponent}`}
+									key={m.gameId}
+									title={`${m.result} vs ${m.opponent} on ${new Date(m.createdAt).toLocaleDateString()}`}
 									className={`h-3 w-3 rounded-xs transition-transform hover:scale-110 cursor-help ${
-										m.result === "win"
+										m.result === "WIN"
 											? "bg-[#7FB077]"
-											: m.result === "loss"
+											: m.result === "LOSS"
 												? "bg-[#E1707A]/80"
 												: "bg-[#D6A756]/80"
 									}`}
@@ -132,14 +115,15 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 				) : (
 					<div className="divide-y divide-white/[0.06]">
 						{recentMatches.slice(0, 3).map((match, i) => {
-							const matchResult = match.result as "win" | "loss" | "draw";
+							const matchResult = match.result as "WIN" | "LOSS" | "DRAW";
+							console.log("Rendering match:", match, "with result:", match.result);
 							return (
 								<div
-									key={match.id}
-									className="group flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors relative">
+									key={match.gameId}
+									className="group flex items-center gap-4 px-6 py-4 hover:bg-white/2 transition-colors relative">
 									{/* Indicador de linha interativo discreto na borda interna */}
 									<div
-										className={`absolute left-0 top-0 bottom-0 w-[2px] opacity-0 group-hover:opacity-100 transition-opacity ${matchResult === "win" ? "bg-[#7FB077]" : matchResult === "loss" ? "bg-[#E1707A]" : "bg-[#D6A756]"}`}
+										className={`absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${matchResult === "WIN" ? "bg-[#7FB077]" : matchResult === "LOSS" ? "bg-[#E1707A]" : "bg-[#D6A756]"}`}
 									/>
 
 									<span className="font-mono text-xs text-stone-500 font-semibold w-6 shrink-0 group-hover:text-stone-400 transition-colors">
@@ -148,33 +132,33 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 
 									<span
 										className={`font-mono text-[10px] font-black px-2 py-0.5 rounded-[3px] tracking-wider shrink-0 border ${
-											matchResult === "win"
+											matchResult === "WIN"
 												? "text-[#7FB077] bg-[#7FB077]/10 border-[#7FB077]/20"
-												: matchResult === "loss"
+												: matchResult === "LOSS"
 													? "text-[#E1707A] bg-[#E1707A]/10 border-[#E1707A]/20"
 													: "text-[#D6A756] bg-[#D6A756]/10 border-[#D6A756]/20"
 										}`}>
-										{matchResult === "win" ? "WIN" : matchResult === "loss" ? "LOSS" : "DRAW"}
+										{matchResult === "WIN" ? "WIN" : matchResult === "LOSS" ? "LOSS" : "DRAW"}
 									</span>
 
 									<div className="flex-1 min-w-0 pl-1">
 										<p className="text-sm font-semibold text-white tracking-wide truncate">
-											vs {match.opponent}
+											vs {match.opponent ?? "Unknown"}
 										</p>
-										<p className="text-xs text-stone-400 font-medium mt-0.5">{match.date}</p>
+										<p className="text-xs text-stone-400 font-medium mt-0.5">{match.createdAt}</p>
 									</div>
 
 									<div className="text-right shrink-0">
 										<span
 											className={`font-mono text-base font-bold tabular-nums tracking-tight ${
-												match.eloChange > 0
+												match.result === "WIN"
 													? "text-[#7FB077]"
-													: match.eloChange < 0
+													: match.result === "LOSS"
 														? "text-[#E1707A]"
 														: "text-[#D6A756]"
 											}`}>
-											{match.eloChange > 0 ? "+" : ""}
-											{match.eloChange}
+											{match.result === "WIN" ? "+8" : match.result === "LOSS" ? "-8" : "0"}
+											{/* {match.eloChange} */}
 										</span>
 										<p className="text-[9px] font-mono text-stone-500 font-bold uppercase tracking-wider mt-0.5">
 											PTS
