@@ -11,7 +11,7 @@ export class Score {
   bestElo!: number;
 }
 
-export class getProfileDto {
+export class getMyProfileDto {
   id!: number;
   name!: string | null;
   username!: string;
@@ -21,5 +21,21 @@ export class getProfileDto {
   updatedAt!: Date;
   boardTheme!: number;
   backgroundTheme!: number;
+  score!: Score;
+}
+
+export class getPublicProfileDto {
+  id!: number;
+  username!: string;
+  avatarUrl!: string | null;
+  createdAt!: Date;
+  updatedAt!: Date;
+  score!: Score;
+}
+
+export class getOpponentDto {
+  id!: number;
+  username!: string;
+  avatarUrl!: string | null;
   score!: Score;
 }

@@ -27,7 +27,10 @@ export class UsersService {
 
   async findOneByUsername(username: string) {
     if (!username) return null;
-    return this.prisma.user.findUnique({ where: { username: username } });
+    return this.prisma.user.findUnique({
+      where: { username: username },
+      include: { score: true },
+    });
   }
   async findOneByEmail(email: string) {
     if (!email) return null;

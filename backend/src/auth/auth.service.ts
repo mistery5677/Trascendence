@@ -9,7 +9,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { getProfileDto } from './dto/getProfile.dto';
+import { getMyProfileDto } from './dto/getProfile.dto';
 
 const DEFAULT_AVATARS = [
   '/assets/avatars/default1.png',
@@ -79,7 +79,7 @@ export class AuthService {
     });
   }
 
-  async getProfile(id: number): Promise<getProfileDto> {
+  async getProfile(id: number): Promise<getMyProfileDto> {
     const user = await this.usersService.findOneById(id);
     if (!user) {
       throw new UnauthorizedException('User not found');
