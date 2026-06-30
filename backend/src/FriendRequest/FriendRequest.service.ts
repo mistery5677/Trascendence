@@ -8,7 +8,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { PresenceService } from 'src/websockets/services/presence.service';
 import { NotificationService } from 'src/websockets/services/notification.service';
-import { Score } from 'src/auth/dto/getProfile.dto';
 
 @Injectable()
 export class FriendRequestService {

@@ -166,15 +166,7 @@ export class UsersController {
 
     if (isNaN(user.id)) throw new BadRequestException('Invalid opponent ID');
 
-    const {
-      email,
-      score,
-      boardTheme,
-      name,
-      createdAt,
-      updatedAt,
-      ...opponent
-    } = user;
+    const { email, boardTheme, name, createdAt, updatedAt, ...opponent } = user;
     return opponent;
   }
 
