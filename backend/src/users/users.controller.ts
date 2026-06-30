@@ -26,8 +26,8 @@ import { AchievementsService } from '../achievements/achievements.service';
 @Controller('/users')
 export class UsersController {
   constructor(
-      private readonly usersService: UsersService,
-      private readonly achievementsService: AchievementsService,
+    private readonly usersService: UsersService,
+    private readonly achievementsService: AchievementsService,
   ) {}
 
   @Get()
@@ -96,11 +96,13 @@ export class UsersController {
   @Get('achievements')
   async getMyAchievements(@Req() req: any) {
     const userId = req.user.userId;
-    
+
     if (!userId) {
       return [];
     }
-    return await this.achievementsService.getUserUnlockedAchievements(parseInt(userId));
+    return await this.achievementsService.getUserUnlockedAchievements(
+      parseInt(userId),
+    );
   }
 
   @UseGuards(AuthGuard)
@@ -162,14 +164,11 @@ export class UsersController {
     const user = await this.usersService.findOneById(parseInt(id));
     if (!user) return null;
 
-    if (isNaN(user.id))
-        throw new BadRequestException("Invalid opponent ID");
+    if (isNaN(user.id)) throw new BadRequestException('Invalid opponent ID');
 
     const {
       email,
-      wins,
-      losses,
-      draws,
+      score,
       boardTheme,
       name,
       createdAt,

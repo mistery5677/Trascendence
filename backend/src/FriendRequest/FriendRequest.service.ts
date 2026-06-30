@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AchievementsService } from 'src/achievements/achievements.service';
 import { PresenceService } from 'src/websockets/services/presence.service';
 import { NotificationService } from 'src/websockets/services/notification.service';
+import { Score } from 'src/auth/dto/getProfile.dto';
 
 @Injectable()
 export class FriendRequestService {
@@ -72,13 +73,16 @@ export class FriendRequestService {
       select: { username: true, avatarUrl: true },
     });
 
-
     if (sender) {
       this.notificationService.sendNotification(receiver.id, {
         title: 'Friend Request',
         message: `sent you a Friend Request.`,
         type: 'friendRequest',
-        payload: { senderId: senderId, senderAvatarUrl: sender.avatarUrl, senderUsername: sender.username },
+        payload: {
+          senderId: senderId,
+          senderAvatarUrl: sender.avatarUrl,
+          senderUsername: sender.username,
+        },
       });
     }
 
@@ -159,8 +163,7 @@ export class FriendRequestService {
       id: true,
       username: true,
       avatarUrl: true,
-      elo: true,
-      // NOTA: 'password' y 'email' NO se incluyen aquí de manera deliberada
+      score: true,
     };
 
     const friends = await this.prisma.friendRequest.findMany({

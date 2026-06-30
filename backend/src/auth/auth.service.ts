@@ -80,7 +80,6 @@ export class AuthService {
   }
 
   async getProfile(id: number): Promise<getProfileDto> {
-    // const user = await this.usersService.findOneByEmail(email);
     const user = await this.usersService.findOneById(id);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -95,18 +94,18 @@ export class AuthService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       boardTheme: user.boardTheme,
-	    backgroundTheme: user.backgroundTheme,
+      backgroundTheme: user.backgroundTheme,
       score: {
-        elo: user.elo,
-        wins: user.wins,
-        losses: user.losses,
-        draws: user.draws,
-        totalGames: user.totalGames,
-        bestWinStreak: user.bestWinStreak,
-        currentWinStreak: user.currentWinStreak,
-        averageEloGain: user.averageEloGain,
-        averageEloLoss: user.averageEloLoss,
-        bestElo: user.bestElo,
+        elo: user.score!.elo,
+        wins: user.score!.wins,
+        losses: user.score!.losses,
+        draws: user.score!.draws,
+        totalGames: user.score!.totalGames,
+        bestWinStreak: user.score!.bestWinStreak,
+        currentWinStreak: user.score!.currentWinStreak,
+        averageEloGain: user.score!.averageEloGain,
+        averageEloLoss: user.score!.averageEloLoss,
+        bestElo: user.score!.bestElo,
       },
     };
   }

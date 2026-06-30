@@ -15,6 +15,7 @@ export class MatchesService {
     playerBId: number,
     winnerId: number | null,
   ) {
+	
     // Save the information in the Match History
     const match = await this.prisma.matchHistory.create({
       data: {
@@ -24,25 +25,15 @@ export class MatchesService {
       },
     });
 
-    // Update the total games played for both players
-    await this.prisma.user.update({
-      where: { id: playerBId },
-      data: { totalGames: { increment: 1 } },
-    });
-    await this.prisma.user.update({
-      where: { id: playerWId },
-      data: { totalGames: { increment: 1 } },
-    });
-
     if (winnerId === null) {
       await Promise.all([
-        this.prisma.user.update({
-          where: { id: playerWId },
-          data: { draws: { increment: 1 } },
+        this.prisma.score.update({
+          where: { userId: playerWId },
+          data: { draws: { increment: 1 }, totalGames: { increment: 1 } },
         }),
-        this.prisma.user.update({
-          where: { id: playerBId },
-          data: { draws: { increment: 1 } },
+        this.prisma.score.update({
+          where: { userId: playerBId },
+          data: { draws: { increment: 1 }, totalGames: { increment: 1 } },
         }),
       ]);
       return { message: 'Match saved (Draw)', matchId: match.id };
@@ -50,39 +41,52 @@ export class MatchesService {
 
     const loserId = winnerId === playerWId ? playerBId : playerWId;
 
-    const [updatedWinner] = await Promise.all([
+    const [updatedWinnerUser] = await Promise.all([
       this.prisma.user.update({
         where: { id: winnerId },
-        data: { wins: { increment: 1 }, elo: { increment: 8 } },
+        data: {
+          score: {
+            update: {
+              wins: { increment: 1 },
+              elo: { increment: 8 },
+              totalGames: { increment: 1 },
+            },
+          },
+        },
+        include: { score: true },
       }),
-      this.prisma.user.update({
-        where: { id: loserId },
-        data: { losses: { increment: 1 }, elo: { decrement: 8 } },
+      this.prisma.score.update({
+        where: { userId: loserId },
+        data: {
+          losses: { increment: 1 },
+          elo: { decrement: 8 },
+          totalGames: { increment: 1 },
+        },
       }),
     ]);
 
-    if (updatedWinner.elo > updatedWinner.bestElo) {
+    const winnerScore = updatedWinnerUser.score!;
+
+    if (winnerScore.elo > winnerScore.bestElo) {
       console.log(
         'Updating bestElo for user',
         winnerId,
         'from',
-        updatedWinner.bestElo,
+        winnerScore.bestElo,
         'to',
-        updatedWinner.elo,
+        winnerScore.elo,
       );
-      await this.prisma.user.update({
-        where: { id: winnerId },
-        data: { bestElo: updatedWinner.elo },
+
+      await this.prisma.score.update({
+        where: { userId: winnerId },
+        data: { bestElo: winnerScore.elo },
       });
     }
     // Check the first win achievement
     await this.achievementsService.checkFirstWin(winnerId);
 
     // Check the grandmaster achievement
-    await this.achievementsService.checkGrandMaster(
-      winnerId,
-      updatedWinner.elo,
-    );
+    await this.achievementsService.checkGrandMaster(winnerId, winnerScore.elo);
 
     return { message: 'Match saved', matchId: match.id };
   }

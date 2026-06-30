@@ -15,7 +15,7 @@ export class UsersService {
 
   create(registerDto: RegisterDto) {
     return this.prisma.user.create({
-      data: registerDto,
+      data: { ...registerDto, score: { create: {} } },
     });
   }
 
@@ -148,6 +148,35 @@ export class UsersService {
       where: { id },
     });
   }
+  //   async findOneById(id: number) {
+  //     return await this.prisma.user.findUnique({
+  //       where: { id },
+  //       include: {
+  //         score: true,
+  //       },
+  //       select: {
+  //         id: true,
+  //         username: true,
+  //         email: true,
+  //         elo: true,
+  //         wins: true,
+  //         losses: true,
+  //         avatarUrl: true,
+  //         createdAt: true,
+  //         name: true,
+  //         boardTheme: true,
+  //         backgroundTheme: true,
+  //         draws: true,
+  //         updatedAt: true,
+  //         totalGames: true,
+  //         bestWinStreak: true,
+  //         currentWinStreak: true,
+  //         averageEloGain: true,
+  //         averageEloLoss: true,
+  //         bestElo: true,
+  //       },
+  //     });
+  //   }
   async findOneById(id: number) {
     return await this.prisma.user.findUnique({
       where: { id },
@@ -155,22 +184,27 @@ export class UsersService {
         id: true,
         username: true,
         email: true,
-        elo: true,
-        wins: true,
-        losses: true,
         avatarUrl: true,
-        createdAt: true,
         name: true,
         boardTheme: true,
         backgroundTheme: true,
-        draws: true,
+        createdAt: true,
         updatedAt: true,
-        totalGames: true,
-        bestWinStreak: true,
-        currentWinStreak: true,
-        averageEloGain: true,
-        averageEloLoss: true,
-        bestElo: true,
+
+        score: {
+          select: {
+            elo: true,
+            wins: true,
+            losses: true,
+            draws: true,
+            totalGames: true,
+            bestWinStreak: true,
+            currentWinStreak: true,
+            averageEloGain: true,
+            averageEloLoss: true,
+            bestElo: true,
+          },
+        },
       },
     });
   }
@@ -192,12 +226,18 @@ export class UsersService {
         id: true,
         username: true,
         avatarUrl: true,
-        elo: true,
-        wins: true,
-        losses: true,
+        score: {
+          select: {
+            elo: true,
+            wins: true,
+            losses: true,
+          },
+        },
       },
       orderBy: {
-        elo: 'desc', // Orders the elos in a decrescent way
+        score: {
+          elo: 'desc',
+        },
       },
       take: 10, // Limits to 10 to not overload the data base
     });
