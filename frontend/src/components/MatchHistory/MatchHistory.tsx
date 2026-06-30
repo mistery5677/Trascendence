@@ -1,12 +1,4 @@
-type Match = {
-	id: string;
-	opponent: string;
-	result: "win" | "loss" | "draw";
-	eloChange: number;
-	date: string;
-	mode?: string;
-	score?: string;
-};
+import type { Match } from "../../types";
 
 type Props = {
 	matches: Match[];
@@ -32,15 +24,19 @@ export function MatchHistory({ matches }: Props) {
 					<p className="px-6 py-8 text-sm text-stone-400 font-medium">No matches found.</p>
 				) : (
 					matches.map((match, i) => {
-						const matchResult = match.result as "win" | "loss" | "draw";
+						const matchResult = match.result as "WIN" | "LOSS" | "DRAW";
 						return (
 							<div
-								key={match.id}
+								key={match.createdAt}
 								className="group flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors relative">
 								{/* Indicador de linha interativo na borda lateral esquerda */}
 								<div
 									className={`absolute left-0 top-0 bottom-0 w-[2px] opacity-0 group-hover:opacity-100 transition-opacity ${
-										matchResult === "win" ? "bg-[#7FB077]" : matchResult === "loss" ? "bg-[#E1707A]" : "bg-[#D6A756]"
+										matchResult === "WIN"
+											? "bg-[#7FB077]"
+											: matchResult === "LOSS"
+												? "bg-[#E1707A]"
+												: "bg-[#D6A756]"
 									}`}
 								/>
 
@@ -52,13 +48,13 @@ export function MatchHistory({ matches }: Props) {
 								{/* Emblema Badge do resultado com as suas cores personalizadas */}
 								<span
 									className={`font-mono text-[10px] font-black px-2 py-0.5 rounded-[3px] tracking-wider shrink-0 border ${
-										matchResult === "win"
+										matchResult === "WIN"
 											? "text-[#7FB077] bg-[#7FB077]/10 border-[#7FB077]/20"
-											: matchResult === "loss"
+											: matchResult === "LOSS"
 												? "text-[#E1707A] bg-[#E1707A]/10 border-[#E1707A]/20"
 												: "text-[#D6A756] bg-[#D6A756]/10 border-[#D6A756]/20"
 									}`}>
-									{matchResult === "win" ? "WIN" : matchResult === "loss" ? "LOSS" : "DRAW"}
+									{matchResult === "WIN" ? "WIN" : matchResult === "LOSS" ? "LOSS" : "DRAW"}
 								</span>
 
 								{/* Detalhes do oponente, modo e pontuação */}
@@ -66,21 +62,19 @@ export function MatchHistory({ matches }: Props) {
 									<p className="text-sm font-semibold text-white tracking-wide truncate">
 										vs {match.opponent}
 									</p>
-									<p className="text-xs text-stone-400 font-medium mt-0.5">
-										{match.date}
-										{match.mode ? ` • ${match.mode}` : ""}
-										{match.score ? ` • ${match.score}` : ""}
-									</p>
 								</div>
 
 								{/* Mudança de ELO com as suas cores originais de texto */}
 								<div className="text-right shrink-0">
 									<span
 										className={`font-mono text-base font-bold tabular-nums tracking-tight ${
-											match.eloChange > 0 ? "text-[#7FB077]" : match.eloChange < 0 ? "text-[#E1707A]" : "text-[#D6A756]"
+											match.result === "WIN"
+												? "text-[#7FB077]"
+												: match.result === "LOSS"
+													? "text-[#E1707A]"
+													: "text-[#D6A756]"
 										}`}>
-										{match.eloChange > 0 ? "+" : ""}
-										{match.eloChange}
+										{match.result === "WIN" ? "+8" : match.result === "LOSS" ? "-8" : "0"}
 									</span>
 									<p className="text-[9px] font-mono text-stone-500 font-bold uppercase tracking-wider mt-0.5">
 										PTS

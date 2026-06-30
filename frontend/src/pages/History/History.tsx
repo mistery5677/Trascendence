@@ -4,7 +4,7 @@ import { useEffect, useState, type JSX } from "react";
 import { getMatchHistory, getHistoryByUsername } from "../../api/matches";
 import { useAuth } from "../../contexts/UserContext";
 import { useParams } from "react-router-dom";
-import type { Match } from "../../types/match";
+import type { Match } from "../../types";
 
 export function HistoryPage() {
 	const [history, setHistory] = useState<Match[]>([]);
@@ -130,13 +130,15 @@ export function HistoryPage() {
 											</td>
 										</tr>
 									) : (
-										history.map((match, index) => {
-											let resultColor = "text-slate-400";
-
+										history.map((match,index) => {
+											let hoverResultColor = "text-slate-400";
+											let resultColor = "text-[#D6A756]";
 											if (match.result === "WIN") {
-												resultColor = "text-emerald-400";
-											} else {
-												resultColor = "text-red-400";
+												resultColor = "text-[#7FB077]";
+												hoverResultColor = "text-emerald-400";
+											} else if (match.result === "LOSS") {
+												resultColor = "text-[#E1707A]";
+												hoverResultColor = "text-red-100";
 											}
 
 											const dateStr = new Date(match.createdAt).toLocaleDateString();
@@ -148,7 +150,8 @@ export function HistoryPage() {
 													<td className="p-4 font-bold text-stone-200">{match.opponent}</td>
 													<td className="p-4 text-stone-400">{dateStr}</td>
 													<td className="p-4 text-stone-400">{match.playedAs}</td>
-													<td className={`p-4 font-black tracking-wider ${resultColor}`}>
+													<td
+														className={`p-4 font-black tracking-wider hover:${hoverResultColor} ${resultColor}`}>
 														{match.result}
 													</td>
 												</tr>

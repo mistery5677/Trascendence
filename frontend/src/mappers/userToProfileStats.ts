@@ -1,14 +1,15 @@
-import type { User } from "../types/index";
+import type { PublicProfile } from "../types/index";
 import type { ProfileStatsVM } from "../models/profileStats";
 import { getWinRate } from "../utils/getWinRate";
 
-export function userToProfileStats(user: User | null): ProfileStatsVM {
+export function userToProfileStats(user: PublicProfile | null): ProfileStatsVM {
 	const score = user?.score;
 
 	console.log("userToProfileStats: User score:", score);
 
 	if (!score) {
 		return {
+			userId: 0,
 			totalGames: 0,
 			wins: 0,
 			losses: 0,
@@ -32,6 +33,7 @@ export function userToProfileStats(user: User | null): ProfileStatsVM {
 	const winRate = getWinRate(score.wins, score.losses);
 
 	return {
+		userId: user?.id,
 		totalGames: score.totalGames,
 		wins: score.wins,
 		losses: score.losses,
@@ -41,7 +43,7 @@ export function userToProfileStats(user: User | null): ProfileStatsVM {
 		bestElo: score.bestElo,
 		bestWinStreak,
 		currentStreak,
-		averageEloGain: 0, // needs match history
-		averageEloLoss: 0, // needs match history
+		averageEloGain: user.score.averageEloGain, // needs match history
+		averageEloLoss: user.score.averageEloLoss, // needs match history
 	};
 }

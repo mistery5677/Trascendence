@@ -28,6 +28,8 @@ export class getPublicProfileDto {
   id!: number;
   username!: string;
   avatarUrl!: string | null;
+  boardTheme!: number;
+  backgroundTheme!: number;
   createdAt!: Date;
   updatedAt!: Date;
   score!: Score;

@@ -1,9 +1,12 @@
 export type Score = {
+	elo: number;
 	wins: number;
 	losses: number;
 	draws: number;
-	elo: number;
-	bestElo: number;
+	totalGames: number;
+	bestWinStreak: number;
 	currentStreak: number;
-	totalGames: number; // total number of games played
+	averageEloGain: number;
+	averageEloLoss: number;
+	bestElo: number;
 };
