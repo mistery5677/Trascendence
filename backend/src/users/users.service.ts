@@ -264,6 +264,11 @@ export class UsersService {
         id: true,
         username: true,
         avatarUrl: true,
+        score: {
+          select: {
+            elo: true,
+          },
+        },
       },
     });
   }

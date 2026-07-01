@@ -80,7 +80,7 @@ export function ProfileStats({ stats, history }: Props) {
 				<div className="bg-stone-900/40 border border-white/10 rounded-xl p-5 backdrop-blur-md">
 					<div className="flex items-center justify-between mb-3">
 						<h3 className="text-white font-bold">
-							ELO Performance <span className="text-xl">{netElo >= 0 ? "▲" : "▼"}</span>
+							Today's ELO Performance <span className="text-xl">{netElo >= 0 ? "▲" : "▼"}</span>
 						</h3>
 						<span
 							className={`font-mono text-xs font-semibold tabular-nums px-2 py-0.5 rounded-full ${

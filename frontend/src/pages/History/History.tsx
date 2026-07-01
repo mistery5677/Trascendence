@@ -76,11 +76,13 @@ export function HistoryPage() {
 				<div className="pointer-events-none absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-amber-200/10 blur-3xl" />
 				<div className="pointer-events-none absolute -bottom-28 left-1/4 h-80 w-80 rounded-full bg-stone-600/20 blur-3xl" />
 
-				<div className="relative mx-auto w-full lg:w-[60%] rounded-3xl border border-stone-200/20 bg-stone-200/10 p-8 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
+				<div
+					className="relative mx-auto w-full lg:w-[60%] rounded-3xl border border-stone-200/20
+				bg-stone-200/10 p-8 shadow-[0_30px_80px_rgba(28,25,23,0.7)] backdrop-blur-2xl">
 					{/* Header */}
 					<header className="mb-8">
-						<h1 className="text-4xl font-extrabold tracking-tight flex gap-2 items-center text-emerald-200">
-							<History className="text-emerald-300" />
+						<h1 className="text-4xl font-extrabold tracking-tight flex gap-2 items-center text-button-green">
+							<History className="text-button-green" />
 							HISTORY
 						</h1>
 					</header>
@@ -94,20 +96,20 @@ export function HistoryPage() {
 									<tr>
 										<th
 											onClick={() => handleIcon(1)}
-											className="p-4 hover:bg-stone-700/20 cursor-pointer transition">
+											className="p-4 hover:bg-stone-700/20 cursor-pointer transition text-[15px] sm:text-2xl">
 											<div className="flex items-center justify-center gap-2">
 												Opponent {firstArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
 											</div>
 										</th>
 										<th
 											onClick={() => handleIcon(2)}
-											className="p-4 hover:bg-stone-700/40 cursor-pointer transition">
+											className="p-4 hover:bg-stone-700/40 cursor-pointer transition text-[15px] sm:text-2xl">
 											<div className="flex items-center justify-center gap-2">
 												Date {secondArrow ? arrowIcon["asc"] : arrowIcon["desc"]}
 											</div>
 										</th>
-										<th className="p-4 hover:bg-stone-700/40">Played As</th>
-										<th className="p-4 hover:bg-stone-700/40">Result</th>
+										<th className="p-4 hover:bg-stone-700/40 text-[15px] sm:text-2xl">Played As</th>
+										<th className="p-4 hover:bg-stone-700/40 text-[15px] sm:text-2xl">Result</th>
 									</tr>
 								</thead>
 
@@ -130,28 +132,33 @@ export function HistoryPage() {
 											</td>
 										</tr>
 									) : (
-										history.map((match,index) => {
-											let hoverResultColor = "text-slate-400";
-											let resultColor = "text-[#D6A756]";
-											if (match.result === "WIN") {
-												resultColor = "text-[#7FB077]";
-												hoverResultColor = "text-emerald-400";
-											} else if (match.result === "LOSS") {
-												resultColor = "text-[#E1707A]";
-												hoverResultColor = "text-red-100";
-											}
-
+										history.map((match, index) => {
 											const dateStr = new Date(match.createdAt).toLocaleDateString();
 
 											return (
 												<tr
 													key={match.gameId || index}
-													className="border-t border-stone-800 hover:bg-stone-800/40 transition-colors">
-													<td className="p-4 font-bold text-stone-200">{match.opponent}</td>
-													<td className="p-4 text-stone-400">{dateStr}</td>
-													<td className="p-4 text-stone-400">{match.playedAs}</td>
+													className="group cursor-pointer border-t border-stone-800 bg-sidebar-bg transition-colors hover:bg-stone-800/20">
+													<td className="p-4 font-bold sm:text-2xl text-[15px] text-stone-200">
+														{match.opponent}
+													</td>
+
+													<td className="p-4 text-stone-400 sm:text-2xl text-[15px]">
+														{dateStr}
+													</td>
+
+													<td className="p-4 text-stone-400 sm:text-2xl font-bold text-[15px]">
+														{match.playedAs}
+													</td>
+
 													<td
-														className={`p-4 font-black tracking-wider hover:${hoverResultColor} ${resultColor}`}>
+														className={`p-4 font-black tracking-wider sm:text-2xl text-[15px] transition-colors ${
+															match.result === "WIN"
+																? "text-[#7FB077] group-hover:text-emerald-400"
+																: match.result === "LOSS"
+																	? "text-[#E1707A] group-hover:text-red-500"
+																	: "text-[#D6A756] group-hover:text-yellow-400"
+														}`}>
 														{match.result}
 													</td>
 												</tr>

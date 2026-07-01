@@ -104,7 +104,7 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 							LOG
 						</span>
 					</div>
-					<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
+					<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 pl-3 sm:pl-0">
 						Last {Math.min(recentMatches.length, 3)} Match
 						{Math.min(recentMatches.length, 3) === 1 ? "" : "es"}
 					</span>
@@ -123,7 +123,8 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 									className="group flex items-center gap-4 px-6 py-4 hover:bg-white/2 transition-colors relative">
 									{/* Indicador de linha interativo discreto na borda interna */}
 									<div
-										className={`absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${matchResult === "WIN" ? "bg-[#7FB077]" : matchResult === "LOSS" ? "bg-[#E1707A]" : "bg-[#D6A756]"}`}
+										className={`absolute left-0 top-0 bottom-0 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity 
+											${matchResult === "WIN" ? "bg-[#7FB077]" : matchResult === "LOSS" ? "bg-[#E1707A]" : "bg-[#D6A756]"}`}
 									/>
 
 									<span className="font-mono text-xs text-stone-500 font-semibold w-6 shrink-0 group-hover:text-stone-400 transition-colors">
@@ -145,7 +146,9 @@ export function ProfileOverview({ stats, recentMatches = [] }: Props) {
 										<p className="text-sm font-semibold text-white tracking-wide truncate">
 											vs {match.opponent ?? "Unknown"}
 										</p>
-										<p className="text-xs text-stone-400 font-medium mt-0.5">{match.createdAt}</p>
+										<p className="text-xs text-stone-400 font-medium mt-0.5">
+											{new Date(match.createdAt).toLocaleDateString()}
+										</p>
 									</div>
 
 									<div className="text-right shrink-0">
