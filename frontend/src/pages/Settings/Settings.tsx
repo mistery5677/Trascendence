@@ -21,7 +21,7 @@ import { Profile } from "./Profile";
 
 function tabClass(isActive: boolean): string {
 	if (isActive) {
-		return "rounded-xl border border-emerald-300/30 bg-stone-700/70 px-4 py-3 text-left text-xl font-bold text-emerald-200";
+		return "rounded-xl border border-emerald-300/30 bg-stone-700/70 px-4 py-3 text-left text-xl font-bold text-emerald-500";
 	}
 
 	return "rounded-xl px-4 py-3 text-left font-light text-stone-300 transition-colors hover:bg-stone-800/70 hover:text-stone-100";
@@ -245,7 +245,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 						</p>
 					</header>
 
-					<div className="overflow-hidden rounded-2xl border border-stone-700/80 bg-stone-700/50 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]">
+					<div className="overflow-hidden rounded-2xl border border-stone-700/80 bg-sidebar-bg shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)]">
 						<div className="grid grid-cols-1 lg:grid-cols-[250px_1fr]">
 							<aside className="p-4 bg-stone-950/40">
 								<nav className="flex flex-col gap-2">
@@ -304,7 +304,7 @@ export function Settings({ tabOpt }: SettingsProps) {
 										<h2 className="text-2xl font-bold">Account</h2>
 										<div className="mt-6 rounded-2xl border border-stone-700/80 bg-stone-900/45 p-5">
 											<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-												<div className="flex items-center gap-4">
+												<div className=" flex items-center gap-4">
 													<img
 														src={
 															state.user?.avatarUrl
