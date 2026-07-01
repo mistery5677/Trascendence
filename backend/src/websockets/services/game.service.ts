@@ -53,6 +53,9 @@ export interface GameInstance {
     playerWName: string,
     playerBName: string,
 
+	  playerWAvatar?: string;
+  	playerBAvatar?: string;
+
     mode: "online" | "bot" | "ai";
   };
 
@@ -382,22 +385,26 @@ export class GameService {
 
       const result: ActiveGame[] = [];
       for (const [gameId, game] of activeGames) {
+        console.log(game.mode);
         let whitePlayerName = "Unknown";
         let blackPlayerName = "Unknown";
+        let whitePlayerAvatar = "Unknown";
+        let blackPlayerAvatar = "Unknown";
 
         const whitePlayer = await this.usersService.findOneById(parseInt(game.playerW));
         whitePlayerName = whitePlayer?.username ?? "Unknown";
+        whitePlayerAvatar = whitePlayer?.avatarUrl ?? "Unknown";
 
         if (game.mode === "online") {
           const blackPlayer = await this.usersService.findOneById(parseInt(game.playerB));
           blackPlayerName = blackPlayer?.username ?? "Unknown";
+          blackPlayerAvatar = blackPlayer?.avatarUrl ?? "Unknown";
         }
         else if (game.mode === "bot") {
           blackPlayerName = "Uncle Carlsen (bot)";
         }
         else if (game.mode === "ai") {
           blackPlayerName = "Uncle Carlsen (AI)";
-        const blackPlayer = blackPlayerName;
         }
         result.push({
             gameId,
@@ -407,6 +414,9 @@ export class GameService {
 
             playerWName: whitePlayerName,
             playerBName: blackPlayerName,
+
+            playerWAvatar: whitePlayerAvatar,
+            playerBAvatar: blackPlayerAvatar,
 
             mode: game.mode,
         });
